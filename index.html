@@ -116,7 +116,7 @@ function build2(){
  c.setTransform(2,0,0,2,0,0);can(272,128);can(282,128);can(292,128);c.setTransform(1,0,0,1,0,0);
 }
 build2();g=main;
-let t=0,chill=25,hum=0,wc=0,wL=0,trip=-1,warm=0,wf=false,woman=0,wb=0,lt=0,tripType='w',inEnd=2.8,shots=0,steady=0,haukiL=0,shotMode=false,aap=0,aapT=0,aSay=10,cans=0,state='ready',drinking=false,dp=0,applied=false,ot=0,reason='',best=0,cL=0,hL=0,msgL=['Napauta aloittaaksesi.','Älä palellu tai huku.'];
+let t=0,chill=25,hum=0,wc=0,wL=0,trip=-1,warm=0,wf=false,woman=0,wb=0,lt=0,tripType='w',inEnd=2.8,shots=0,steady=0,haukiL=0,shotMode=false,aap=0,aapT=0,aSay=10,cans=0,state='ready',drinking=false,dp=0,applied=false,ot=0,reason='',best=0,cL=0,hL=0,msgL=['Valitse vaikeustaso ja aloita.','Älä palellu tai huku.'];
 const flakes=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,v:12+Math.random()*20,p:Math.random()*6}));
 let steam=[];
 const bub=Array.from({length:12},(_,i)=>({x:66+i*16+(i%3)*4,o:i*3}));
@@ -151,6 +151,7 @@ document.getElementById('m').addEventListener('click',e=>{mute=!mute;e.target.te
 ['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>audioInit(),{passive:true}));
 document.addEventListener('visibilitychange',()=>{if(AC){if(document.hidden)AC.suspend();else AC.resume()}});
 function act(e){audioInit();if(stage===5){act5(e);return}if(stage===4){act4(e);return}if(stage===3){act3(e);return}if(stage===2){tap2(e);return}if(state==='sauna'){tapSauna(e);return}
+ if(state==='ready'&&e&&e.target===cv&&e.clientX!==undefined){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;if(y<92||y>126)return;if(x>=38&&x<=158)DIFF=0;else if(x>=162&&x<=282)DIFF=1;else return;try{localStorage.setItem('ph_diff',DIFF)}catch(x){}}
  if(state==='ready'||(state==='over'&&ot>(reason==='w'?2.6:1))){state='play';t=0;chill=25;hum=0;wc=0;wL=0;trip=-1;warm=0;woman=0;wf=false;shots=0;steady=0;haukiL=0;aap=0;aapT=0;shotMode=false;party=0;goBar.style.display='none';delete goBar.dataset.s;cans=0;drinking=false;dp=0;applied=false;cL=0;hL=0;msgL=['Illan viimeinen poreallas.','Älä palellu tai huku.'];return}
  if(state==='play'&&!drinking&&trip<0){drinking=true;shotMode=false;sCan()}
 }
@@ -169,7 +170,7 @@ function startS2(){stage=2;state='s2';Object.assign(S2,{px:150,py:150,gx:150,gy:
  msgL=['Etsi juomaa ja vaatetta baaria varten.'];
  document.getElementById('b').style.display='none';document.querySelector('.row').style.display='none';goBar.style.display='none';
  document.querySelector('p').textContent='Napauta paikkaa: Esa kävelee. Napauta samaa kohdetta uudelleen: käytä sitä.';sDoor();musicStart();if(ambG){ambG.gain.setTargetAtTime(0,AC.currentTime,.3);bubG.gain.setTargetAtTime(0,AC.currentTime,.3)}}
-function restartAll(){musicStop();engStop();murStop();showPad(false);{const b=document.getElementById('b');b.textContent='Juo olut';b.disabled=false}if(ambG){ambG.gain.setTargetAtTime(1,AC.currentTime,.3);bubG.gain.setTargetAtTime(1,AC.currentTime,.3)}stage=1;state='ready';party=0;document.getElementById('b').style.display='';document.querySelector('.row').style.display='';goBar.style.display='none';delete goBar.dataset.s;document.querySelector('p').textContent=P0;msgL=['Napauta aloittaaksesi.','Älä palellu tai huku.']}
+function restartAll(){musicStop();engStop();murStop();showPad(false);{const b=document.getElementById('b');b.textContent='Juo olut';b.disabled=false}if(ambG){ambG.gain.setTargetAtTime(1,AC.currentTime,.3);bubG.gain.setTargetAtTime(1,AC.currentTime,.3)}stage=1;state='ready';party=0;document.getElementById('b').style.display='';document.querySelector('.row').style.display='';goBar.style.display='none';delete goBar.dataset.s;document.querySelector('p').textContent=P0;msgL=['Valitse vaikeustaso ja aloita.','Älä palellu tai huku.']}
 function tap2(e){if(!e||e.clientX===undefined)return;if(S2.ph==='end'){startS3();return}if(S2.ph!=='play')return;
  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,h=HS.find(h=>x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h);
  if(!h){S2.gx=Math.max(12,Math.min(308,x));S2.gy=Math.max(138,Math.min(152,y<138?145:y));return}
@@ -360,7 +361,7 @@ function engStart(){if(!AC||eng)return;const o=AC.createOscillator(),f=AC.create
  s.buffer=nb;s.loop=true;f2.type='lowpass';f2.frequency.value=260;ng.gain.value=.14;og.gain.value=.1;l.frequency.value=14;lg.gain.value=.03;l.connect(lg);lg.connect(og.gain);
  o.connect(f);f.connect(og);og.connect(gn);s.connect(f2);f2.connect(ng);ng.connect(gn);gn.connect(master);o.start();s.start();l.start();eng={o,s,l,gn}}
 function engStop(){if(!eng)return;const e=eng;eng=null;e.gn.gain.setTargetAtTime(0,AC.currentTime,.2);setTimeout(()=>{try{e.o.stop();e.s.stop();e.l.stop()}catch(x){}},1200)}
-function startS3(){stage=3;state='s3';Object.assign(F,{t:0,ph:'fly',pt:0,x:0,h:{p:Math.min(40,hum*.6),w:25,a:20,k:0},sip:{p:0,w:0,a:0,k:0},si:{p:'c',w:'c',a:'c',k:'c'},th:{w:false,a:false},tn:{w:4,a:7},mood:50,say:null,sayT:0,nx:2.5,fly:null,sel:'c',hauki:S2.hasB?3:0,cans:0,slept:{w:0,a:0},al:0,cs:0});
+function startS3(){stage=3;state='s3';Object.assign(F,{t:0,ph:'fly',pt:0,x:0,h:{p:Math.min(40,hum*.6),w:25,a:20,k:0},sip:{p:0,w:0,a:0,k:0},si:{p:'c',w:'c',a:'c',k:'c'},th:{w:false,a:false},tn:{w:4,a:7},mood:50,say:null,sayT:0,nx:2.5,fly:null,sel:'c',hauki:S2.hasB?3:0,cans:0,slept:{w:0,a:0},al:0,cs:0,plaid:0});
  msgL=['Kermis: Tervetuloa kyytiin!','Tarjoile kuparia seuralle.'];
  const b=document.getElementById('b');b.style.display='';b.disabled=false;document.querySelector('.row').style.display='none';goBar.style.display='none';selBtn();
  document.querySelector('p').textContent='Napauta matkustajaa: Esa ojentaa juoman. Napauta Esaa: Esa juo itse. Oranssi nappi vaihtaa kuparin ja Haukin välillä. Kohtuus on valttia!';
@@ -373,12 +374,14 @@ function act3(e){const f=F;
  if(f.ph!=='fly'||f.fly||f.sip.p>0)return;
  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
  if(y>=80&&y<=113){if(x>=101&&x<119){f.sel='c';selBtn();return}if(x>=119&&x<127&&f.hauki>0){f.sel='h';selBtn();return}}
+ if(x>=262&&x<=314&&y>=76&&y<=114&&f.sel==='h'&&f.hauki>0){f.fly={who:'eng',it:'h',u:0};tn(500,700,.08,.04);return}
  const who=['a','w','p','k'].find(k=>Math.abs(x-(PX+SEAT[k]))<=13&&y>=68&&y<=118);if(who)serve(who)}
 function serve(who){const f=F,it=f.sel;if(it==='h'&&f.hauki<=0)return;
  if((who==='w'||who==='a')&&f.h[who]>=100){msgL=[(who==='w'?'Hempukka':'Aapeli')+' nukkuu jo sikeästi.'];return}
  if(who==='p'){drink('p',it);return}
  if(f.sip[who]>0)return;f.fly={who,it,u:0};tn(500,700,.08,.04)}
 function drink(who,it){const f=F;
+ if(who==='eng'){f.hauki--;selFix();f.plaid=10;f.say=['k','Kermis: Siirryimme Plaid-nopeuteen!'];f.sayT=3.5;msgL=['Esa kaatoi Haukea moottoriin!','PLAID-NOPEUS!'];sShot();nz(1.2,'highpass',1500,.25,4000);tn(120,900,1.2,.12,'sawtooth');if(eng)eng.o.frequency.setTargetAtTime(120,AC.currentTime,.3);return}
  if(who==='k'){if(it==='c'){f.say=['k','Kermis: Ei lentäessä! Baarissa sitten.'];f.sayT=3;sTalk(1);f.mood=Math.min(100,f.mood+2);return}
   f.hauki--;selFix();f.sip.k=1.3;f.si.k='h';sShot();f.ph='wobble';f.pt=0;f.say=['k','Kermis: HAUKEA?! No yks naukku...'];f.sayT=3;msgL=['Kermis otti Haukea!','Cessna lähtee lapasesta!'];return}
  f.sip[who]=1.3;f.si[who]=it;
@@ -386,7 +389,7 @@ function drink(who,it){const f=F;
  if(who==='p'){msgL=it==='h'?['Esa otti naukun Haukea.','Lämmittää mukavasti!']:pick([['Kippis! Kupari sihahtaa.'],['Esa: Ahh, kupari maistuu ilmassa!']]);return}
  if(f.th[who]){f.th[who]=false;f.mood=Math.min(100,f.mood+15);f.tn[who]=7+Math.random()*5}else f.mood=Math.min(100,f.mood+4);
  f.say=[who,it==='h'?(who==='w'?'Hempukka: Uuh, Hauki! Nyt kuumenee...':'Aapeli: Hauki! Nyt kiihtyy kuin ID.3!'):(who==='w'?pick(['Hempukka: Kiitos, komistus!','Hempukka: Kippis, Esa!']):pick(['Aapeli: Kiitti! Kippis!','Aapeli: Kupari on kuin ID.3: aina ladattu!']))];f.sayT=2.8;f.nx=Math.max(f.nx,3);sTalk(who==='w'?0:1)}
-function step3(dt){const f=F;f.t+=dt;musicTick();f.x+=(f.ph==='crash'?20:70)*dt;f.sayT-=dt;
+function step3(dt){const f=F;f.t+=dt;musicTick();f.x+=(f.ph==='crash'?20:70)*(f.plaid>0?4:1)*dt;if(f.plaid>0){f.plaid-=dt;f.t+=dt*.6;if(f.plaid<=0&&eng&&f.ph==='fly')eng.o.frequency.setTargetAtTime(62,AC.currentTime,.5)}f.sayT-=dt;
  ['p','w','a','k'].forEach(k=>{f.sip[k]=Math.max(0,f.sip[k]-dt)});
  if(f.ph==='fly'){
   ['p','w','a'].forEach(k=>{if(f.h[k]<100)f.h[k]=Math.max(0,f.h[k]-.5*dt)});
@@ -467,7 +470,7 @@ function zzz(x,y,T){g.font='bold 6px monospace';const u=(T*.6)%1;g.globalAlpha=1
 function plane3(T){const f=F;hull3(T,()=>cabin3(T));
  ['w','a'].forEach(k=>{const cx=SEAT[k];if(f.h[k]>=100)zzz(cx+5,-18,T);else if(f.th[k]&&Math.sin(T*8)>-.3){ell(cx+10,-27,5.5,5.5,'#fffffa','#222');g.save();g.translate(cx+10,-27);g.scale(.55,.55);can(-3.5,-6);g.restore()}});
  if(f.ph==='out')zzz(SEAT.p+6,-20,T);
- if(f.fly){const q=f.fly,a=SEAT.p-17,b=YB-9,c=SEAT[q.who],d=YB-12,u=q.u,x=a+(c-a)*u,y=b+(d-b)*u-Math.sin(u*Math.PI)*10;g.save();g.translate(x,y);g.rotate(u*6*(c<a?-1:1));q.it==='h'?bottle(-2,-6):can(-3,-6);g.restore()}}
+ if(f.fly){const q=f.fly,a=SEAT.p-17,b=YB-9,c=q.who==='eng'?112:SEAT[q.who],d=q.who==='eng'?-2:YB-12,u=q.u,x=a+(c-a)*u,y=b+(d-b)*u-Math.sin(u*Math.PI)*10;g.save();g.translate(x,y);g.rotate(u*6*(c<a?-1:1));q.it==='h'?bottle(-2,-6):can(-3,-6);g.restore()}}
 function box3(t1,ls){g.fillStyle='rgba(0,0,0,.6)';g.fillRect(0,10,W,150);const h=32+ls.length*12,y0=85-h/2;R('#20243a',28,y0,264,h);R('#fffff4',30,y0+2,260,h-4);g.font='bold 14px monospace';tx(t1,W/2,y0+20,'#000','center');g.font='bold 8px monospace';ls.forEach((l,i)=>tx(l,W/2,y0+34+i*12,'#000','center'))}
 function hud3(){const f=F;let q=g.createLinearGradient(0,0,0,10);q.addColorStop(0,'#fff');q.addColorStop(1,'#c8ccd8');g.fillStyle=q;g.fillRect(0,0,W,10);R('#000',0,10,W,.5);
  tx('VAIHE 3: CESSNAN KYYDISSÄ',4,8,'#000');tx(f.ph==='fly'?'Baariin: '+Math.max(0,Math.ceil(45-f.t))+'s':'Kupareita: '+f.cans,W-4,8,'#000','right');
@@ -497,7 +500,7 @@ function draw3(T){const f=F;g.font='bold 8px monospace';g.textBaseline='alphabet
   const fl=Math.sin(T*13)>-.85?1:.3;g.shadowColor='#ff3a9a';g.shadowBlur=8*fl;g.font='bold 12px monospace';tx('BAARI',bx,by-84,`rgba(255,80,170,${fl})`,'center');g.shadowBlur=0;g.font='bold 8px monospace'}
  g.fillStyle='#c8d4ee';g.beginPath();g.moveTo(0,160);for(let x=0;x<=W;x+=4)g.lineTo(x,gy0+4*Math.sin((x+f.x*.6)/40));g.lineTo(W,160);g.fill();
  for(let i=0;i<26;i++){const x=((i*13-f.x*.6)%(W+20)+W+20)%(W+20)-10,b=gy0+4*Math.sin((x+f.x*.6)/40)+2,h=5+(i*7%5)+lu*6;g.fillStyle='#0d3a30';g.beginPath();g.moveTo(x,b-h);g.lineTo(x+3+h/5,b);g.lineTo(x-3-h/5,b);g.fill();g.fillStyle='#eaf2ff';g.fillRect(x-.5,b-h,1,1.2)}
- CL3.forEach(c=>{const x=((c[0]-f.x*c[3])%(W+80)+W+80)%(W+80)-40;ell(x,c[1],c[2],c[2]*.4,'rgba(200,210,240,.18)');ell(x+c[2]*.4,c[1]-2,c[2]*.6,c[2]*.35,'rgba(220,230,255,.15)')});
+ CL3.forEach(c=>{const x=((c[0]-f.x*c[3])%(W+80)+W+80)%(W+80)-40;ell(x,c[1],c[2],c[2]*.4,'rgba(200,210,240,.18)');ell(x+c[2]*.4,c[1]-2,c[2]*.6,c[2]*.35,'rgba(220,230,255,.15)')});if(f.plaid>0){const a=Math.min(1,f.plaid/1.5)*.32;g.save();g.setTransform(1,0,0,1,0,0);g.globalAlpha=a;g.drawImage(cv,0,20,640,300,10,20,640,300);g.globalAlpha=a*.7;g.drawImage(cv,0,20,640,300,22,20,640,300);g.restore();g.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<18;i++){const y=14+((i*53)%140),x=W-((f.t*900+i*97)%(W+80));g.fillRect(x,y,30+(i%4)*12,.6)}}
  let px=PX,py=PY+Math.sin(T*1.6)*1.5,rot=Math.sin(T*.9)*.015;
  if(f.ph==='wobble'){rot=Math.sin(f.pt*5)*.12*Math.min(1,f.pt)+(f.pt>2?(f.pt-2)*.35:0);py+=Math.sin(f.pt*7)*3+(f.pt>2?(f.pt-2)*20:0)}
  if(f.ph==='crash'){rot=.4+f.pt*.8;py+=30+f.pt*60;px+=f.pt*10}
@@ -714,7 +717,7 @@ function draw4(T){const b=B;g.font='bold 8px monospace';g.textBaseline='alphabet
  const ku=kunto(b.h);tx('KUNTO:',206,193,'#000');tx(ku[0],244,193,ku[1]);
  if(b.ph==='out'&&b.pt>.8)box3('ESA SAMMUI TISKILLE',['Taistelukunto hukkui kuparin pohjalle.','Napauta pelataksesi alusta.']);
  if(b.ph==='fight'&&b.pt>.6)box3('TAISTELU!',['Esa vs. Diesel-Pena ja Turbo-Tapsa','Taistelukunto: '+ku[0]+' (humala '+Math.round(b.h)+')','Hauki-shotteja: '+b.hs+'   Fiilis: '+Math.round(b.fi)+' %','Ohjaus: ristiohjain + LYÖNTI / POTKU','Napauta: taisteluun!'])}
-const FL=150,K={keys:{l:0,r:0,u:0,d:0}};
+const FL=150,K={keys:{l:0,r:0,u:0,d:0}};let DIFF=0;try{DIFF=+(localStorage.getItem('ph_diff')||0)===1?1:0}catch(x){}
 const MV={punch:{h:'mid',d:6,r:26,st:.08,ac:.1,rc:.16},upper:{h:'hi',d:9,r:22,st:.12,ac:.1,rc:.22},lowp:{h:'lo',d:5,r:24,st:.08,ac:.1,rc:.16,cr:1},kick:{h:'mid',d:8,r:32,st:.13,ac:.1,rc:.2},
  hikick:{h:'hi',d:10,r:32,st:.17,ac:.1,rc:.24},bkick:{h:'mid',d:11,r:32,st:.22,ac:.1,rc:.26},sweep:{h:'lo',d:7,r:34,st:.14,ac:.1,rc:.3,cr:1,kd:1},fkick:{h:'mid',d:14,r:30,st:.05,ac:.4,rc:0,air:1,kd:1},
  jpunch:{h:'mid',d:6,r:24,st:.05,ac:.25,rc:0,air:1},spin:{h:'mid',d:22,r:38,st:.1,ac:.5,rc:.25,both:1,kd:1},smoke:{h:'mid',d:0,r:0,st:.5,ac:.1,rc:.5,fx:1},throw:{h:'mid',d:0,r:0,st:.3,ac:.1,rc:.3,fx:2},dash:{h:'mid',d:12,r:22,st:.3,ac:.5,rc:.3,dash:1}};
@@ -755,7 +758,7 @@ function fPress(a){if(stage===5&&K.ph==='fight')K.q.push([K.ck+dly(B.h),a])}
 function startFight(){stage=5;state='s5';Object.assign(K,{foe:0,hpE:100,fx:[],q:[],hist:[],ck:0,say:null,sayT:0});setupBout();showPad(true);
  document.querySelector('p').textContent='Ristiohjain liikuttaa (ylös = hyppy, alas = kyykky, taaksepäin = torjunta). LYÖNTI ja POTKU yhdessä suunnan kanssa antavat eri liikkeitä. Näppäimistö: nuolet tai WASD, J = lyönti, K = potku, L = Hauki.';
  musicStop();murStop();musicStart('o');gong()}
-function setupBout(){const fd=FOES[K.foe];K.e=mkF(SP.e[S2.outfit],100,1,K.hpE);K.f=mkF(SP[fd.sp],222,-1,fd.hp,fd);Object.assign(K,{ph:'intro',t:0,time:75,proj:[],smoke:0,shake:0,nx:4,q:[]});
+function setupBout(){const f0=FOES[K.foe],fd=DIFF?Object.assign({},f0,{hp:f0.hp*1.25,mult:f0.mult*1.25,tk:f0.tk*.75,blk:f0.blk+.12,spd:f0.spd*1.15,jmp:f0.jmp?f0.jmp+.08:0}):f0;K.e=mkF(SP.e[S2.outfit],100,1,K.hpE);K.f=mkF(SP[fd.sp],222,-1,fd.hp,fd);Object.assign(K,{ph:'intro',t:0,time:75,proj:[],smoke:0,shake:0,nx:4,q:[]});
  msgL=['Erä '+(K.foe+1)+': Esa vs. '+(K.foe?'Turbo-Tapsa':'Diesel-Pena'),K.foe?'Varo turboryntäystä ja hylsyavaimia!':'Varo pakokaasupilveä!']}
 function canAct(f){return!f.atk&&f.y===0&&['idle','walk','crouch','block','cblock'].includes(f.st)}
 function startAtk(f,n){const m=MV[n];f.atk={m,t:0,hit:false};f.st='atk';if(!m.air)f.vx=0;if(!m.fx)sWhoosh()}
@@ -799,8 +802,8 @@ function ai(f,o,dt){const fd=f.fd;f.sc-=dt;
  f.th-=dt;
  if(f.th>0){if(d>fd.pref+8){f.st='walk';f.vx=dir*fd.spd;f.wk+=dt}else if(d<fd.pref-10){f.st='walk';f.vx=-dir*fd.spd*.6;f.wk+=dt}else{f.st='idle';f.vx=0}return}
  f.th=fd.tk*(.6+Math.random()*.9);
- if(f.sc<=0){if(fd.sp==='pe'&&d<80){f.sc=9;startAtk(f,'smoke');return}
-  if(fd.sp==='ta'){f.sc=5+Math.random()*2;if(d>70&&Math.random()<.55){startAtk(f,'throw');return}if(d>45){startAtk(f,'dash');msgL=['TURBORYNTÄYS!','Hyppää yli!'];tn(200,900,.4,.1,'sawtooth');return}}}
+ if(f.sc<=0){if(fd.sp==='pe'&&d<80){f.sc=DIFF?6.5:9;startAtk(f,'smoke');return}
+  if(fd.sp==='ta'){f.sc=(5+Math.random()*2)*(DIFF?.7:1);if(d>70&&Math.random()<.55){startAtk(f,'throw');return}if(d>45){startAtk(f,'dash');msgL=['TURBORYNTÄYS!','Hyppää yli!'];tn(200,900,.4,.1,'sawtooth');return}}}
  if(fd.jmp&&d<80&&d>30&&Math.random()<fd.jmp){f.vy=150;f.y=.01;f.vx=dir*62;f.st='jump';f.jk=.22;return}
  const n=pick(fd.moves);if(d<=MV[n].r-2)startAtk(f,n);else{f.st='walk';f.vx=dir*fd.spd}}
 function stepFight(dt){K.t+=dt;musicTick();K.sayT-=dt;K.shake=Math.max(0,K.shake-dt);K.smoke=Math.max(0,K.smoke-dt);K.fx.forEach(x=>x.t+=dt);K.fx=K.fx.filter(x=>x.t<.45);
@@ -868,7 +871,7 @@ function drawFight(T){const e=K.e,f=K.f;g.font='bold 8px monospace';g.textBaseli
  g.restore();
  hpBar(8,130,e.hp,e.mhp,'ESA',false);hpBar(182,130,f.hp,f.mhp,f.fd.name,true);
  g.save();g.font='bold 11px monospace';g.textAlign='center';g.fillStyle='#fff';g.shadowColor='#000';g.shadowBlur=3;g.fillText(Math.max(0,Math.ceil(K.time)),160,22);g.restore();
- let q=g.createLinearGradient(0,0,0,10);q.addColorStop(0,'#fff');q.addColorStop(1,'#c8ccd8');g.fillStyle=q;g.fillRect(0,0,W,10);R('#000',0,10,W,.5);tx('VAIHE 5: TAISTELU – ERÄ '+(K.foe+1)+'/2',4,8,'#000');tx('Hauki: '+B.hs,W-4,8,'#000','right');
+ let q=g.createLinearGradient(0,0,0,10);q.addColorStop(0,'#fff');q.addColorStop(1,'#c8ccd8');g.fillStyle=q;g.fillRect(0,0,W,10);R('#000',0,10,W,.5);tx('VAIHE 5: TAISTELU – ERÄ '+(K.foe+1)+'/2'+(DIFF?' (KOVA)':''),4,8,'#000');tx('Hauki: '+B.hs,W-4,8,'#000','right');
  q=g.createLinearGradient(0,160,0,200);q.addColorStop(0,'#b8bccc');q.addColorStop(1,'#7c8096');g.fillStyle=q;g.fillRect(0,160,W,40);R('#fff',0,160,W,.6);R('#20243a',4,164,198,32);
  q=g.createLinearGradient(0,165,0,195);q.addColorStop(0,'#fdfdf6');q.addColorStop(1,'#e4e4d4');g.fillStyle=q;g.fillRect(5,165,196,30);msgL.forEach((l,i)=>tx(l,9,177+i*11,'#000'));
  const ku=kunto(B.h);tx('KUNTO:',206,172,'#000');tx(ku[0],244,172,ku[1]);tx('VOIMA: '+Math.round(pow(B.h)*100)+' %',206,183,'#000');tx('VIIVE: '+Math.round(dly(B.h)*1000)+' ms',206,194,'#000');
@@ -1060,7 +1063,7 @@ function draw(T){if(stage===5){drawFight(T);return}if(stage===4){draw4(T);return
  if(state==='ready'||(state==='over'&&ot>(reason==='w'?2.6:.4))){
   D('#000',0,11,W,149);R('#000',50,46,220,76);R('#fff',52,48,216,72);
   g.font='bold 14px monospace';
-  if(state==='ready'){tx('PALJUN HERRA',W/2,72,'#000','center');g.font='bold 8px monospace';tx('Istu altaassa, nauti kuparisista tölkeistä.',W/2,90,'#000','center');tx('Napauta aloittaaksesi.',W/2,108,'#000','center')}
+  if(state==='ready'){R('#000',28,28,264,118);R('#fff',30,30,260,114);tx('PALJUN HERRA',W/2,52,'#000','center');g.font='bold 8px monospace';tx('Istu altaassa, nauti kuparisista tölkeistä.',W/2,68,'#000','center');tx('Valitse vaikeustaso:',W/2,86,'#000','center');[[40,'NORMAALI',null,'#3b7dd8'],[164,'KOVA KUIN','FÄTRONIN KULUTUS','#b8542a']].forEach(([x,a,b2,c],i)=>{R('#20243a',x-1,93,118,32);R(c,x,94,116,30);if(DIFF===i){g.strokeStyle='#e8a800';g.lineWidth=1.5;g.strokeRect(x-2.5,91.5,121,35)}if(b2){tx(a,x+58,106,'#fff','center');tx(b2,x+58,117,'#fff','center')}else tx(a,x+58,112,'#fff','center')});g.font='7px monospace';tx('Kova: vaikeampi taistelu, muuten sama peli.',W/2,137,'#555','center')}
   else{tx(reason==='d'?'ESA VAJOSI':reason==='w'?'ALLAS KELTAINEN':'ESA JÄÄTYI',W/2,72,'#000','center');g.font='bold 8px monospace';tx('Aika: '+m+':'+(s<10?'0':'')+s+'   Tölkit: '+cans,W/2,90,'#000','center');tx('Paras: '+Math.floor(best/60)+':'+('0'+Math.floor(best%60)).slice(-2)+'   Napauta uudelleen.',W/2,108,'#000','center')}
  }
 }
