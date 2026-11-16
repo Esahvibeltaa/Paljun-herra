@@ -361,7 +361,7 @@ const L3={
  p2:['Esa: Mä rakastan teitä kaikkia!','Esa: Onko tää kone vai poreallas?','Esa: Hikk! Minne me oltiinkaan menossa?'],
  k:['Kerma: Hevi soi kuulokkeissa!','Kerma: Pitäkää kiinni, ilmakuoppa!','Kerma: Rock and roll, kohti baaria!','Kerma: Mä lennän, te juotte. Sopimus.','Kerma: Kohta näkyy baarin valot!'],
  a:['Aapeli: Mikä on punainen ja huono hampaille? Tiili!','Aapeli: Lehmä trampoliinilla? Pirtelöä!','Aapeli: Miksi lentäjä ei leiki piiloa? Tutka!','Aapeli: Mitä lumiukko juo? Jääteetä!','Aapeli: Mikä kala ei ui? Kalakukko!'],
- v:['Aapeli: VW on best! Kupla ei jäädy ikinä.','Aapeli: Golf, Passat, Kupla. Kaikki parhaita!','Aapeli: Tähän koneeseen VW:n moottori!','Aapeli: Mun Kuplassa on enemmän jalkatilaa.'],
+ v:['Aapeli: VW ID.3 on best! Sähköllä kulkee.','Aapeli: ID.3 on hiljainen ja nopee. Best!','Aapeli: Tähän koneeseen ID.3:n akku!','Aapeli: Mun ID.3:ssa on enemmän jalkatilaa.'],
  w0:['Nainen: Ihana lentää tähtien alla!','Nainen: Toivottavasti siellä soi iskelmä!','Nainen: Esa, tarjoatko mulle kuparin?'],
  w1:['Nainen: Esa, sä oot aika komee tänään.','Nainen: Istutaanko baarissa vierekkäin?','Nainen: Mä haluun tanssia sun kanssa!'],
  w2:['Nainen: Tästä tulee kuuma ilta, Esa...','Nainen: Baarin jälkeen paljuun, kahdestaan?','Nainen: Mulla on kuuma, eikä se oo sauna!','Nainen: Lupaan illan, jota et unohda!']};
@@ -396,13 +396,13 @@ function drink(who,it){const f=F;
  if(it==='h'){f.hauki--;selFix();f.h[who]+=26;sShot()}else{f.h[who]+=who==='p'?16:14;f.cans++;sCan()}
  if(who==='p'){msgL=it==='h'?['Esa otti naukun Haukea.','Lämmittää mukavasti!']:pick([['Kippis! Kupari sihahtaa.'],['Esa: Ahh, kupari maistuu ilmassa!']]);return}
  if(f.th[who]){f.th[who]=false;f.mood=Math.min(100,f.mood+15);f.tn[who]=7+Math.random()*5}else f.mood=Math.min(100,f.mood+4);
- f.say=[who,it==='h'?(who==='w'?'Nainen: Uuh, Hauki! Nyt kuumenee...':'Aapeli: Hauki! Nyt kulkee kuin Kupla!'):(who==='w'?pick(['Nainen: Kiitos, komistus!','Nainen: Kippis, Esa!']):pick(['Aapeli: Kiitti! Kippis!','Aapeli: Kupari on kuin VW: luotettava!']))];f.sayT=2.8;f.nx=Math.max(f.nx,3);sTalk(who==='w'?0:1)}
+ f.say=[who,it==='h'?(who==='w'?'Nainen: Uuh, Hauki! Nyt kuumenee...':'Aapeli: Hauki! Nyt kiihtyy kuin ID.3!'):(who==='w'?pick(['Nainen: Kiitos, komistus!','Nainen: Kippis, Esa!']):pick(['Aapeli: Kiitti! Kippis!','Aapeli: Kupari on kuin ID.3: aina ladattu!']))];f.sayT=2.8;f.nx=Math.max(f.nx,3);sTalk(who==='w'?0:1)}
 function step3(dt){const f=F;f.t+=dt;musicTick();f.x+=(f.ph==='crash'?20:70)*dt;f.sayT-=dt;
  ['p','w','a','k'].forEach(k=>{f.sip[k]=Math.max(0,f.sip[k]-dt)});
  if(f.ph==='fly'){
   ['p','w','a'].forEach(k=>{if(f.h[k]<100)f.h[k]=Math.max(0,f.h[k]-.5*dt)});
   if(f.fly){f.fly.u+=dt/.55;if(f.fly.u>=1){const q=f.fly;f.fly=null;drink(q.who,q.it)}}
-  ['w','a'].forEach(k=>{if(f.h[k]>=100){if(!f.slept[k]){f.slept[k]=1;f.th[k]=false;msgL=k==='w'?['Nainen nukahti kesken lauseen.','Kuuma ilta jäi lupaukseksi.']:['Aapeli kuorsaa kuin VW:n moottori.']}return}
+  ['w','a'].forEach(k=>{if(f.h[k]>=100){if(!f.slept[k]){f.slept[k]=1;f.th[k]=false;msgL=k==='w'?['Nainen nukahti kesken lauseen.','Kuuma ilta jäi lupaukseksi.']:['Aapeli nukkuu hiljaa kuin ID.3.']}return}
    if(!f.th[k]){f.tn[k]-=dt;if(f.tn[k]<=0){f.th[k]=true;if(f.sayT<=0||f.say[0]!=='k'){f.say=[k,pick(['Kupari tänne!','Onko kuparia?','Janottaa!'])];f.sayT=2.4;sTalk(k==='w'?0:1)}}}});
   f.mood=Math.max(0,Math.min(100,f.mood+(f.th.w||f.th.a?-2.5:.5)*dt));
   f.nx-=dt;if(f.nx<=0&&f.sayT<=0){f.nx=3.2+Math.random()*2.5;const c=[['p',pick(f.h.p>60?L3.p2:L3.p)],['k',pick(L3.k)]];
@@ -546,7 +546,7 @@ function step(dt){if(stage===3){step3(dt);return}if(stage===2){step2(dt);return}
  haukiL=Math.max(0,haukiL-2.5*dt);
  if(party<100){if(aap===1&&woman===1&&trip<0)party=Math.min(100,party+2.2*dt);else party=Math.max(0,party-.5*dt)}else if(!goBar.dataset.s){goBar.dataset.s=1;goBar.style.display='block';msgL=['Seura on valmis lähtemään!','Paina "Lähdetään baariin".']}
  if(shots===0&&trip<0){if(hum>=15&&hum<=55)steady+=dt;else steady=Math.max(0,steady-dt*1.5);if(steady>=STEADY){shots=3;steady=0;aapT=0;msgL=['Hauki-pullo ilmestyi altaan reunalle!','Ota kulaus H-napilla.'];tn(660,990,.2,.08);tn(990,1320,.25,.08,'sine',.2)}}
- if(aap===1&&trip<0){if(shots===0){aapT+=dt;if(aapT>14){aap=0;msgL=['Aapeli: Kiitos Haukesta!','Aapeli lähtee kotiin nukkumaan.'];sDoor()}}aSay-=dt;if(aSay<=0){aSay=14+Math.random()*8;msgL=pick([['Aapeli: Ei tää mitään pakkasta oo!'],['Aapeli: Hauki on kala ja pullo.'],['Aapeli: Mun Kupla starttas tänäänkin!'],['Aapeli: Kippis, Esa!']])}}
+ if(aap===1&&trip<0){if(shots===0){aapT+=dt;if(aapT>14){aap=0;msgL=['Aapeli: Kiitos Haukesta!','Aapeli lähtee kotiin nukkumaan.'];sDoor()}}aSay-=dt;if(aSay<=0){aSay=14+Math.random()*8;msgL=pick([['Aapeli: Ei tää mitään pakkasta oo!'],['Aapeli: Hauki on kala ja pullo.'],['Aapeli: Mun ID.3 lähti pakkasellakin!'],['Aapeli: Kippis, Esa!']])}}
  if(haukiL>=70&&trip<0&&!drinking&&Math.random()<dt*.6){trip=0;tripType='r';TRIP=3.6;inEnd=99;haukiL=15;msgL=['Esa: Haluan pyöriä hangessa!','Hauki puhuu hänen suullaan.']}
  const cl=chill>80?2:chill>50?1:0,hl=hum>75?2:hum>45?1:0;
  if(cl>cL)msgL=cl===2?['Hampaat kalisevat! Juo jotain!']:['Pakkanen nipistää poskia.','Pitäisikö ottaa olut?'];cL=cl;
