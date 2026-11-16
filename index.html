@@ -116,7 +116,7 @@ function build2(){
  c.setTransform(2,0,0,2,0,0);can(272,128);can(282,128);can(292,128);c.setTransform(1,0,0,1,0,0);
 }
 build2();g=main;
-let t=0,chill=25,hum=0,wc=0,wL=0,trip=-1,warm=0,wf=false,woman=0,wb=0,lt=0,tripType='w',inEnd=2.8,shots=0,steady=0,haukiL=0,shotMode=false,aap=0,aapT=0,aSay=10,cans=0,state='ready',drinking=false,dp=0,applied=false,ot=0,reason='',best=0,cL=0,hL=0,msgL=['Napauta aloittaaksesi.','Pidä tahti: ei paleltua, ei hukkua.'];
+let t=0,chill=25,hum=0,wc=0,wL=0,trip=-1,warm=0,wf=false,woman=0,wb=0,lt=0,tripType='w',inEnd=2.8,shots=0,steady=0,haukiL=0,shotMode=false,aap=0,aapT=0,aSay=10,cans=0,state='ready',drinking=false,dp=0,applied=false,ot=0,reason='',best=0,cL=0,hL=0,msgL=['Napauta aloittaaksesi.','Älä palellu tai huku.'];
 const flakes=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,v:12+Math.random()*20,p:Math.random()*6}));
 let steam=[];
 const bub=Array.from({length:12},(_,i)=>({x:66+i*16+(i%3)*4,o:i*3}));
@@ -151,7 +151,7 @@ document.getElementById('m').addEventListener('click',e=>{mute=!mute;e.target.te
 ['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>audioInit(),{passive:true}));
 document.addEventListener('visibilitychange',()=>{if(AC){if(document.hidden)AC.suspend();else AC.resume()}});
 function act(e){audioInit();if(stage===2){tap2(e);return}if(state==='sauna'){tapSauna(e);return}
- if(state==='ready'||(state==='over'&&ot>(reason==='w'?2.6:1))){state='play';t=0;chill=25;hum=0;wc=0;wL=0;trip=-1;warm=0;woman=0;wf=false;shots=0;steady=0;haukiL=0;aap=0;aapT=0;shotMode=false;party=0;goBar.style.display='none';delete goBar.dataset.s;cans=0;drinking=false;dp=0;applied=false;cL=0;hL=0;msgL=['Illan viimeinen poreallas.','Pidä tahti: ei paleltua, ei hukkua.'];return}
+ if(state==='ready'||(state==='over'&&ot>(reason==='w'?2.6:1))){state='play';t=0;chill=25;hum=0;wc=0;wL=0;trip=-1;warm=0;woman=0;wf=false;shots=0;steady=0;haukiL=0;aap=0;aapT=0;shotMode=false;party=0;goBar.style.display='none';delete goBar.dataset.s;cans=0;drinking=false;dp=0;applied=false;cL=0;hL=0;msgL=['Illan viimeinen poreallas.','Älä palellu tai huku.'];return}
  if(state==='play'&&!drinking&&trip<0){drinking=true;shotMode=false;sCan()}
 }
 let TRIP=4.4;
@@ -169,7 +169,7 @@ function startS2(){stage=2;state='s2';Object.assign(S2,{px:150,py:150,gx:150,gy:
  msgL=['Etsi juomaa ja vaatetta baaria varten.'];
  document.getElementById('b').style.display='none';document.querySelector('.row').style.display='none';goBar.style.display='none';
  document.querySelector('p').textContent='Napauta paikkaa: Esa kävelee. Napauta samaa kohdetta uudelleen: käytä sitä.';sDoor();musicStart();if(ambG){ambG.gain.setTargetAtTime(0,AC.currentTime,.3);bubG.gain.setTargetAtTime(0,AC.currentTime,.3)}}
-function restartAll(){musicStop();if(ambG){ambG.gain.setTargetAtTime(1,AC.currentTime,.3);bubG.gain.setTargetAtTime(1,AC.currentTime,.3)}stage=1;state='ready';party=0;document.getElementById('b').style.display='';document.querySelector('.row').style.display='';goBar.style.display='none';delete goBar.dataset.s;document.querySelector('p').textContent=P0;msgL=['Napauta aloittaaksesi.','Pidä tahti: ei paleltua, ei hukkua.']}
+function restartAll(){musicStop();if(ambG){ambG.gain.setTargetAtTime(1,AC.currentTime,.3);bubG.gain.setTargetAtTime(1,AC.currentTime,.3)}stage=1;state='ready';party=0;document.getElementById('b').style.display='';document.querySelector('.row').style.display='';goBar.style.display='none';delete goBar.dataset.s;document.querySelector('p').textContent=P0;msgL=['Napauta aloittaaksesi.','Älä palellu tai huku.']}
 function tap2(e){if(!e||e.clientX===undefined)return;if(S2.ph==='end'){restartAll();return}if(S2.ph!=='play')return;
  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,h=HS.find(h=>x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h);
  if(!h){S2.gx=Math.max(12,Math.min(308,x));S2.gy=Math.max(138,Math.min(152,y<138?145:y));return}
