@@ -163,7 +163,7 @@ const goBar=document.getElementById('go'),P0=document.querySelector('p').textCon
 goBar.addEventListener('click',()=>{if(state==='play'&&party>=100)startS2()});
 const OUT=['Uimashortsit','Haalari','Farkut+paita','Pukin asu','Frakki','Pyyhe'];
 const OMSG=[['Uimashortsit. Ei ihan baarivaate.'],['Hiihtohaalari. Lämmin, muttei baariin.'],['Farkut ja kauluspaita. Näin sopii!'],['Joulupukin asu? Ei nyt, Esa.'],['Frakki ja silinteri! Tyylikästä.'],['Pelkkä pyyhe. Ei käy baariin.']];
-const SAY=[[1,'Toivottavasti baarissa on Haukea!'],[1,'Baarissa on varmaan kova DJ!'],[1,'Mä tilaan tuopin ja makkaraa.'],[0,'Mä haluan tanssia koko yön!'],[0,'Soiko siellä iskelmää?'],[0,'En oo ennen lentänyt Cessnalla!'],[1,'Kerma osaa lentää kännissäkin.'],[0,'Tuo meille vielä yksi kuparinen!']];
+const SAY=[[1,'Toivottavasti baarissa on Haukea!'],[1,'Baarissa on varmaan kova DJ!'],[1,'Mä tilaan tuopin ja makkaraa.'],[0,'Mä haluan tanssia koko yön!'],[0,'Soiko siellä iskelmää?'],[0,'En oo ennen lentänyt Cessnalla!'],[1,'Kermis osaa lentää kännissäkin.'],[0,'Tuo meille vielä yksi kuparinen!']];
 const HS=[{id:'bed',x:14,y:78,w:86,h:60,tx:60,ty:146},{id:'ward',x:252,y:40,w:56,h:96,tx:266,ty:148},{id:'phone',x:160,y:96,w:90,h:34,tx:205,ty:150}];
 function startS2(){stage=2;state='s2';Object.assign(S2,{px:150,py:150,gx:150,gy:150,dir:1,hasB:false,bt:1,outfit:0,ph:'play',pt:0,say:null,sayT:0,nextSay:3,sipT:[0,0],nextSip:[2,5],t:0,wk:0,wt:0,m1:0,m2:0});
  msgL=['Etsi juomaa ja vaatetta baaria varten.'];
@@ -179,13 +179,13 @@ function useH(id){const s=S2;
  else if(id==='ward'){s.outfit=(s.outfit+1)%6;s.wt=3;sDoor();nz(.4,'bandpass',2500,.1,1200);nz(.3,'highpass',4500,.06,6500);if(s.hasB&&(s.outfit===2||s.outfit===4))tn(880,1320,.2,.07);msgL=OMSG[s.outfit]}
  else if(!s.hasB)msgL=['Ei baariin ilman Hauki-pulloa!','Etsi se ensin sängyn alta.'];
  else if(s.outfit!==2&&s.outfit!==4)msgL=['Näissä vaatteissa ei baariin päästä.','Vaihda asu kaapista.'];
- else{s.ph='call';s.pt=0;duck(.1);[.95,1.5].forEach(d=>tn(450,450,.4,.06,'sine',d));msgL=['Esa soittaa Kermalle...'];[0,.18,.36,.54,.72].forEach(d=>tn(1209+d*300,1209+d*300,.1,.08,'sine',d))}}
+ else{s.ph='call';s.pt=0;duck(.1);[.95,1.5].forEach(d=>tn(450,450,.4,.06,'sine',d));msgL=['Esa soittaa Kermikselle...'];[0,.18,.36,.54,.72].forEach(d=>tn(1209+d*300,1209+d*300,.1,.08,'sine',d))}}
 function step2(dt){const s=S2;s.t+=dt;musicTick();flakes.forEach(f=>{f.y+=f.v*dt;if(f.y>H)f.y=0});
  if(s.ph==='play'){const dx=s.gx-s.px,dy=s.gy-s.py,d=Math.hypot(dx,dy);if(d>1){const m=Math.min(d,70*dt);s.px+=dx/d*m;s.py+=dy/d*m;if(Math.abs(dx)>1)s.dir=dx>0?1:-1;s.wk+=dt;s.st=(s.st||0)+dt;if(s.st>.28){s.st=0;tn(110,70,.06,.12,'sine');nz(.05,'lowpass',900,.08)}}else s.wk=0}
  if(s.hasB&&s.bt<1)s.bt+=dt;s.wt=Math.max(0,s.wt-dt);
  s.nextSay-=dt;if(s.nextSay<=0&&s.ph==='play'){s.nextSay=5+Math.random()*4;s.say=SAY[Math.floor(Math.random()*SAY.length)];s.sayT=3.2;sTalk(s.say[0])}s.sayT-=dt;
  for(let i=0;i<2;i++){s.nextSip[i]-=dt;if(s.nextSip[i]<=0){s.sipT[i]=1.3;s.nextSip[i]=4+Math.random()*5;sSip()}s.sipT[i]=Math.max(0,s.sipT[i]-dt)}
- if(s.ph==='call'){s.pt+=dt;if(s.pt>1.2&&!s.m1){s.m1=1;msgL=['Esa: Kerma, tuu hakemaan Cessnalla!']}if(s.pt>2.6&&!s.m2){s.m2=1;msgL=['Kerma: Tulossa! Katsokaa ikkunaan.']}if(s.pt>3.8){s.ph='plane';s.pt=0;duck(.15);nz(7,'lowpass',250,.3,600);tn(90,110,7,.05,'sawtooth')}}
+ if(s.ph==='call'){s.pt+=dt;if(s.pt>1.2&&!s.m1){s.m1=1;msgL=['Esa: Kermis, tuu hakemaan Cessnalla!']}if(s.pt>2.6&&!s.m2){s.m2=1;msgL=['Kermis: Tulossa! Katsokaa ikkunaan.']}if(s.pt>3.8){s.ph='plane';s.pt=0;duck(.15);nz(7,'lowpass',250,.3,600);tn(90,110,7,.05,'sawtooth')}}
  else if(s.ph==='plane'){s.pt+=dt;if(s.pt>7){s.ph='end';duck(.35)}}}
 let mus=null;
 const CH=[[55,[220,261.6,329.6]],[43.65,[174.6,220,261.6]],[65.41,[261.6,329.6,392]],[49,[196,246.9,293.7]]];
@@ -226,7 +226,7 @@ function stepSauna(dt){const s=SA;s.t+=dt;
  s.ladle=Math.max(0,s.ladle-dt);s.log=Math.max(0,s.log-dt);s.water=Math.min(100,s.water+1.5*dt);s.sayT-=dt;s.steam=Math.max(0,s.steam-dt*.25);
  s.puffs.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.l+=dt});s.puffs=s.puffs.filter(p=>p.l<4.5);
  if(Math.random()<dt*(6+s.F*.14))nz(.025,'highpass',2500+Math.random()*2000,.05+s.F*.0012+Math.random()*.08);if(Math.random()<dt*1.2){tn(180,60,.05,.12,'square');nz(.04,'bandpass',1800,.2)}
- s.nx-=dt;if(s.nx<=0&&s.sayT<=0){s.nx=9+Math.random()*5;const w=[];if(s.pr.aap)w.push([1,'Aapeli: Lisää puita, Esa!']);if(s.pr.wom)w.push([0,'Nainen: Tässä on hyvä tunnelma.']);if(w.length){s.say=[pick(w)];s.sayT=2.8}}
+ s.nx-=dt;if(s.nx<=0&&s.sayT<=0){s.nx=9+Math.random()*5;const w=[];if(s.pr.aap)w.push([1,'Aapeli: Lisää puita, Esa!']);if(s.pr.wom)w.push([0,'Hempukka: Tässä on hyvä tunnelma.']);if(w.length){s.say=[pick(w)];s.sayT=2.8}}
  const wv=s.temp>102?3:s.temp>95?2:s.temp<75?1:0;
  if(wv>s.warnL)msgL=wv===3?['Pää pyörii! Heitä vettä tai poistu!']:wv===2?['Alkaa olla tosi kuuma...']:['Tunnelma latistuu, lisää puita.'];s.warnL=wv;
  s.drink=Math.max(0,s.drink-dt);if(ambG)ambG.gain.setTargetAtTime(s.win?1.3:0,AC.currentTime,.4);hum=Math.max(0,hum-1.4*dt);if(s.win)s.temp-=4.5*dt;
@@ -245,7 +245,7 @@ function loyly(){const s=SA,T0=s.temp;let q;s.temp+=T0>100?6:-3;
  else{q=0;s.mood=Math.max(0,s.mood-10);msgL=['Liian kuuma löylyyn! Polttaa!']}
  const n=q===2?46:q===1?22:10;for(let i=0;i<n;i++)s.puffs.push({x:262+Math.random()*14-7,y:88,vx:(Math.random()-.5)*(q?26:10),vy:-8-Math.random()*(q===2?22:12),r:5+Math.random()*(q===2?9:5),l:Math.random()*.4,a:q===2?.5:.35});
  nz(1.2,'highpass',2500,.22,1200);tn(400,150,.3,.05,'sawtooth');
- if(q===2){const w=[];if(s.pr.aap)w.push([1,pick(['Aapeli: Komea löyly, Esa!','Aapeli: Ihan sikahyvä löyly!','Aapeli: Parempaa kuin Haukea!'])]);if(s.pr.wom)w.push([0,pick(['Nainen: Ihana pilvi!','Nainen: Voi että, mikä löyly!','Nainen: Esa, olet löylymestari!'])]);if(!w.length)w.push([2,'Esa: Täydellinen löyly!']);s.say=w;s.sayT=3;[0,.12,.24].forEach(d=>tn(660,990,.12,.05,'sine',d))}}
+ if(q===2){const w=[];if(s.pr.aap)w.push([1,pick(['Aapeli: Komea löyly, Esa!','Aapeli: Ihan sikahyvä löyly!','Aapeli: Parempaa kuin Haukea!'])]);if(s.pr.wom)w.push([0,pick(['Hempukka: Ihana pilvi!','Hempukka: Voi että, mikä löyly!','Hempukka: Esa, olet löylymestari!'])]);if(!w.length)w.push([2,'Esa: Täydellinen löyly!']);s.say=w;s.sayT=3;[0,.12,.24].forEach(d=>tn(660,990,.12,.05,'sine',d))}}
 function skinH(b,h){return[b[0],b[1]*(1-.4*h),b[2]*(1-.45*h)]}
 function drawSauna(T){const s=SA,h=Math.max(0,Math.min(1,(s.temp-70)/40)),fl=s.F/100;let q;g.font='bold 8px monospace';g.textBaseline='alphabetic';
  q=g.createLinearGradient(0,10,0,118);q.addColorStop(0,'#c8903c');q.addColorStop(1,'#e8b060');g.fillStyle=q;g.fillRect(0,10,W,108);
@@ -323,7 +323,7 @@ function draw2(T){const s=S2;g.font='bold 8px monospace';g.textBaseline='alphabe
  q=g.createLinearGradient(0,160,0,200);q.addColorStop(0,'#b8bccc');q.addColorStop(1,'#7c8096');g.fillStyle=q;g.fillRect(0,160,W,40);R('#fff',0,160,W,.6);R('#20243a',4,164,198,32);
  q=g.createLinearGradient(0,165,0,195);q.addColorStop(0,'#fdfdf6');q.addColorStop(1,'#e4e4d4');g.fillStyle=q;g.fillRect(5,165,196,30);msgL.forEach((l,i)=>tx(l,9,177+i*11,'#000'));
  const ok=s.outfit===2||s.outfit===4;tx('HAUKI: '+(s.hasB?'OK':'-'),208,173,'#000');tx('ASU: '+OUT[s.outfit],208,184,'#000');tx(ok?'Asu sopii baariin':'Asu ei sovi vielä',208,195,ok?'#0a6a2a':'#a01820');
- if(s.ph==='end'){g.fillStyle='rgba(0,0,0,.7)';g.fillRect(0,10,W,150);R('#20243a',40,48,240,82);R('#fffff4',42,50,236,78);g.font='bold 14px monospace';tx('KERMA SAAPUI!',W/2,74,'#000','center');g.font='bold 8px monospace';tx('Cessna odottaa pihalla ja baari kutsuu.',W/2,92,'#000','center');tx('Seuraavaksi lennetään baariin!',W/2,104,'#000','center');tx('Napauta: koneeseen!',W/2,118,'#000','center')}}
+ if(s.ph==='end'){g.fillStyle='rgba(0,0,0,.7)';g.fillRect(0,10,W,150);R('#20243a',40,48,240,82);R('#fffff4',42,50,236,78);g.font='bold 14px monospace';tx('KERMIS SAAPUI!',W/2,74,'#000','center');g.font='bold 8px monospace';tx('Cessna odottaa pihalla ja baari kutsuu.',W/2,92,'#000','center');tx('Seuraavaksi lennetään baariin!',W/2,104,'#000','center');tx('Napauta: koneeseen!',W/2,118,'#000','center')}}
 function haukiGo(){audioInit();if(state==='play'&&shots>0&&trip<0&&!drinking){drinking=true;shotMode=true;sShot()}}
 function shotApply(){shots--;aapT=0;chill=Math.max(0,chill-45);hum+=22;warm=Math.max(warm,25);haukiL+=30;
  if(aap!==1){aap=1;aSay=8;sDoor();msgL=['Aapeli kömpi altaaseen:','Haukea haistoin!']}
@@ -348,12 +348,12 @@ const CL3=Array.from({length:7},(_,i)=>[i*60+Math.random()*30,20+Math.random()*1
 const L3={
  p:['Esa: Mä tarjoon baarissa ekan kierroksen!','Esa: Toivottavasti baarissa on karaoke!','Esa: Makkaraperunat ja tuoppi, kiitos!','Esa: Tänään tanssitaan pöydillä!'],
  p2:['Esa: Mä rakastan teitä kaikkia!','Esa: Onko tää kone vai poreallas?','Esa: Hikk! Minne me oltiinkaan menossa?'],
- k:['Kerma: Hevi soi kuulokkeissa!','Kerma: Pitäkää kiinni, ilmakuoppa!','Kerma: Rock and roll, kohti baaria!','Kerma: Mä lennän, te juotte. Sopimus.','Kerma: Kohta näkyy baarin valot!'],
+ k:['Kermis: Hevi soi kuulokkeissa!','Kermis: Pitäkää kiinni, ilmakuoppa!','Kermis: Rock and roll, kohti baaria!','Kermis: Mä lennän, te juotte. Sopimus.','Kermis: Kohta näkyy baarin valot!'],
  a:['Aapeli: Mikä on punainen ja huono hampaille? Tiili!','Aapeli: Lehmä trampoliinilla? Pirtelöä!','Aapeli: Miksi lentäjä ei leiki piiloa? Tutka!','Aapeli: Mitä lumiukko juo? Jääteetä!','Aapeli: Mikä kala ei ui? Kalakukko!'],
  v:['Aapeli: VW ID.3 on best! Sähköllä kulkee.','Aapeli: ID.3 on hiljainen ja nopee. Best!','Aapeli: Tähän koneeseen ID.3:n akku!','Aapeli: Mun ID.3:ssa on enemmän jalkatilaa.'],
- w0:['Nainen: Ihana lentää tähtien alla!','Nainen: Toivottavasti siellä soi iskelmä!','Nainen: Esa, tarjoatko mulle kuparin?'],
- w1:['Nainen: Esa, sä oot aika komee tänään.','Nainen: Istutaanko baarissa vierekkäin?','Nainen: Mä haluun tanssia sun kanssa!'],
- w2:['Nainen: Tästä tulee kuuma ilta, Esa...','Nainen: Baarin jälkeen paljuun, kahdestaan?','Nainen: Mulla on kuuma, eikä se oo sauna!','Nainen: Lupaan illan, jota et unohda!']};
+ w0:['Hempukka: Ihana lentää tähtien alla!','Hempukka: Toivottavasti siellä soi iskelmä!','Hempukka: Esa, tarjoatko mulle kuparin?'],
+ w1:['Hempukka: Esa, sä oot aika komee tänään.','Hempukka: Istutaanko baarissa vierekkäin?','Hempukka: Mä haluun tanssia sun kanssa!'],
+ w2:['Hempukka: Tästä tulee kuuma ilta, Esa...','Hempukka: Baarin jälkeen paljuun, kahdestaan?','Hempukka: Mulla on kuuma, eikä se oo sauna!','Hempukka: Lupaan illan, jota et unohda!']};
 let eng=null;
 function engStart(){if(!AC||eng)return;const o=AC.createOscillator(),f=AC.createBiquadFilter(),gn=AC.createGain(),s=AC.createBufferSource(),f2=AC.createBiquadFilter(),l=AC.createOscillator(),lg=AC.createGain(),ng=AC.createGain(),og=AC.createGain();
  o.type='sawtooth';o.frequency.value=62;f.type='lowpass';f.frequency.value=170;f.Q.value=.5;gn.gain.value=0;gn.gain.setTargetAtTime(.38,AC.currentTime,.8);
@@ -361,7 +361,7 @@ function engStart(){if(!AC||eng)return;const o=AC.createOscillator(),f=AC.create
  o.connect(f);f.connect(og);og.connect(gn);s.connect(f2);f2.connect(ng);ng.connect(gn);gn.connect(master);o.start();s.start();l.start();eng={o,s,l,gn}}
 function engStop(){if(!eng)return;const e=eng;eng=null;e.gn.gain.setTargetAtTime(0,AC.currentTime,.2);setTimeout(()=>{try{e.o.stop();e.s.stop();e.l.stop()}catch(x){}},1200)}
 function startS3(){stage=3;state='s3';Object.assign(F,{t:0,ph:'fly',pt:0,x:0,h:{p:Math.min(40,hum*.6),w:25,a:20,k:0},sip:{p:0,w:0,a:0,k:0},si:{p:'c',w:'c',a:'c',k:'c'},th:{w:false,a:false},tn:{w:4,a:7},mood:50,say:null,sayT:0,nx:2.5,fly:null,sel:'c',hauki:S2.hasB?3:0,cans:0,slept:{w:0,a:0},al:0,cs:0});
- msgL=['Kerma: Tervetuloa kyytiin!','Tarjoile kuparia seuralle.'];
+ msgL=['Kermis: Tervetuloa kyytiin!','Tarjoile kuparia seuralle.'];
  const b=document.getElementById('b');b.style.display='';b.disabled=false;document.querySelector('.row').style.display='none';goBar.style.display='none';selBtn();
  document.querySelector('p').textContent='Napauta matkustajaa: Esa ojentaa juoman. Napauta Esaa: Esa juo itse. Oranssi nappi vaihtaa kuparin ja Haukin välillä. Kohtuus on valttia!';
  musicStop();engStart();sDoor();setTimeout(()=>{if(stage===3&&!mus)musicStart('e')},700)}
@@ -375,23 +375,23 @@ function act3(e){const f=F;
  if(y>=80&&y<=113){if(x>=101&&x<119){f.sel='c';selBtn();return}if(x>=119&&x<127&&f.hauki>0){f.sel='h';selBtn();return}}
  const who=['a','w','p','k'].find(k=>Math.abs(x-(PX+SEAT[k]))<=13&&y>=68&&y<=118);if(who)serve(who)}
 function serve(who){const f=F,it=f.sel;if(it==='h'&&f.hauki<=0)return;
- if((who==='w'||who==='a')&&f.h[who]>=100){msgL=[(who==='w'?'Nainen':'Aapeli')+' nukkuu jo sikeästi.'];return}
+ if((who==='w'||who==='a')&&f.h[who]>=100){msgL=[(who==='w'?'Hempukka':'Aapeli')+' nukkuu jo sikeästi.'];return}
  if(who==='p'){drink('p',it);return}
  if(f.sip[who]>0)return;f.fly={who,it,u:0};tn(500,700,.08,.04)}
 function drink(who,it){const f=F;
- if(who==='k'){if(it==='c'){f.say=['k','Kerma: Ei lentäessä! Baarissa sitten.'];f.sayT=3;sTalk(1);f.mood=Math.min(100,f.mood+2);return}
-  f.hauki--;selFix();f.sip.k=1.3;f.si.k='h';sShot();f.ph='wobble';f.pt=0;f.say=['k','Kerma: HAUKEA?! No yks naukku...'];f.sayT=3;msgL=['Kerma otti Haukea!','Cessna lähtee lapasesta!'];return}
+ if(who==='k'){if(it==='c'){f.say=['k','Kermis: Ei lentäessä! Baarissa sitten.'];f.sayT=3;sTalk(1);f.mood=Math.min(100,f.mood+2);return}
+  f.hauki--;selFix();f.sip.k=1.3;f.si.k='h';sShot();f.ph='wobble';f.pt=0;f.say=['k','Kermis: HAUKEA?! No yks naukku...'];f.sayT=3;msgL=['Kermis otti Haukea!','Cessna lähtee lapasesta!'];return}
  f.sip[who]=1.3;f.si[who]=it;
  if(it==='h'){f.hauki--;selFix();f.h[who]+=26;sShot()}else{f.h[who]+=who==='p'?16:14;f.cans++;sCan()}
  if(who==='p'){msgL=it==='h'?['Esa otti naukun Haukea.','Lämmittää mukavasti!']:pick([['Kippis! Kupari sihahtaa.'],['Esa: Ahh, kupari maistuu ilmassa!']]);return}
  if(f.th[who]){f.th[who]=false;f.mood=Math.min(100,f.mood+15);f.tn[who]=7+Math.random()*5}else f.mood=Math.min(100,f.mood+4);
- f.say=[who,it==='h'?(who==='w'?'Nainen: Uuh, Hauki! Nyt kuumenee...':'Aapeli: Hauki! Nyt kiihtyy kuin ID.3!'):(who==='w'?pick(['Nainen: Kiitos, komistus!','Nainen: Kippis, Esa!']):pick(['Aapeli: Kiitti! Kippis!','Aapeli: Kupari on kuin ID.3: aina ladattu!']))];f.sayT=2.8;f.nx=Math.max(f.nx,3);sTalk(who==='w'?0:1)}
+ f.say=[who,it==='h'?(who==='w'?'Hempukka: Uuh, Hauki! Nyt kuumenee...':'Aapeli: Hauki! Nyt kiihtyy kuin ID.3!'):(who==='w'?pick(['Hempukka: Kiitos, komistus!','Hempukka: Kippis, Esa!']):pick(['Aapeli: Kiitti! Kippis!','Aapeli: Kupari on kuin ID.3: aina ladattu!']))];f.sayT=2.8;f.nx=Math.max(f.nx,3);sTalk(who==='w'?0:1)}
 function step3(dt){const f=F;f.t+=dt;musicTick();f.x+=(f.ph==='crash'?20:70)*dt;f.sayT-=dt;
  ['p','w','a','k'].forEach(k=>{f.sip[k]=Math.max(0,f.sip[k]-dt)});
  if(f.ph==='fly'){
   ['p','w','a'].forEach(k=>{if(f.h[k]<100)f.h[k]=Math.max(0,f.h[k]-.5*dt)});
   if(f.fly){f.fly.u+=dt/.55;if(f.fly.u>=1){const q=f.fly;f.fly=null;drink(q.who,q.it)}}
-  ['w','a'].forEach(k=>{if(f.h[k]>=100){if(!f.slept[k]){f.slept[k]=1;f.th[k]=false;msgL=k==='w'?['Nainen nukahti kesken lauseen.','Kuuma ilta jäi lupaukseksi.']:['Aapeli nukkuu hiljaa kuin ID.3.']}return}
+  ['w','a'].forEach(k=>{if(f.h[k]>=100){if(!f.slept[k]){f.slept[k]=1;f.th[k]=false;msgL=k==='w'?['Hempukka nukahti kesken lauseen.','Kuuma ilta jäi lupaukseksi.']:['Aapeli nukkuu hiljaa kuin ID.3.']}return}
    if(!f.th[k]){f.tn[k]-=dt;if(f.tn[k]<=0){f.th[k]=true;if(f.sayT<=0||f.say[0]!=='k'){f.say=[k,pick(['Kupari tänne!','Onko kuparia?','Janottaa!'])];f.sayT=2.4;sTalk(k==='w'?0:1)}}}});
   f.mood=Math.max(0,Math.min(100,f.mood+(f.th.w||f.th.a?-2.5:.5)*dt));
   f.nx-=dt;if(f.nx<=0&&f.sayT<=0){f.nx=3.2+Math.random()*2.5;const c=[['p',pick(f.h.p>60?L3.p2:L3.p)],['k',pick(L3.k)]];
@@ -399,12 +399,12 @@ function step3(dt){const f=F;f.t+=dt;musicTick();f.x+=(f.ph==='crash'?20:70)*dt;
    if(f.h.w<100){const L=f.h.w>=60?L3.w2:f.h.w>=30?L3.w1:L3.w0;c.push(['w',pick(L)],['w',pick(L)])}
    f.say=pick(c);f.sayT=3.4;sTalk(f.say[0]==='w'?0:1);
    if(L3.a.includes(f.say[1]))f.lj=2.6}
-  if(f.lj>0){f.lj-=dt;if(f.lj<=0)msgL=pick([['Aapeli nauraa omalle vitsilleen.'],['Kukaan ei naura. Paitsi Aapeli.'],['Kerma: Huono. Mutta hyvä.']])}
+  if(f.lj>0){f.lj-=dt;if(f.lj<=0)msgL=pick([['Aapeli nauraa omalle vitsilleen.'],['Kukaan ei naura. Paitsi Aapeli.'],['Kermis: Huono. Mutta hyvä.']])}
   if(f.h.p>=100&&f.sip.p<=0){f.ph='out';f.pt=0;engStop();musicStop();sEnd('d');msgL=['Esa sammui koneeseen.','Kohtuus olisi ollut valttia.']}
-  else if(f.t>=45){f.ph='land';f.pt=0;msgL=['Kerma: Laskeudutaan! Baari näkyy!','Kiinnittäkää vyöt.']}}
+  else if(f.t>=45){f.ph='land';f.pt=0;msgL=['Kermis: Laskeudutaan! Baari näkyy!','Kiinnittäkää vyöt.']}}
  else if(f.ph==='wobble'){f.pt+=dt;f.al-=dt;if(f.al<=0){f.al=.35;tn(880,880,.16,.07,'square');tn(660,660,.16,.07,'square',.17)}if(eng)eng.o.frequency.setTargetAtTime(62+Math.sin(f.pt*6)*20+f.pt*15,AC.currentTime,.05);
-  if(f.pt>=3.2){f.ph='crash';f.pt=0;engStop();musicStop();nz(1.6,'lowpass',500,.5,80);tn(120,40,.8,.4,'sine');msgL=['Cessna lähti lapasesta!','Kerma ei kestä Haukea.']}}
- else if(f.ph==='crash'){f.pt+=dt;if(f.pt>1.3&&!f.cs){f.cs=1;nz(.8,'lowpass',900,.3,200);f.say=['p','Esa: Onks tää jo baari?'];f.sayT=4;msgL=['Kerma: Pehmeä lasku! Ihan tahallaan.','Kerma ei kestä Haukea.']}}
+  if(f.pt>=3.2){f.ph='crash';f.pt=0;engStop();musicStop();nz(1.6,'lowpass',500,.5,80);tn(120,40,.8,.4,'sine');msgL=['Cessna lähti lapasesta!','Kermis ei kestä Haukea.']}}
+ else if(f.ph==='crash'){f.pt+=dt;if(f.pt>1.3&&!f.cs){f.cs=1;nz(.8,'lowpass',900,.3,200);f.say=['p','Esa: Onks tää jo baari?'];f.sayT=4;msgL=['Kermis: Pehmeä lasku! Ihan tahallaan.','Kermis ei kestä Haukea.']}}
  else if(f.ph==='land'){f.pt+=dt;if(f.pt>=5){f.ph='end';f.pt=0;engStop();[1,1.26,1.5].forEach((m,i)=>tn(523*m,523*m,.3,.07,'sine',i*.15))}}
  else f.pt+=dt}
 function hullPath(){g.beginPath();g.moveTo(-130,-6);g.lineTo(-50,-24);g.lineTo(40,-30);g.lineTo(80,-28);g.lineTo(100,-14);g.lineTo(130,-10);g.quadraticCurveTo(140,-8,139,0);g.quadraticCurveTo(138,8,128,10);g.lineTo(100,14);g.lineTo(40,22);g.lineTo(-50,18);g.lineTo(-130,2);g.closePath()}
@@ -473,7 +473,7 @@ function hud3(){const f=F;let q=g.createLinearGradient(0,0,0,10);q.addColorStop(
  tx('VAIHE 3: CESSNAN KYYDISSÄ',4,8,'#000');tx(f.ph==='fly'?'Baariin: '+Math.max(0,Math.ceil(45-f.t))+'s':'Kupareita: '+f.cans,W-4,8,'#000','right');
  q=g.createLinearGradient(0,160,0,200);q.addColorStop(0,'#b8bccc');q.addColorStop(1,'#7c8096');g.fillStyle=q;g.fillRect(0,160,W,40);R('#fff',0,160,W,.6);R('#20243a',4,164,198,32);
  q=g.createLinearGradient(0,165,0,195);q.addColorStop(0,'#fdfdf6');q.addColorStop(1,'#e4e4d4');g.fillStyle=q;g.fillRect(5,165,196,30);msgL.forEach((l,i)=>tx(l,9,177+i*11,'#000'));
- [['FIILIS',f.mood,'#e060a0'],['ESA',f.h.p,'#e8a020'],['NAINEN',f.h.w,'#d84a8a'],['AAPELI',f.h.a,'#6f8a3c']].forEach(([n,v,c],i)=>{const ry=162+i*9;tx(n,206,ry+7,'#000');R('#000',242,ry,72,8);R('#202020',243,ry+1,70,6);R(v>75&&i>0?'#ff4040':c,243,ry+1,Math.max(0,Math.min(70,v*.7)),6)})}
+ [['FIILIS',f.mood,'#e060a0'],['ESA',f.h.p,'#e8a020'],['HEMPUKKA',f.h.w,'#d84a8a'],['AAPELI',f.h.a,'#6f8a3c']].forEach(([n,v,c],i)=>{const ry=162+i*9;tx(n,206,ry+7,'#000');R('#000',248,ry,66,8);R('#202020',249,ry+1,64,6);R(v>75&&i>0?'#ff4040':c,249,ry+1,Math.max(0,Math.min(64,v*.64)),6)})}
 function sky3(T,still){let q=g.createLinearGradient(0,10,0,160);q.addColorStop(0,'#03041a');q.addColorStop(.6,'#141c4e');q.addColorStop(1,'#3a3c78');g.fillStyle=q;g.fillRect(0,10,W,150);
  ST3.forEach(s=>{const x=((s[0]-F.x*.04)%W+W)%W;g.fillStyle=`rgba(255,246,220,${s[2]})`;g.fillRect(x,s[1],1,1)});
  AG.forEach((q,r)=>{for(let x=0;x<W;x+=2){const y=16+r*11+Math.sin((x+F.x*.1)/37+T*.6+r*1.7)*8;g.save();g.translate(x,y);g.fillStyle=q;g.fillRect(0,0,2.2,22-r*3);g.restore()}});
@@ -487,7 +487,7 @@ function drawCrash(T){const f=F;sky3(T);
  for(let i=0;i<8;i++){const u=((f.pt*.5+i*.13)%1);ell(120+i*8,124-Math.sin(u*Math.PI)*14,1,1,`rgba(255,255,255,${1-u})`)}
  [[SP.e[S2.outfit],196],[SP.w,222],[SP.a,248],[SP.k,274]].forEach(([sp,x],i)=>{const o=idle(T,i*1.3);o.s=.85;o.rot=Math.sin(T*1.8+i)*.06;o.tilt=Math.sin(T*2.4+i)*.12;o.cy=22;drawChar(sp,x,152,o);for(let j=0;j<3;j++){const a=T*4+j*2.1+i;ell(x+Math.cos(a)*6,104+Math.sin(a)*2,1.2,1.2,'#ffe27a')}});
  if(f.sayT>0&&f.say)sbub(205,88,f.say[1]);
- R('#20243a',8,18,128,46);R('#fffff4',10,20,124,42);g.font='bold 11px monospace';tx('CESSNA HANGESSA!',72,36,'#000','center');g.font='bold 8px monospace';tx('Kerma ei kestä Haukea.',72,48,'#000','center');if(f.pt>2.2)tx('Napauta: alusta.',72,58,'#a01820','center')}
+ R('#20243a',8,18,128,46);R('#fffff4',10,20,124,42);g.font='bold 11px monospace';tx('CESSNA HANGESSA!',72,36,'#000','center');g.font='bold 8px monospace';tx('Kermis ei kestä Haukea.',72,48,'#000','center');if(f.pt>2.2)tx('Napauta: alusta.',72,58,'#a01820','center')}
 function draw3(T){const f=F;g.font='bold 8px monospace';g.textBaseline='alphabetic';
  if(f.ph==='crash'&&f.pt>=1.3){drawCrash(T);hud3();return}
  sky3(T);
@@ -507,7 +507,7 @@ function draw3(T){const f=F;g.font='bold 8px monospace';g.textBaseline='alphabet
  if(f.ph==='wobble'&&Math.sin(T*16)>0){g.fillStyle='rgba(255,30,30,.12)';g.fillRect(0,10,W,150)}
  hud3();
  if(f.ph==='out'&&f.pt>.8)box3('ESA SAMMUI',['Kuparia olisi pitänyt nauttia kohtuudella.','Napauta pelataksesi alusta.']);
- if(f.ph==='end'&&f.pt>.5)box3('BAARIN PIHALLA!',['Fiilis: '+Math.round(f.mood)+' %   Kupareita: '+f.cans,f.h.w>=100?'Nainen nukkuu. Lupaus jäi lunastamatta.':f.h.w>=60?'Nainen kuiskaa: Muista lupaus, Esa...':'Nainen: Mennään tanssimaan!','Vaihe 4: baari on tulossa...','Napauta pelataksesi alusta.'])}
+ if(f.ph==='end'&&f.pt>.5)box3('BAARIN PIHALLA!',['Fiilis: '+Math.round(f.mood)+' %   Kupareita: '+f.cans,f.h.w>=100?'Hempukka nukkuu. Lupaus jäi lunastamatta.':f.h.w>=60?'Hempukka kuiskaa: Muista lupaus, Esa...':'Hempukka: Mennään tanssimaan!','Vaihe 4: baari on tulossa...','Napauta pelataksesi alusta.'])}
 const GW=26,GH=52;let LY,CL;
 function L(n){CL=n;if(!LY[n])LY[n]=Array.from({length:GH},()=>Array(GW).fill(null))}
 function P(x,y,w,h,c){const q=LY[CL];for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(i>=0&&i<GW&&j>=0&&j<GH)q[j][i]=c}
@@ -617,11 +617,11 @@ function step(dt){if(stage===3){step3(dt);return}if(stage===2){step2(dt);return}
  if(state==='over')ot+=dt;ambient(dt);
  if(state!=='play')return;
  t+=dt;chill+=Math.min(2+t*0.025,4.2)*(trip>=0?1.8:1)*(warm>0?.35:1)*dt;warm=Math.max(0,warm-dt);hum=Math.max(0,hum-1.4*dt);if(trip>=0){const pt=trip;trip+=dt;if(tripType==='s'&&trip>=1.6&&trip<inEnd){chill=Math.max(0,chill-25*dt);hum=Math.max(0,hum-7*dt)}
- if(tripType==='r'&&trip>.8&&trip<2.8){chill+=12*dt;hum=Math.max(0,hum-5*dt);if(Math.floor(trip/.18)!==Math.floor(pt/.18))nz(.12,'bandpass',1800,.12,900)}if(tripType==='s'&&pt<1.6&&trip>=1.6){sDoor();enterSauna();return}if(tripType!=='r'&&pt<1.6&&trip>=1.6)sDoor();if(tripType==='w'&&pt<2&&trip>=2)sFlush();if(tripType==='s'&&pt<2.6&&trip>=2.6)nz(1.3,'highpass',3000,.15,1800);if(pt<inEnd&&trip>=inEnd){sDoor();if(tripType==='s'){chill=0;warm=saunaWarm;hum=Math.max(0,hum-saunaHum);wf=woman===0&&Math.random()<.6}}if((trip<1.6||trip>inEnd)&&Math.floor(trip/.27)!==Math.floor(pt/.27))nz(.09,'bandpass',2200,.1,1200);if(trip>=TRIP){trip=-1;if(tripType==='r'){msgL=['Esa kömpii takaisin altaaseen.','Aapeli nauraa makeasti.']}else if(tripType==='w'){wc=0;wL=0;msgL=['Huh, helpotti! Takaisin altaaseen.']}else{msgL=['Ahh, löyly teki hyvää!','Lämpö pysyy hetken.'];if(wf&&woman===0){woman=1;wb=0;wf=false;tn(880,1320,.15,.08);tn(1320,1760,.2,.08,'sine',.15);msgL=['Nainen seurasi Esan altaaseen!','Pidä seura viihtyisänä.']}}}}
+ if(tripType==='r'&&trip>.8&&trip<2.8){chill+=12*dt;hum=Math.max(0,hum-5*dt);if(Math.floor(trip/.18)!==Math.floor(pt/.18))nz(.12,'bandpass',1800,.12,900)}if(tripType==='s'&&pt<1.6&&trip>=1.6){sDoor();enterSauna();return}if(tripType!=='r'&&pt<1.6&&trip>=1.6)sDoor();if(tripType==='w'&&pt<2&&trip>=2)sFlush();if(tripType==='s'&&pt<2.6&&trip>=2.6)nz(1.3,'highpass',3000,.15,1800);if(pt<inEnd&&trip>=inEnd){sDoor();if(tripType==='s'){chill=0;warm=saunaWarm;hum=Math.max(0,hum-saunaHum);wf=woman===0&&Math.random()<.6}}if((trip<1.6||trip>inEnd)&&Math.floor(trip/.27)!==Math.floor(pt/.27))nz(.09,'bandpass',2200,.1,1200);if(trip>=TRIP){trip=-1;if(tripType==='r'){msgL=['Esa kömpii takaisin altaaseen.','Aapeli nauraa makeasti.']}else if(tripType==='w'){wc=0;wL=0;msgL=['Huh, helpotti! Takaisin altaaseen.']}else{msgL=['Ahh, löyly teki hyvää!','Lämpö pysyy hetken.'];if(wf&&woman===0){woman=1;wb=0;wf=false;tn(880,1320,.15,.08);tn(1320,1760,.2,.08,'sine',.15);msgL=['Hempukka seurasi Esan altaaseen!','Pidä seura viihtyisänä.']}}}}
  if(drinking){dp+=dt/1.2;
   if(!applied&&dp>=.5){applied=true;if(shotMode)shotApply();else{chill=Math.max(0,chill-22);hum+=17;wc+=16;cans++}if(!shotMode)msgL=pick([['Kippis! Kuparinen tölkki aukeaa.'],['Ahh, hyvää. Lämpö palaa vartaloon.'],['Pshh! Tämä maistuu talvella.']])}
   if(dp>=1){drinking=false;dp=0;applied=false;shotMode=false}}
- if(woman===1&&trip<0){const bad=hum>60||hum<8;wb=bad?wb+dt:Math.max(0,wb-dt*.5);if(bad&&wb>=3&&wb-dt<3)msgL=hum>60?['Nainen vilkuilee kelloaan.','Olet liian humalassa!']:['Nainen haukottelee...','Esa on liian selvä!'];if(wb>=6){woman=2;lt=0;tn(300,180,.35,.08,'sawtooth');msgL=hum>60?['Nainen: Sä oot jo liian kännissä.','Mä lähden.']:['Nainen kyllästyi selvään Esaan','ja lähti.']}}
+ if(woman===1&&trip<0){const bad=hum>60||hum<8;wb=bad?wb+dt:Math.max(0,wb-dt*.5);if(bad&&wb>=3&&wb-dt<3)msgL=hum>60?['Hempukka vilkuilee kelloaan.','Olet liian humalassa!']:['Hempukka haukottelee...','Esa on liian selvä!'];if(wb>=6){woman=2;lt=0;tn(300,180,.35,.08,'sawtooth');msgL=hum>60?['Hempukka: Sä oot jo liian kännissä.','Mä lähden.']:['Hempukka kyllästyi selvään Esaan','ja lähti.']}}
  if(woman===2){lt+=dt;if(lt>3.4)woman=0}
  haukiL=Math.max(0,haukiL-2.5*dt);
  if(party<100){if(aap===1&&woman===1&&trip<0)party=Math.min(100,party+2.2*dt);else party=Math.max(0,party-.5*dt)}else if(!goBar.dataset.s){goBar.dataset.s=1;goBar.style.display='block';msgL=['Seura on valmis lähtemään!','Paina "Lähdetään baariin".']}
