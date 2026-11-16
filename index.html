@@ -121,7 +121,7 @@ const flakes=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,v:
 let steam=[];
 const bub=Array.from({length:12},(_,i)=>({x:66+i*16+(i%3)*4,o:i*3}));
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-let AC=null,mute=false,master,nb,sil=null;
+let AC=null,mute=false,master,nb,sil=null,ambG=null,bubG=null;
 function audioInit(){
  try{navigator.audioSession.type='playback'}catch(e){}if(!sil){sil=new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');sil.loop=true;sil.play().catch(()=>{})}if(AC){AC.resume();return}
  try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
@@ -132,10 +132,10 @@ function audioInit(){
  const wg=AC.createGain();wg.gain.value=.2;
  const l1=AC.createOscillator();l1.frequency.value=.12;const g1=AC.createGain();g1.gain.value=250;l1.connect(g1);g1.connect(bp.frequency);
  const l2=AC.createOscillator();l2.frequency.value=.07;const g2=AC.createGain();g2.gain.value=.1;l2.connect(g2);g2.connect(wg.gain);
- ws.connect(bp);bp.connect(wg);wg.connect(master);ws.start();l1.start();l2.start();
+ ambG=AC.createGain();ambG.connect(master);ws.connect(bp);bp.connect(wg);wg.connect(ambG);ws.start();l1.start();l2.start();
  const bs=AC.createBufferSource();bs.buffer=nb;bs.loop=true;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=380;
  const bg2=AC.createGain();bg2.gain.value=.09;const l3=AC.createOscillator();l3.frequency.value=5.5;const g3=AC.createGain();g3.gain.value=.05;l3.connect(g3);g3.connect(bg2.gain);
- bs.connect(lp);lp.connect(bg2);bg2.connect(master);bs.start();l3.start();
+ bubG=AC.createGain();bubG.connect(master);bs.connect(lp);lp.connect(bg2);bg2.connect(bubG);bs.start();l3.start();
 }
 function nz(dur,type,f,v,f2){if(!AC)return;const s=AC.createBufferSource();s.buffer=nb;const fl=AC.createBiquadFilter();fl.type=type;const n=AC.currentTime;fl.frequency.setValueAtTime(f,n);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,n+dur);const gn=AC.createGain();gn.gain.setValueAtTime(v,n);gn.gain.exponentialRampToValueAtTime(.001,n+dur);s.connect(fl);fl.connect(gn);gn.connect(master);s.start(n,Math.random());s.stop(n+dur)}
 function tn(f,f2,dur,v,type,delay){if(!AC)return;const n=AC.currentTime+(delay||0),o=AC.createOscillator();o.type=type||'sine';o.frequency.setValueAtTime(f,n);o.frequency.exponentialRampToValueAtTime(f2,n+dur);const gn=AC.createGain();gn.gain.setValueAtTime(v,n);gn.gain.exponentialRampToValueAtTime(.001,n+dur);o.connect(gn);gn.connect(master);o.start(n);o.stop(n+dur)}
@@ -150,7 +150,7 @@ function ambient(dt){if(!AC)return;
 document.getElementById('m').addEventListener('click',e=>{mute=!mute;e.target.textContent='Äänet: '+(mute?'pois':'päällä');if(master)master.gain.value=mute?0:.8;audioInit()});
 ['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>audioInit(),{passive:true}));
 document.addEventListener('visibilitychange',()=>{if(AC){if(document.hidden)AC.suspend();else AC.resume()}});
-function act(e){audioInit();if(stage===2){tap2(e);return}
+function act(e){audioInit();if(stage===2){tap2(e);return}if(state==='sauna'){tapSauna(e);return}
  if(state==='ready'||(state==='over'&&ot>(reason==='w'?2.6:1))){state='play';t=0;chill=25;hum=0;wc=0;wL=0;trip=-1;warm=0;woman=0;wf=false;shots=0;steady=0;haukiL=0;aap=0;aapT=0;shotMode=false;party=0;goBar.style.display='none';delete goBar.dataset.s;cans=0;drinking=false;dp=0;applied=false;cL=0;hL=0;msgL=['Illan viimeinen poreallas.','Pidä tahti: ei paleltua, ei hukkua.'];return}
  if(state==='play'&&!drinking&&trip<0){drinking=true;shotMode=false;sCan()}
 }
@@ -168,15 +168,15 @@ const HS=[{id:'bed',x:14,y:78,w:86,h:60,tx:60,ty:146},{id:'ward',x:252,y:40,w:56
 function startS2(){stage=2;state='s2';Object.assign(S2,{px:150,py:150,gx:150,gy:150,dir:1,hasB:false,bt:1,outfit:0,ph:'play',pt:0,say:null,sayT:0,nextSay:3,sipT:[0,0],nextSip:[2,5],t:0,wk:0,wt:0,m1:0,m2:0});
  msgL=['Etsi juomaa ja vaatetta baaria varten.'];
  document.getElementById('b').style.display='none';document.querySelector('.row').style.display='none';goBar.style.display='none';
- document.querySelector('p').textContent='Napauta paikkaa: Esa kävelee. Napauta samaa kohdetta uudelleen: käytä sitä.';sDoor();musicStart()}
-function restartAll(){musicStop();stage=1;state='ready';party=0;document.getElementById('b').style.display='';document.querySelector('.row').style.display='';goBar.style.display='none';delete goBar.dataset.s;document.querySelector('p').textContent=P0;msgL=['Napauta aloittaaksesi.','Pidä tahti: ei paleltua, ei hukkua.']}
+ document.querySelector('p').textContent='Napauta paikkaa: Esa kävelee. Napauta samaa kohdetta uudelleen: käytä sitä.';sDoor();musicStart();if(ambG){ambG.gain.setTargetAtTime(0,AC.currentTime,.3);bubG.gain.setTargetAtTime(0,AC.currentTime,.3)}}
+function restartAll(){musicStop();if(ambG){ambG.gain.setTargetAtTime(1,AC.currentTime,.3);bubG.gain.setTargetAtTime(1,AC.currentTime,.3)}stage=1;state='ready';party=0;document.getElementById('b').style.display='';document.querySelector('.row').style.display='';goBar.style.display='none';delete goBar.dataset.s;document.querySelector('p').textContent=P0;msgL=['Napauta aloittaaksesi.','Pidä tahti: ei paleltua, ei hukkua.']}
 function tap2(e){if(!e||e.clientX===undefined)return;if(S2.ph==='end'){restartAll();return}if(S2.ph!=='play')return;
  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,h=HS.find(h=>x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h);
  if(!h){S2.gx=Math.max(12,Math.min(308,x));S2.gy=Math.max(138,Math.min(152,y<138?145:y));return}
  if(Math.hypot(S2.px-h.tx,S2.py-h.ty)<4)useH(h.id);else{S2.gx=h.tx;S2.gy=h.ty}}
 function useH(id){const s=S2;
  if(id==='bed'){if(!s.hasB){s.hasB=true;s.bt=0;msgL=['Esa kurkkasi sängyn alle:','Siellä oli Hauki-pullo!'];nz(.5,'bandpass',600,.12,300);tn(2400,2400,.05,.05);tn(3200,3200,.05,.05,'sine',.08);tn(660,990,.2,.08);tn(990,1320,.25,.08,'sine',.2)}else msgL=['Sängyn alla on enää pölyhiriä.']}
- else if(id==='ward'){s.outfit=(s.outfit+1)%6;s.wt=.7;sDoor();nz(.4,'bandpass',2500,.1,1200);nz(.3,'highpass',4500,.06,6500);if(s.hasB&&(s.outfit===2||s.outfit===4))tn(880,1320,.2,.07);msgL=OMSG[s.outfit]}
+ else if(id==='ward'){s.outfit=(s.outfit+1)%6;s.wt=3;sDoor();nz(.4,'bandpass',2500,.1,1200);nz(.3,'highpass',4500,.06,6500);if(s.hasB&&(s.outfit===2||s.outfit===4))tn(880,1320,.2,.07);msgL=OMSG[s.outfit]}
  else if(!s.hasB)msgL=['Ei baariin ilman Hauki-pulloa!','Etsi se ensin sängyn alta.'];
  else if(s.outfit!==2&&s.outfit!==4)msgL=['Näissä vaatteissa ei baariin päästä.','Vaihda asu kaapista.'];
  else{s.ph='call';s.pt=0;duck(.1);[.95,1.5].forEach(d=>tn(450,450,.4,.06,'sine',d));msgL=['Esa soittaa Kermalle...'];[0,.18,.36,.54,.72].forEach(d=>tn(1209+d*300,1209+d*300,.1,.08,'sine',d))}}
@@ -206,6 +206,78 @@ function musicTick(){if(!mus||!AC)return;const L=60/140/4;
   mus.next+=L;mus.step++}}
 function sSip(){nz(.7,'highpass',3500,.1,1500);[.35,.6].forEach(d=>tn(170,105,.12,.1,'sine',d))}
 function sTalk(w){[0,.09,.18].forEach((d,i)=>{const f0=w?150+i*12:480+i*40;tn(f0,f0*.9,.07,.05,'square',d)})}
+let saunaWarm=45,saunaHum=8;const SA={};
+function hideBtns(v){if(ambG){const t0=AC.currentTime;ambG.gain.setTargetAtTime(v?0:1,t0,.3);bubG.gain.setTargetAtTime(v?0:1,t0,.3)}document.getElementById('b').style.display=v?'none':'';document.querySelector('.row').style.display=v?'none':'';if(v)goBar.style.display='none';else if(goBar.dataset.s)goBar.style.display='block'}
+function enterSauna(){Object.assign(SA,{t:0,temp:78,F:40,mood:40,water:100,logs:8,ladle:0,log:0,puffs:[],steam:0,pr:{aap:aap!==1,wom:woman!==1},say:null,sayT:0,warnL:0,nx:6,win:0,nw:8,drink:0});state='sauna';msgL=['Saunassa on mukavan lämmin.','Lisää puita ja heitä löylyä.'];hideBtns(true)}
+function leaveSauna(){const s=SA;saunaWarm=15+s.mood*.6;saunaHum=10+s.mood*.25;state='play';trip=inEnd-.01;hideBtns(false);sDoor()}
+function stepSauna(dt){const s=SA;s.t+=dt;
+ s.F=Math.max(0,s.F-2.6*dt);s.temp+=(38+s.F*1.05-s.temp)*.12*dt;
+ s.mood=Math.max(0,Math.min(100,s.mood+(s.temp>=80&&s.temp<=92?2.5:s.temp<80?-(80-s.temp)*.12:-(s.temp-92)*.25)*dt));
+ s.ladle=Math.max(0,s.ladle-dt);s.log=Math.max(0,s.log-dt);s.water=Math.min(100,s.water+1.5*dt);s.sayT-=dt;s.steam=Math.max(0,s.steam-dt*.25);
+ s.puffs.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.l+=dt});s.puffs=s.puffs.filter(p=>p.l<4.5);
+ if(Math.random()<dt*(6+s.F*.14))nz(.025,'highpass',2500+Math.random()*2000,.05+s.F*.0012+Math.random()*.08);if(Math.random()<dt*1.2){tn(180,60,.05,.12,'square');nz(.04,'bandpass',1800,.2)}
+ s.nx-=dt;if(s.nx<=0&&s.sayT<=0){s.nx=9+Math.random()*5;const w=[];if(s.pr.aap)w.push([1,'Aapeli: Lisää puita, poika!']);if(s.pr.wom)w.push([0,'Nainen: Tässä on hyvä tunnelma.']);if(w.length){s.say=[pick(w)];s.sayT=2.8}}
+ const wv=s.temp>102?3:s.temp>95?2:s.temp<75?1:0;
+ if(wv>s.warnL)msgL=wv===3?['Pää pyörii! Heitä vettä tai poistu!']:wv===2?['Alkaa olla tosi kuuma...']:['Tunnelma latistuu, lisää puita.'];s.warnL=wv;
+ s.drink=Math.max(0,s.drink-dt);if(ambG)ambG.gain.setTargetAtTime(s.win?1.3:0,AC.currentTime,.4);hum=Math.max(0,hum-1.4*dt);if(s.win)s.temp-=4.5*dt;
+ if(s.pr.aap&&!s.win){s.nw-=dt;if(s.nw<=0){s.win=1;s.say=[[1,'Aapeli: Vähän raitista ilmaa!']];s.sayT=2.8;msgL=['Aapeli avasi ikkunan!','Napauta ikkunaa sulkeaksesi.'];nz(.6,'bandpass',900,.1,500);nz(1.5,'bandpass',500,.08,900)}}
+ if(hum>=100){s.win=1;end('y');hideBtns(false)}else if(s.temp>=108){end('x');hideBtns(false)}else if(s.t>=36)leaveSauna()}
+function tapSauna(e){if(!e||e.clientX===undefined)return;const s=SA,r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
+ if(x>=204&&x<=234&&y>=92&&y<=134){if(s.log>0)return;if(s.logs<=0){msgL=['Puut loppuivat telineestä!'];return}s.logs--;s.log=.7;s.F=Math.min(100,s.F+28);msgL=['Esa lisäsi pölkyn kiukaaseen.'];nz(.25,'lowpass',700,.15,300);tn(120,60,.12,.2,'sine')}
+ else if(x>=204&&x<=236&&y>=134&&y<=158){if(s.ladle>0)return;if(s.water<12){msgL=['Ämpäri on tyhjä. Odota hetki.'];return}s.water-=12;s.ladle=1;loyly()}
+ else if(x<=34&&y>=36&&y<=140)leaveSauna();
+ else if(x>=84&&x<=136&&y>=28&&y<=78){if(s.win){s.win=0;s.nw=9+Math.random()*7;s.say=[[2,'Esa: Ikkuna kiinni! Täännä jäätyy.']];s.sayT=3;msgL=['Esa komensi: Ikkuna kiinni!'];tn(120,60,.12,.2,'sine');nz(.3,'lowpass',600,.12,300)}else msgL=['Ikkuna on jo kiinni.']}
+ else if(x>=40&&x<=76&&y>=126&&y<=158){if(s.drink>0)return;s.drink=.9;hum+=16;wc+=16;cans++;msgL=pick([['Esa avasi kuparin. Sihahdus!'],['Kuparinen kuumassa saunassa. Mmm.']]);sCan()}}
+function loyly(){const s=SA,T0=s.temp;let q;s.temp+=T0>100?6:-3;
+ if(T0>=80&&T0<=92){q=2;s.mood=Math.min(100,s.mood+22);s.steam=1;msgL=['Komea löyly!','Höyrypilvi täyttää saunan.']}
+ else if(T0<80){q=0;s.mood=Math.max(0,s.mood-3);msgL=['Kiuas ei ole vielä tarpeeksi kuuma.','Lisää puita ennen löylyä.']}
+ else if(T0<=100){q=1;s.mood=Math.min(100,s.mood+6);msgL=['Löyly sihahti, vähän kuuma jo.']}
+ else{q=0;s.mood=Math.max(0,s.mood-10);msgL=['Liian kuuma löylyyn! Polttaa!']}
+ const n=q===2?46:q===1?22:10;for(let i=0;i<n;i++)s.puffs.push({x:262+Math.random()*14-7,y:88,vx:(Math.random()-.5)*(q?26:10),vy:-8-Math.random()*(q===2?22:12),r:5+Math.random()*(q===2?9:5),l:Math.random()*.4,a:q===2?.5:.35});
+ nz(1.2,'highpass',2500,.22,1200);tn(400,150,.3,.05,'sawtooth');
+ if(q===2){const w=[];if(s.pr.aap)w.push([1,pick(['Aapeli: Komea löyly, Esa!','Aapeli: Tuo on oikeaa löylyä!','Aapeli: Parempaa kuin Haukea!'])]);if(s.pr.wom)w.push([0,pick(['Nainen: Ihana pilvi!','Nainen: Voi että, mikä löyly!','Nainen: Esa, olet löylymestari!'])]);if(!w.length)w.push([2,'Esa: Täydellinen löyly!']);s.say=w;s.sayT=3;[0,.12,.24].forEach(d=>tn(660,990,.12,.05,'sine',d))}}
+function skinH(b,h){return[b[0],b[1]*(1-.4*h),b[2]*(1-.45*h)]}
+function drawSauna(T){const s=SA,h=Math.max(0,Math.min(1,(s.temp-70)/40)),fl=s.F/100;let q;g.font='bold 8px monospace';g.textBaseline='alphabetic';
+ q=g.createLinearGradient(0,10,0,118);q.addColorStop(0,'#c8903c');q.addColorStop(1,'#e8b060');g.fillStyle=q;g.fillRect(0,10,W,108);
+ g.fillStyle='rgba(90,50,10,.35)';for(let x=0;x<W;x+=14)g.fillRect(x,10,.8,108);g.fillStyle='rgba(255,230,170,.2)';for(let x=1;x<W;x+=14)g.fillRect(x,10,.6,108);
+ g.fillStyle='#7a4a1a';g.fillRect(0,10,W,14);g.fillStyle='rgba(0,0,0,.3)';g.fillRect(0,24,W,1.5);
+ q=g.createLinearGradient(0,118,0,160);q.addColorStop(0,'#7a4c20');q.addColorStop(1,'#a8743a');g.fillStyle=q;g.fillRect(0,118,W,42);g.fillStyle='rgba(30,14,4,.5)';for(let x=0;x<W;x+=10)g.fillRect(x,118,1,42);
+ q=g.createLinearGradient(2,0,32,0);q.addColorStop(0,'#5a3216');q.addColorStop(.5,'#7a4a22');q.addColorStop(1,'#4a2810');g.fillStyle=q;g.fillRect(2,34,30,108);g.fillStyle='rgba(0,0,0,.3)';for(let x=10;x<32;x+=8)g.fillRect(x,34,.8,108);g.fillStyle='#e8c040';g.fillRect(26,86,2,8);tx('ULOS',17,48,'#f4e0b0','center');
+ {const o=s.win;g.fillStyle='#5a3216';g.fillRect(90,30,44,44);q=g.createLinearGradient(0,34,0,70);q.addColorStop(0,'#0a1238');q.addColorStop(1,'#2a4a88');g.fillStyle=q;g.fillRect(94,34,36,36);
+  if(!o){g.fillStyle='rgba(220,235,255,.25)';g.fillRect(94,34,36,36);g.fillStyle='#5a3216';g.fillRect(111,34,2,36);g.fillRect(94,51,36,2)}
+  else{g.fillStyle='#fff';for(let i=0;i<14;i++){const u=((T*.5+i*.13)%1);g.fillRect(96+(i*37)%34,36+u*34,1,1)}g.fillStyle='rgba(180,210,240,.5)';g.beginPath();g.moveTo(94,34);g.lineTo(84,40);g.lineTo(84,76);g.lineTo(94,70);g.closePath();g.fill();g.strokeStyle='#5a3216';g.lineWidth=1.2;g.stroke()}
+  g.fillStyle='#e8c870';g.fillRect(88,74,48,3)}
+ [['p',60,[242,180,140],1],['w',106,[246,196,160],s.pr.wom],['a',152,[226,168,136],s.pr.aap]].forEach(([k,cx,b,on])=>{if(!on)return;g.save();g.translate(cx,106);g.rotate(state==='over'?(k==='p'?.55:reason==='y'?(k==='w'?-.5:.45):0):0);bust(0,0,{kind:k,sa:skinH(b,h),hum:k==='p'?hum+h*30:20+h*30,closed:(state==='over'&&reason==='y')||(k==='p'&&(s.temp>98||state==='over'))});
+  if(k==='p'&&s.drink>0){const f=Math.sin(s.drink/.9*Math.PI),sk2=sc(skinH(b,h),1),ol2='rgba(60,28,16,.75)',hx=14-10*f,hy=-2-10*f;arm(10,-4,hx,hy,sk2,ol2);g.save();g.translate(hx,hy);g.rotate(-Math.max(0,f-.5)*2*1.1);can(-3,-8);g.restore();ell(hx,hy+.3,2,1.8,sk2,ol2)}
+  g.restore()});
+ q=g.createLinearGradient(0,102,0,118);q.addColorStop(0,'#e8b868');q.addColorStop(1,'#b07830');g.fillStyle=q;g.fillRect(34,104,170,14);g.fillStyle='#f0c880';g.fillRect(34,102,170,3);g.fillStyle='rgba(60,30,6,.3)';for(let x=40;x<204;x+=26)g.fillRect(x,104,.7,14);
+ g.fillStyle='#f4f4f8';g.fillRect(44,100,30,4);g.fillStyle='#b07830';g.fillRect(34,126,150,5);g.fillStyle='#8a5a22';g.fillRect(34,131,150,3);
+ g.fillStyle='#6a3d1c';g.fillRect(42,140,32,16);g.fillStyle='#3a1f0a';g.fillRect(42,146,32,1);g.fillRect(42,152,32,1);[45,55,65].forEach(x=>can(x,128));tx('KUPARI',58,145,'#f4e0b0','center');
+ g.fillStyle='#e8e0cc';g.beginPath();g.roundRect(174,30,16,56,3);g.fill();g.strokeStyle='#5a3a1a';g.lineWidth=.6;g.stroke();g.fillStyle='#3a3a3a';g.fillRect(181,36,2.6,44);
+ const lv=Math.max(0,Math.min(1,(s.temp-40)/80));g.fillStyle='#d82020';g.fillRect(181,80-44*lv,2.6,44*lv);ell(182.3,82,3,3,'#d82020');g.fillStyle='rgba(60,200,90,.6)';g.fillRect(177,80-44*.625,10,44*.125);tx(Math.round(s.temp)+'°C',182,27,'#2a1606','center');
+ q=g.createLinearGradient(240,0,290,0);q.addColorStop(0,'#2a2a30');q.addColorStop(.4,'#5a5a64');q.addColorStop(1,'#1c1c22');g.fillStyle=q;g.fillRect(240,98,46,50);g.fillStyle='#3a3a42';g.fillRect(258,26,10,72);g.fillStyle='#14141a';g.fillRect(236,146,54,4);
+ g.fillStyle='#0c0c10';g.fillRect(248,112,30,24);q=g.createLinearGradient(0,136,0,112);q.addColorStop(0,'#ff3a00');q.addColorStop(1,`rgba(255,200,60,${.3+fl*.7})`);g.fillStyle=q;g.fillRect(250,114,26,20);
+ for(let i=0;i<4;i++){const hh=4+fl*14*(.6+.4*Math.sin(T*9+i*2));g.fillStyle=i%2?'#ffb02a':'#ff6a1a';g.beginPath();g.moveTo(251+i*6.5,134);g.quadraticCurveTo(254+i*6.5,134-hh,257+i*6.5,134-hh*.4);g.lineTo(257+i*6.5,134);g.fill()}
+ for(let i=0;i<14;i++)ell(244+(i%7)*6+((i/7|0)*3),94-(i/7|0)*6,3.4,2.6,'#6a6a72','#2a2a30');
+ g.fillStyle='#a8702f';g.fillRect(232,108,62,2.5);g.fillRect(232,128,62,2.5);g.fillRect(232,100,3,52);
+ g.fillStyle='#6a3d1c';g.fillRect(206,96,2,40);g.fillRect(232,96,2,40);g.fillRect(204,134,32,3);
+ for(let i=0;i<s.logs;i++){const rw=i/4|0,x=211+(i%4)*7+(rw%2?3:0),y=130-rw*8;ell(x,y,3.6,3.6,'#b87838','#5a3410');ell(x,y,1.6,1.6,'#d8a060')}
+ g.fillStyle='#8a5a22';g.fillRect(208,138,22,16);g.fillStyle='#4a2a10';g.fillRect(208,142,22,1.5);g.fillRect(208,149,22,1.5);ell(219,138,11,2.4,'#4ac8f0','#3a2008');
+ if(s.log>0){const u=1-s.log/.7;ell(218+u*44,118+u*6-Math.sin(u*Math.PI)*20,4,2.6,'#b87838','#5a3410')}
+ if(s.ladle>0){const u=1-s.ladle,x=222+u*36,y=140-Math.sin(u*Math.PI)*36;lim(x-8,y+3,x,y,1.2,'#a8702f','#4a2a10');ell(x+1,y,3,1.6,'#c8c8d0','#555');ell(x-8,y+3,2,2,'#f2b48c','#6a3a20')}
+ else{lim(214,136,226,132,1.2,'#a8702f','#4a2a10');ell(227,132,3,1.6,'#c8c8d0','#555')}
+ q=g.createRadialGradient(263,124,4,263,124,80);q.addColorStop(0,`rgba(255,150,40,${fl*.3})`);q.addColorStop(1,'rgba(255,150,40,0)');g.fillStyle=q;g.fillRect(150,40,170,120);
+ s.puffs.forEach(p=>{const r=p.r+p.l*4,a=p.a*(1-p.l/4.5);q=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r);q.addColorStop(0,`rgba(255,255,255,${a})`);q.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=q;g.fillRect(p.x-r,p.y-r,2*r,2*r)});
+ if(s.steam>0){q=g.createRadialGradient(262,80,5,262,70,120);q.addColorStop(0,`rgba(255,255,255,${.7*s.steam})`);q.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=q;g.fillRect(0,10,W,150)}
+ if(s.temp>95){g.fillStyle=`rgba(255,60,20,${Math.min(.3,(s.temp-95)/13*.25)})`;g.fillRect(0,10,W,150)}
+ if(s.win){g.fillStyle='rgba(150,200,255,.13)';g.fillRect(84,34,60,126)}
+ if(s.sayT>0&&s.say)s.say.forEach(([w,t2])=>sbub(w===0?106:w===1?152:60,w===0?34:54,t2));
+ let q2=g.createLinearGradient(0,0,0,10);q2.addColorStop(0,'#fff');q2.addColorStop(1,'#c8ccd8');g.fillStyle=q2;g.fillRect(0,0,W,10);R('#000',0,10,W,.5);tx('SAUNA   Puita: '+s.logs+'   Aika: '+Math.max(0,Math.ceil(36-s.t))+'s',4,8,'#000');tx('Ovi: poistu',W-4,8,'#000','right');
+ q2=g.createLinearGradient(0,160,0,200);q2.addColorStop(0,'#b8bccc');q2.addColorStop(1,'#7c8096');g.fillStyle=q2;g.fillRect(0,160,W,40);R('#fff',0,160,W,.6);R('#20243a',4,164,198,32);
+ q2=g.createLinearGradient(0,165,0,195);q2.addColorStop(0,'#fdfdf6');q2.addColorStop(1,'#e4e4d4');g.fillStyle=q2;g.fillRect(5,165,196,30);msgL.forEach((l2,i)=>tx(l2,9,177+i*11,'#000'));
+ [['LÄMPÖ',(s.temp-40)/80*100,s.temp>100?'#ff4040':s.temp>92?'#ff9a2a':s.temp>=80?'#40c060':'#36a2ff'],['TUNNELMA',s.mood,'#e060a0'],['VESI',s.water,'#4ac8f0']].forEach(([n,v,c],i)=>{const ry=165+i*11;tx(n,206,ry+7,'#000');R('#000',248,ry,66,8);R('#202020',249,ry+1,64,6);R(c,249,ry+1,Math.max(0,Math.min(64,v*.64)),6)});
+ R('#fff',281,165,.8,8);R('#fff',289,165,.8,8);
+ if(state==='over'&&ot>.4){g.fillStyle='rgba(0,0,0,.7)';g.fillRect(0,10,W,150);R('#20243a',50,46,220,76);R('#fffff4',52,48,216,72);g.font='bold 14px monospace';if(reason==='y'){tx('SAMMUITTE SAUNAAN',W/2,66,'#000','center');tx('JA IKKUNA JÄI AUKI!',W/2,82,'#000','center')}else tx('TAJU LÄHTI',W/2,72,'#000','center');g.font='bold 8px monospace';tx('Aika: '+Math.floor(t/60)+':'+('0'+Math.floor(t%60)).slice(-2)+'   Tölkit: '+cans,W/2,90,'#000','center');tx('Napauta pelataksesi uudelleen.',W/2,108,'#000','center')}}
 function sbub(cx,y,t){const w=t.length*4.9+10,x=Math.max(2,Math.min(W-w-2,cx-w/2));g.fillStyle='#fffffa';g.strokeStyle='#222';g.lineWidth=.6;g.beginPath();g.roundRect(x,y,w,13,4);g.fill();g.stroke();g.beginPath();g.moveTo(cx-3,y+13);g.lineTo(cx,y+18);g.lineTo(cx+3,y+13);g.fill();g.stroke();g.fillStyle='#fffffa';g.fillRect(cx-2.5,y+12.4,5,1.2);tx(t,x+w/2,y+9.5,'#111','center')}
 function sitter(i,cx,yb,kind,sa){const s=S2,f=s.sipT[i]>0?Math.sin(s.sipT[i]/1.3*Math.PI):0,sk=sc(sa,1),ol='rgba(60,28,16,.75)';
  bust(cx,yb,{kind,sa,hum:kind==='w'?35:0,closed:f>.5,open:f>.5});
@@ -278,15 +350,15 @@ const hb=document.getElementById('h');hb.addEventListener('click',haukiGo);
 document.getElementById('b').addEventListener('click',act);
 addEventListener('keydown',e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDefault();act()}if(e.key==='w'||e.key==='W')wcGo();if(e.key==='s'||e.key==='S')saunaGo();if(e.key==='h'||e.key==='H')haukiGo()});
 function end(r){state='over';reason=r;ot=0;drinking=false;trip=-1;sEnd(r);best=Math.max(best,t);
- msgL=r==='d'?['Nukahdit ja vajosit pinnan alle.','Liian monta tölkkiä liian nopeasti.']:r==='w'?['Allas muuttui keltaiseksi...','Olisit voinut käydä vessassa.']:['Jäätyit porealtaaseen.','Palelu voitti tällä kertaa.']}
-function step(dt){if(stage===2){step2(dt);return}
+ msgL=r==='d'?['Nukahdit ja vajosit pinnan alle.','Liian monta tölkkiä liian nopeasti.']:r==='w'?['Allas muuttui keltaiseksi...','Olisit voinut käydä vessassa.']:r==='x'?['Taju lähti kuumassa saunassa.','Löylyä olisi pitänyt hillitä.']:r==='y'?['Sammuitte saunaan ja ikkuna jäi auki!','Liikaa kuparia kuumassa saunassa.']:['Jäätyit porealtaaseen.','Palelu voitti tällä kertaa.']}
+function step(dt){if(stage===2){step2(dt);return}if(state==='sauna'){stepSauna(dt);return}
  flakes.forEach(f=>{f.y+=f.v*dt;f.x+=Math.sin(f.p+f.y/20)*8*dt;if(f.y>H){f.y=0;f.x=Math.random()*W}});
  if(Math.random()<dt*10)steam.push({x:70+Math.random()*180,y:wl,l:0});
  steam.forEach(s=>{s.l+=dt;s.y-=18*dt;s.x+=Math.sin(s.l*3)*6*dt});steam=steam.filter(s=>s.l<2.2);
  if(state==='over')ot+=dt;ambient(dt);
  if(state!=='play')return;
  t+=dt;chill+=Math.min(2+t*0.025,4.2)*(trip>=0?1.8:1)*(warm>0?.35:1)*dt;warm=Math.max(0,warm-dt);hum=Math.max(0,hum-1.4*dt);if(trip>=0){const pt=trip;trip+=dt;if(tripType==='s'&&trip>=1.6&&trip<inEnd){chill=Math.max(0,chill-25*dt);hum=Math.max(0,hum-7*dt)}
- if(tripType==='r'&&trip>.8&&trip<2.8){chill+=12*dt;hum=Math.max(0,hum-5*dt);if(Math.floor(trip/.18)!==Math.floor(pt/.18))nz(.12,'bandpass',1800,.12,900)}if(tripType!=='r'&&pt<1.6&&trip>=1.6)sDoor();if(tripType==='w'&&pt<2&&trip>=2)sFlush();if(tripType==='s'&&pt<2.6&&trip>=2.6)nz(1.3,'highpass',3000,.15,1800);if(pt<inEnd&&trip>=inEnd){sDoor();if(tripType==='s'){chill=0;warm=45;hum=Math.max(0,hum-8);wf=Math.random()<.6}}if((trip<1.6||trip>inEnd)&&Math.floor(trip/.27)!==Math.floor(pt/.27))nz(.09,'bandpass',2200,.1,1200);if(trip>=TRIP){trip=-1;if(tripType==='r'){msgL=['Esa kömpii takaisin altaaseen.','Aapeli nauraa makeasti.']}else if(tripType==='w'){wc=0;wL=0;msgL=['Huh, helpotti! Takaisin altaaseen.']}else{msgL=['Ahh, löyly teki hyvää!','Lämpö pysyy hetken.'];if(wf){woman=1;wb=0;wf=false;tn(880,1320,.15,.08);tn(1320,1760,.2,.08,'sine',.15);msgL=['Nainen seurasi Esan altaaseen!','Pidä seura viihtyisänä.']}}}}
+ if(tripType==='r'&&trip>.8&&trip<2.8){chill+=12*dt;hum=Math.max(0,hum-5*dt);if(Math.floor(trip/.18)!==Math.floor(pt/.18))nz(.12,'bandpass',1800,.12,900)}if(tripType==='s'&&pt<1.6&&trip>=1.6){sDoor();enterSauna();return}if(tripType!=='r'&&pt<1.6&&trip>=1.6)sDoor();if(tripType==='w'&&pt<2&&trip>=2)sFlush();if(tripType==='s'&&pt<2.6&&trip>=2.6)nz(1.3,'highpass',3000,.15,1800);if(pt<inEnd&&trip>=inEnd){sDoor();if(tripType==='s'){chill=0;warm=saunaWarm;hum=Math.max(0,hum-saunaHum);wf=woman===0&&Math.random()<.6}}if((trip<1.6||trip>inEnd)&&Math.floor(trip/.27)!==Math.floor(pt/.27))nz(.09,'bandpass',2200,.1,1200);if(trip>=TRIP){trip=-1;if(tripType==='r'){msgL=['Esa kömpii takaisin altaaseen.','Aapeli nauraa makeasti.']}else if(tripType==='w'){wc=0;wL=0;msgL=['Huh, helpotti! Takaisin altaaseen.']}else{msgL=['Ahh, löyly teki hyvää!','Lämpö pysyy hetken.'];if(wf&&woman===0){woman=1;wb=0;wf=false;tn(880,1320,.15,.08);tn(1320,1760,.2,.08,'sine',.15);msgL=['Nainen seurasi Esan altaaseen!','Pidä seura viihtyisänä.']}}}}
  if(drinking){dp+=dt/1.2;
   if(!applied&&dp>=.5){applied=true;if(shotMode)shotApply();else{chill=Math.max(0,chill-22);hum+=17;wc+=16;cans++}if(!shotMode)msgL=pick([['Kippis! Kuparinen tölkki aukeaa.'],['Ahh, hyvää. Lämpö palaa vartaloon.'],['Pshh! Tämä maistuu talvella.']])}
   if(dp>=1){drinking=false;dp=0;applied=false;shotMode=false}}
@@ -428,7 +500,7 @@ function walkerOld(){
  x=Math.round(x)+(chill>60?(Math.random()<.5?1:-1):0);y=Math.round(y);const l=Math.floor(p*6)%2;
  R('#c8323c',x-3,y-20,6,3);R(sk,x-3,y-17,6,5);R(sk,x-4,y-12,8,6);R('#2a4aa8',x-4,y-6,8,3);R(sk,x-4,y-3,3,3+l);R(sk,x+1,y-3,3,3+1-l);
 }
-function draw(T){if(stage===2){draw2(T);return}
+function draw(T){if(stage===2){draw2(T);return}if(state==='sauna'||(state==='over'&&(reason==='x'||reason==='y'))){drawSauna(T);return}
  g.drawImage(skyC,0,0,W,H);
  AG.forEach((q,r)=>{for(let x=0;x<W;x+=1.5){const y=18+r*12+Math.sin(x/37+T*.6+r*1.7)*9+Math.sin(x/13+T)*3;g.save();g.translate(x,y);g.fillStyle=q;g.fillRect(0,0,1.7,24-r*3);g.restore()}});
  g.drawImage(frC,0,0,W,H);
