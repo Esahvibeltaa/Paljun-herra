@@ -155,11 +155,11 @@ const SAY=[[1,'Toivottavasti baarissa on Haukea!'],[1,'Baarissa on varmaan kova 
 const HS=[{id:'hemp',x:170,y:60,w:28,h:36,tx:184,ty:146},{id:'fire',x:326,y:48,w:52,h:72,tx:352,ty:148},{id:'fridge',x:386,y:40,w:36,h:94,tx:404,ty:148},{id:'drawer',x:424,y:84,w:42,h:50,tx:445,ty:148},{id:'mirror',x:466,y:44,w:22,h:50,tx:476,ty:148},{id:'door',x:494,y:44,w:32,h:112,tx:486,ty:148},{id:'sbed',x:548,y:86,w:104,h:50,tx:600,ty:150},{id:'pile',x:662,y:112,w:40,h:28,tx:682,ty:150},{id:'shelf',x:708,y:26,w:64,h:40,tx:740,ty:150},{id:'corner',x:784,y:80,w:36,h:60,tx:800,ty:150},{id:'bed',x:14,y:78,w:86,h:60,tx:60,ty:146},{id:'ward',x:252,y:40,w:56,h:96,tx:266,ty:148},{id:'phone',x:160,y:96,w:90,h:34,tx:205,ty:150}];
 function shoeOK(){return S2.shoes===(S2.outfit===2?'brown':S2.outfit===4?'patent':'-')}
 function say2(w,t){S2.say=[w,t];S2.sayT=3.2;sTalk(w)}
-function startLP(){S2.lp={t:0,cur:0,set:[0,0,0,0],ph:[0,1.7,3.1,4.6].map(v=>v+Math.random()),sp:[0,1,2,3].map(i=>2.6+i*.5+hum/45),drops:0,shk:0};S2.gx=S2.px;S2.gy=S2.py;msgL=['Tiirikointi: napauta, kun tappi','osuu kultaiselle viivalle.'];tn(300,200,.1,.1,'square')}
+function startLP(){S2.lp={t:0,cur:0,set:[0,0,0,0],ph:[0,1.7,3.1,4.6].map(v=>v+Math.random()),sp:[0,1,2,3].map(i=>1.8+i*.3+hum/60),drops:0,shk:0};S2.gx=S2.px;S2.gy=S2.py;msgL=['Tiirikointi: napauta, kun tappi','osuu kultaiselle viivalle.'];tn(300,200,.1,.1,'square')}
 function lpY(i,lp){return lp.set[i]?70:i===lp.cur?60+26*(.5+.5*Math.sin(lp.t*lp.sp[i]+lp.ph[i])):88}
-function lpZone(){return Math.max(3.5,Math.min(9,9-hum/14))}
+function lpZone(){return Math.max(8,Math.min(13,13-hum/14))}
 function lpTap(x,y){const s=S2,lp=s.lp;if(x>=244&&x<=280&&y>=20&&y<=38){s.lp=null;msgL=['Tiirikointi keskeytyi.'];return}
- if(Math.abs(lpY(lp.cur,lp)-70)<=lpZone()/2){lp.set[lp.cur]=1;lp.cur++;tn(2400,2200,.04,.12,'square');tn(1600,1500,.05,.06,'square',.03);
+ if(Math.abs(lpY(lp.cur,lp)-70)<=lpZone()/2+2){lp.set[lp.cur]=1;lp.cur++;tn(2400,2200,.04,.12,'square');tn(1600,1500,.05,.06,'square',.03);
   if(lp.cur>=4){s.lp=null;s.open=1;msgL=['Klik! Lukko aukesi!',s.breaks===0&&!s.drops?'MURTOVARAS-BONUS!':'Makuuhuone on auki.'];tn(150,90,.25,.3,'sine');nz(.3,'bandpass',900,.2,300);s.gx=560;s.gy=150;vib(60)}}
  else{lp.set=[0,0,0,0];lp.cur=0;lp.drops++;s.drops=(s.drops||0)+1;nz(.2,'bandpass',1500,.15,400);tn(400,200,.15,.1,'square');lp.shk=.3;vib(30);
   if(lp.drops>=3){s.lp=null;s.pin=0;s.breaks++;msgL=['Naps! Hiuspinni katkesi.','Pyydä Hempukalta uusi.'];tn(3000,1200,.1,.1,'square')}else msgL=['Tapit putosivat! ('+lp.drops+'/3)',hum>55?'Esa: Pysy paikallaan, sä tappi...':'Yritä uudelleen.']}}
