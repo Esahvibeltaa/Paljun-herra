@@ -119,3 +119,4 @@ Myöhemmin:
 - Allas kavennettu ja piirretty syvyysvaikutelmalla: sivureunat perspektiivissä, sisäseinien varjot, kulmapylväät, portaat, pyöreä varjostus etuseinässä ja varjo hangella.
 - Mökki ja saunamökki piirretty perspektiiviin: oikea sivuseinä hirsineen ja ikkunoineen sekä lumen peittämä katon sivulape näkyvät.
 - Humalarajat (15–55) poistettu ohjeista. Tilalle pelinsisäiset vihjeet: Esan puhe sammaltaa humalassa (sh, venyvät vokaalit, *hik*), Hempukka ja Aapeli kehottavat hidastamaan tai ottamaan kunnolla.
+- Retrotyyli: pelimaailma piirretään 320×200-pikselipuskuriin ja suurennetaan terävästi. Värit porrastetaan ruuturasteroinnilla, kirkkaat valot hehkuvat, reunoilla on vinjetti ja pikseliriveissä hento varjo. Tekstit piirretään erikseen terävinä. Tyylin voi kytkeä pois asetuksista (Grafiikka → Retrotyyli).
