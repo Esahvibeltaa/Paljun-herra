@@ -159,7 +159,7 @@ function startLP(){S2.lp={t:0,cur:0,set:[0,0,0,0],ph:[0,1.7,3.1,4.6].map(v=>v+Ma
 function lpY(i,lp){return lp.set[i]?70:i===lp.cur?60+26*(.5+.5*Math.sin(lp.t*lp.sp[i]+lp.ph[i])):88}
 function lpZone(){return Math.max(8,Math.min(13,13-hum/14))}
 function lpTap(x,y){const s=S2,lp=s.lp;if(x>=244&&x<=280&&y>=20&&y<=38){s.lp=null;msgL=['Tiirikointi keskeytyi.'];return}
- if(Math.abs(lpY(lp.cur,lp)-70)<=lpZone()/2+2){lp.set[lp.cur]=1;lp.cur++;tn(2400,2200,.04,.12,'square');tn(1600,1500,.05,.06,'square',.03);
+ const ex=lp.at?Math.min(.05,Math.max(0,(performance.now()-lp.at)/1000)):0;lp.t+=ex;const hit=Math.abs(lpY(lp.cur,lp)-70)<=lpZone()/2+2;lp.t-=ex;if(hit){lp.set[lp.cur]=1;lp.cur++;tn(2400,2200,.04,.12,'square');tn(1600,1500,.05,.06,'square',.03);
   if(lp.cur>=4){s.lp=null;s.open=1;msgL=['Klik! Lukko aukesi!',s.breaks===0&&!s.drops?'MURTOVARAS-BONUS!':'Makuuhuone on auki.'];tn(150,90,.25,.3,'sine');nz(.3,'bandpass',900,.2,300);s.gx=560;s.gy=150;vib(60)}}
  else{lp.set=[0,0,0,0];lp.cur=0;lp.drops++;s.drops=(s.drops||0)+1;nz(.2,'bandpass',1500,.15,400);tn(400,200,.15,.1,'square');lp.shk=.3;vib(30);
   if(lp.drops>=3){s.lp=null;s.pin=0;s.breaks++;msgL=['Naps! Hiuspinni katkesi.','Pyydä Hempukalta uusi.'];tn(3000,1200,.1,.1,'square')}else msgL=['Tapit putosivat! ('+lp.drops+'/3)',hum>55?'Esa: Pysy paikallaan, sä tappi...':'Yritä uudelleen.']}}
@@ -303,7 +303,7 @@ function useH(id){const s=S2;if(['sbed','pile','shelf','corner'].includes(id))s.
  else if(!s.shoes){say2(0,'Hempukka: Et sä voi lähteä sukkasillaan!');msgL=['Kengät on hukassa!'];if(!s.hint){s.hint=1;setTimeout(()=>{if(stage===2){say2(1,'Aapeli: Makuuhuoneessa? Lukossa. Avain hukassa.');msgL=['Makuuhuoneen ovi on lukossa.','Tiirikoi se auki!']}},3300)}}
  else if(!shoeOK())msgL=['Kengät ei sovi asuun!',s.outfit===2?'Farkkuihin ruskeat nahkakengät.':'Frakkiin kiiltonahkakengät.'];
  else{s.ph='call';s.pt=0;duck(.1);[.95,1.5].forEach(d=>tn(450,450,.4,.06,'sine',d));msgL=['Esa soittaa Kermikselle...'];[0,.18,.36,.54,.72].forEach(d=>tn(1209+d*300,1209+d*300,.1,.08,'sine',d))}}
-function step2(dt){const s=S2;s.t+=dt;s.cam+=(Math.max(0,Math.min(510,s.px-160))-s.cam)*Math.min(1,dt*4);s.fo=Math.max(0,s.fo-dt);if(s.lp){s.lp.t+=dt;s.lpT+=dt;s.lp.shk=Math.max(0,s.lp.shk-dt)}if(s.fire&&Math.random()<dt*7)nz(.03,'highpass',2500+Math.random()*2500,.04+Math.random()*.06);musicTick();flakes.forEach(f=>{f.y+=f.v*dt;if(f.y>H)f.y=0});
+function step2(dt){const s=S2;s.t+=dt;s.cam+=(Math.max(0,Math.min(510,s.px-160))-s.cam)*Math.min(1,dt*4);s.fo=Math.max(0,s.fo-dt);if(s.lp){s.lp.t+=dt;s.lp.at=performance.now();s.lpT+=dt;s.lp.shk=Math.max(0,s.lp.shk-dt)}if(s.fire&&Math.random()<dt*7)nz(.03,'highpass',2500+Math.random()*2500,.04+Math.random()*.06);musicTick();flakes.forEach(f=>{f.y+=f.v*dt;if(f.y>H)f.y=0});
  if(s.ph==='play'){const dx=s.gx-s.px,dy=s.gy-s.py,d=Math.hypot(dx,dy);if(d>1){const m=Math.min(d,70*dt);s.px+=dx/d*m;s.py+=dy/d*m;if(Math.abs(dx)>1)s.dir=dx>0?1:-1;s.wk+=dt;s.st=(s.st||0)+dt;if(s.st>.28){s.st=0;tn(110,70,.06,.12,'sine');nz(.05,'lowpass',900,.08)}}else s.wk=0}
  if(s.hasB&&s.bt<1)s.bt+=dt;s.wt=Math.max(0,s.wt-dt);
  s.nextSay-=dt;if(s.nextSay<=0&&s.ph==='play'){s.nextSay=5+Math.random()*4;s.say=SAY[Math.floor(Math.random()*SAY.length)];s.sayT=3.2;sTalk(s.say[0])}s.sayT-=dt;
