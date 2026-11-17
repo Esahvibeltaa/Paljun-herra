@@ -1130,7 +1130,6 @@ function step(dt){if(stage===7){stepMJ(dt);return}if(stage===6){step6(dt);return
    if(!wo&&!ap)L.push(['Kuu katsoo Esaa paheksuvasti.','Ehkä vähän taukoa?'])}
   else if(hum<15&&shots===0){L.push(pick([['Esa: Vielä ihan liian selvä olo.'],['Esa: Yksi kuparinen ei vielä','lämmitä mitään.']]));
    if(wo)L.push(['Hempukka: Etkö sä ota yhtään?']);if(ap)L.push(['Aapeli: Juotko sä vettä vai?'])}
-  else if(shots===0&&steady>4)L.push(pick([['Esa: Nyt on just sopiva fiilis.','HAUKI-mittari täyttyy...'],['Esa: Tää on se oikea taso.','Pidä tahti tasaisena.']]));
   if(L.length)msgL=pick(L)}
  if(hl>hL)msgL=hl===2?['Pää painuu jo pinnan tuntumaan...','Hidasta tahtia!']:['Olo on leppoisa ja raukea.'];hL=hl;
  const ww=wc>85?2:wc>60?1:0;if(ww>wL)msgL=ww===2?['Hätä on jo kova! Mene vessaan','ennen kuin allas värjäytyy!']:['Alkaa olla hätä...','Vessa odottaa mökissä.'];wL=ww;

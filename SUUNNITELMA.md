@@ -118,4 +118,4 @@ Myöhemmin:
 - Altaan ohjaus yhtenäistetty muun pelin kanssa: alanapit poistettu, toiminnot napautetaan suoraan kohteista (tölkit tai Esa = juo, mökin ovi = vessa, uusi saunamökki = sauna, Hauki-pullo = naukku, BAARIIN-kyltti = lähtö). Kohteissa on nimilaput ja näppäin- tai ohjainvihjeet. B-näppäin lähtee baariin.
 - Allas kavennettu ja piirretty syvyysvaikutelmalla: sivureunat perspektiivissä, sisäseinien varjot, kulmapylväät, portaat, pyöreä varjostus etuseinässä ja varjo hangella.
 - Mökki ja saunamökki piirretty perspektiiviin: oikea sivuseinä hirsineen ja ikkunoineen sekä lumen peittämä katon sivulape näkyvät.
-- Humalarajat (15–55) poistettu ohjeista. Tilalle pelinsisäiset vihjeet: Esan puhe sammaltaa humalassa (sh, venyvät vokaalit, *hik*), Hempukka ja Aapeli kehottavat hidastamaan tai ottamaan kunnolla, ja oikealla tasolla Esa kehuu fiilistä.
+- Humalarajat (15–55) poistettu ohjeista. Tilalle pelinsisäiset vihjeet: Esan puhe sammaltaa humalassa (sh, venyvät vokaalit, *hik*), Hempukka ja Aapeli kehottavat hidastamaan tai ottamaan kunnolla.
