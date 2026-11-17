@@ -38,7 +38,7 @@ p{max-width:var(--gw);font-size:14px;opacity:.75;text-align:center;margin:10px 0
 <button id="go" style="display:none;background:#7a3fc8">Lähdetään baariin</button>
 <div class="row" style="display:none"><button id="w">Käy vessassa (W)</button><button id="s">Mene saunaan (S)</button><button id="h" disabled>Ota Hauki naukku</button></div>
 <button id="m">Äänet: päällä</button>
-<p>Napauta tölkkejä tai Esaa juodaksesi (välilyönti). Mökin ovi vie vessaan (W), saunamökki saunaan (S) ja Hauki-pullo antaa kulauksen (H). Kun seura on koossa, napauta BAARIIN-kylttiä (B). Olut lämmittää ja lisää vessahätää, mutta liian tiuhaan juotuna pää painuu pinnan alle.</p>
+<p>Napauta tölkkejä pöydällä juodaksesi (välilyönti). Mökin ovi vie vessaan (W), saunamökki saunaan (S) ja Hauki-pullo antaa kulauksen (H). Kun seura on koossa, napauta BAARIIN-kylttiä (B). Olut lämmittää ja lisää vessahätää, mutta liian tiuhaan juotuna pää painuu pinnan alle.</p>
 <script>
 const cv=document.getElementById('c'),main=cv.getContext('2d'),W=320,H=200,wl=114;
 let g=main,SC=2;function fitCanvas(){const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1,k=Math.min(5,Math.max(2,Math.round((r.width||640)*dpr/320)));if(k!==SC||cv.width!==320*k){SC=k;cv.width=320*k;cv.height=200*k}main.setTransform(SC,0,0,SC,0,0)}
@@ -182,10 +182,10 @@ function act(e){if(PAUSED){if(e&&e.target===cv&&e.clientX!==undefined){const r=c
  if(state==='ready'||(state==='over'&&ot>(reason==='w'?2.6:1))){if(mus&&mus.m==='t')musicStop();state='play';t=0;chill=25;hum=0;wc=0;wL=0;trip=-1;warm=0;woman=0;wf=false;shots=0;steady=0;haukiL=0;aap=0;aapT=0;shotMode=false;party=0;goBar.style.display='none';delete goBar.dataset.s;cans=0;drinking=false;dp=0;applied=false;cL=0;hL=0;hT=8;msgL=['Illan viimeinen poreallas.','Älä palellu tai huku.'];if(nw)state='intro';return}
  if(state==='play'&&e&&e.target===cv&&e.clientX!==undefined){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,h=poolHit(x,y);
   if(h==='bar'){if(party>=100)startS2();else{msgL=['BAARIIN →','Seura ei ole vielä koossa.'];tn(220,180,.12,.05)}return}
-  if(h==='hauki'){if(shots>0)haukiGo();return}if(h==='wc'){wcGo();return}if(h==='sauna'){saunaGo();return}}
+  if(h==='hauki'){if(shots>0)haukiGo();return}if(h==='wc'){wcGo();return}if(h==='sauna'){saunaGo();return}if(!h){const n=performance.now();if(!act.hn||n-act.hn>=4000){act.hn=n;msgL=['Napauta tölkkejä pöydällä,','niin Esa ottaa kuparia.']}return}}
  if(state==='play'&&!drinking&&trip<0){drinking=true;shotMode=false;sCan()}
 }
-function poolHit(x,y){if(x>=270&&y>=96&&y<124)return'bar';if(shots>0&&x>=228&&x<=248&&y>=76&&y<=100)return'hauki';if(x>=40&&x<=60&&y>=92&&y<=116)return'wc';if(x<=56&&y>=100&&y<=160)return'sauna';return'drink'}
+function poolHit(x,y){if(x>=270&&y>=96&&y<124)return'bar';if(shots>0&&x>=228&&x<=248&&y>=76&&y<=100)return'hauki';if(x>=40&&x<=60&&y>=92&&y<=116)return'wc';if(x<=56&&y>=100&&y<=160)return'sauna';if(x>=262&&x<=310&&y>=120&&y<=162)return'drink';return null}
 function hint(a){return hk(a).replace('Välilyönti','välil.')}
 function lab(t,x,y,on,hot){g.save();g.font='bold 5px monospace';const w=g.measureText(t).width+5;g.globalAlpha=on?1:.55;g.fillStyle=hot?'rgba(120,60,10,.9)':'rgba(8,12,36,.72)';g.beginPath();g.roundRect(x-w/2,y-6,w,7.5,2);g.fill();g.fillStyle=hot?'#ffe23a':'#e8f4ff';g.textAlign='center';g.fillText(t,x,y);g.restore()}
 function poolHot(T){const free=trip<0&&!drinking,pl=Math.sin(T*5)>0,go=party>=100;
