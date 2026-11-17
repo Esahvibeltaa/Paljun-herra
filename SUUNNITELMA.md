@@ -110,4 +110,3 @@ Myöhemmin:
 - Yhteinen ennätyslista pelilinkkiin, jolla pelaajat näkevät toistensa tulokset nimimerkkeineen.
 - Mökki-vaiheeseen lisää tekemistä ja vitsejä.
 - Lisää salaisuuksia, kuten Plaid-nopeus, muihin vaiheisiin.
-- Koodin siivous: vanhat käyttämättömät piirtofunktiot pois.
