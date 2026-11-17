@@ -224,10 +224,10 @@ function musicTick(){if(!mus||!AC)return;const L=60/(mus.m==='o'?112:140)/4;
   mus.next+=L;mus.step++}}
 function sSip(){nz(.7,'highpass',3500,.1,1500);[.35,.6].forEach(d=>tn(170,105,.12,.1,'sine',d))}
 function sTalk(w){[0,.09,.18].forEach((d,i)=>{const f0=w?150+i*12:480+i*40;tn(f0,f0*.9,.07,.05,'square',d)})}
-let saunaWarm=45,saunaHum=8;const SA={};
+let saunaWarm=45,saunaHum=8,saunaOK=false;const SA={};
 function hideBtns(v){if(ambG){const t0=AC.currentTime;ambG.gain.setTargetAtTime(v?0:1,t0,.3);bubG.gain.setTargetAtTime(v?0:1,t0,.3)}document.getElementById('b').style.display=v?'none':'';document.querySelector('.row').style.display=v?'none':'';if(v)goBar.style.display='none';else if(goBar.dataset.s)goBar.style.display='block'}
 function enterSauna(){Object.assign(SA,{t:0,temp:78,F:40,mood:40,water:100,logs:8,ladle:0,log:0,puffs:[],steam:0,pr:{aap:aap!==1,wom:woman!==1},say:null,sayT:0,warnL:0,nx:6,win:0,nw:8,drink:0});state='sauna';msgL=['Saunassa on mukavan lämmin.','Lisää puita ja heitä löylyä.'];hideBtns(true)}
-function leaveSauna(){const s=SA;saunaWarm=15+s.mood*.6;saunaHum=10+s.mood*.25;state='play';trip=inEnd-.01;hideBtns(false);sDoor()}
+function leaveSauna(ok){const s=SA;saunaOK=!!ok;if(ok)msgL=['Saunavuoro onnistui!','Hempukka lähtee mukaan altaaseen.'];saunaWarm=15+s.mood*.6;saunaHum=10+s.mood*.25;state='play';trip=inEnd-.01;hideBtns(false);sDoor()}
 function stepSauna(dt){const s=SA;s.t+=dt;
  s.F=Math.max(0,s.F-2.6*dt);s.temp+=(38+s.F*1.05-s.temp)*.12*dt;
  s.mood=Math.max(0,Math.min(100,s.mood+(s.temp>=80&&s.temp<=92?2.5:s.temp<80?-(80-s.temp)*.12:-(s.temp-92)*.25)*dt));
@@ -239,7 +239,7 @@ function stepSauna(dt){const s=SA;s.t+=dt;
  if(wv>s.warnL)msgL=wv===3?['Pää pyörii! Heitä vettä tai poistu!']:wv===2?['Alkaa olla tosi kuuma...']:['Tunnelma latistuu, lisää puita.'];s.warnL=wv;
  s.drink=Math.max(0,s.drink-dt);if(ambG)ambG.gain.setTargetAtTime(s.win?1.3:0,AC.currentTime,.4);hum=Math.max(0,hum-1.4*dt);if(s.win)s.temp-=4.5*dt;
  if(s.pr.aap&&!s.win){s.nw-=dt;if(s.nw<=0){s.win=1;s.say=[[1,'Aapeli: Vähän raitista ilmaa!']];s.sayT=2.8;msgL=['Aapeli avasi ikkunan!','Napauta ikkunaa sulkeaksesi.'];nz(.6,'bandpass',900,.1,500);nz(1.5,'bandpass',500,.08,900)}}
- if(hum>=100){s.win=1;end('y');hideBtns(false)}else if(s.temp>=108){end('x');hideBtns(false)}else if(s.t>=36)leaveSauna()}
+ if(hum>=100){s.win=1;end('y');hideBtns(false)}else if(s.temp>=108){end('x');hideBtns(false)}else if(s.t>=36)leaveSauna(true)}
 function tapSauna(e){if(!e||e.clientX===undefined)return;const s=SA,r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
  if(x>=204&&x<=234&&y>=92&&y<=134){if(s.log>0)return;if(s.logs<=0){msgL=['Puut loppuivat telineestä!'];return}s.logs--;s.log=.7;s.F=Math.min(100,s.F+28);msgL=['Esa lisäsi pölkyn kiukaaseen.'];nz(.25,'lowpass',700,.15,300);tn(120,60,.12,.2,'sine')}
  else if(x>=204&&x<=236&&y>=134&&y<=158){if(s.ladle>0)return;if(s.water<12){msgL=['Ämpäri on tyhjä. Odota hetki.'];return}s.water-=12;s.ladle=1;loyly()}
@@ -937,7 +937,7 @@ function step(dt){if(stage===6){step6(dt);return}if(stage===5){stepFight(dt);ret
  if(state==='over')ot+=dt;ambient(dt);
  if(state!=='play')return;
  t+=dt;chill+=Math.min(2+t*0.025,4.2)*(trip>=0?1.8:1)*(warm>0?.35:1)*dt;warm=Math.max(0,warm-dt);hum=Math.max(0,hum-1.4*dt);if(trip>=0){const pt=trip;trip+=dt;if(tripType==='s'&&trip>=1.6&&trip<inEnd){chill=Math.max(0,chill-25*dt);hum=Math.max(0,hum-7*dt)}
- if(tripType==='r'&&trip>.8&&trip<2.8){chill+=12*dt;hum=Math.max(0,hum-5*dt);if(Math.floor(trip/.18)!==Math.floor(pt/.18))nz(.12,'bandpass',1800,.12,900)}if(tripType==='s'&&pt<1.6&&trip>=1.6){sDoor();enterSauna();return}if(tripType!=='r'&&pt<1.6&&trip>=1.6)sDoor();if(tripType==='w'&&pt<2&&trip>=2)sFlush();if(tripType==='s'&&pt<2.6&&trip>=2.6)nz(1.3,'highpass',3000,.15,1800);if(pt<inEnd&&trip>=inEnd){sDoor();if(tripType==='s'){chill=0;warm=saunaWarm;hum=Math.max(0,hum-saunaHum);wf=woman===0&&Math.random()<.6}}if((trip<1.6||trip>inEnd)&&Math.floor(trip/.27)!==Math.floor(pt/.27))nz(.09,'bandpass',2200,.1,1200);if(trip>=TRIP){trip=-1;if(tripType==='r'){msgL=['Esa kömpii takaisin altaaseen.','Aapeli nauraa makeasti.']}else if(tripType==='w'){wc=0;wL=0;msgL=['Huh, helpotti! Takaisin altaaseen.']}else{msgL=['Ahh, löyly teki hyvää!','Lämpö pysyy hetken.'];if(wf&&woman===0){woman=1;wb=0;wf=false;tn(880,1320,.15,.08);tn(1320,1760,.2,.08,'sine',.15);msgL=['Hempukka seurasi Esan altaaseen!','Pidä seura viihtyisänä.']}}}}
+ if(tripType==='r'&&trip>.8&&trip<2.8){chill+=12*dt;hum=Math.max(0,hum-5*dt);if(Math.floor(trip/.18)!==Math.floor(pt/.18))nz(.12,'bandpass',1800,.12,900)}if(tripType==='s'&&pt<1.6&&trip>=1.6){sDoor();enterSauna();return}if(tripType!=='r'&&pt<1.6&&trip>=1.6)sDoor();if(tripType==='w'&&pt<2&&trip>=2)sFlush();if(tripType==='s'&&pt<2.6&&trip>=2.6)nz(1.3,'highpass',3000,.15,1800);if(pt<inEnd&&trip>=inEnd){sDoor();if(tripType==='s'){chill=0;warm=saunaWarm;hum=Math.max(0,hum-saunaHum);if(saunaOK&&woman===2)woman=0;wf=woman===0&&(saunaOK||Math.random()<.6);saunaOK=false}}if((trip<1.6||trip>inEnd)&&Math.floor(trip/.27)!==Math.floor(pt/.27))nz(.09,'bandpass',2200,.1,1200);if(trip>=TRIP){trip=-1;if(tripType==='r'){msgL=['Esa kömpii takaisin altaaseen.','Aapeli nauraa makeasti.']}else if(tripType==='w'){wc=0;wL=0;msgL=['Huh, helpotti! Takaisin altaaseen.']}else{msgL=['Ahh, löyly teki hyvää!','Lämpö pysyy hetken.'];if(wf&&woman===0){woman=1;wb=0;wf=false;tn(880,1320,.15,.08);tn(1320,1760,.2,.08,'sine',.15);msgL=['Hempukka seurasi Esan altaaseen!','Pidä seura viihtyisänä.']}}}}
  if(drinking){dp+=dt/1.2;
   if(!applied&&dp>=.5){applied=true;if(shotMode)shotApply();else{chill=Math.max(0,chill-22);hum+=17;wc+=16;cans++}if(!shotMode)msgL=pick([['Kippis! Kuparinen tölkki aukeaa.'],['Ahh, hyvää. Lämpö palaa vartaloon.'],['Pshh! Tämä maistuu talvella.']])}
   if(dp>=1){drinking=false;dp=0;applied=false;shotMode=false}}
