@@ -92,14 +92,18 @@ Tyylinä on sivuttain vierittävä 8-bittinen mätkintä (beat 'em up). Grafiikk
   - humalamekaniikka
   - ristiohjain, elämät ja tauko
 
-## Myöhemmin: ohjainten määrittely
+## Ohjainten määrittely
 
-Tavoitteena on, että peliä on helpompi pelata tietokoneella näppäimistöllä ja peliohjaimella.
+Tehty (perustuki):
 
-- **Peliohjaimen tuki** (Gamepad API), esimerkiksi Xbox- ja PlayStation-ohjaimet. Ristiohjain ja tikku liikkumiseen, napit lyönnille, potkulle, hypylle ja Haukelle.
-- **Asetukset-valikko**, jossa näppäimet ja ohjaimen napit voi määritellä itse ("paina näppäintä, jota haluat käyttää lyöntiin"). Asetukset tallentuvat selaimeen.
-- **Napit näytöllä**, kun pelataan tietokoneella tai ohjaimella. Ruudulla näytetään oikeat näppäin- ja nappivihjeet.
-- **Kosketusnappien asettelu** puhelimella: koon ja paikan säätö, esimerkiksi vasenkätisille.
+- **Peliohjaimen tuki** (Gamepad API). Taisteluissa ristiohjain tai tikku liikuttaa, ja napit lyövät, potkivat, hyppäävät ja käyttävät Haukea. Napautettavissa vaiheissa tikku liikuttaa osoitinta ja A napauttaa. Start = tauko, Select = asetukset.
+- **Asetukset-valikko** alkuruudussa ja taukoruudussa. Taisteluiden näppäimet (kaksi kullekin toiminnolle) ja ohjaimen napit voi määritellä itse. Asetukset tallentuvat selaimeen.
+
+Myöhemmin:
+
+- Ruudulla näytettävät nappivihjeet ohjaimen mukaan (A/B/X/Y tai PlayStationin symbolit).
+- Altaan näppäinten (juo, vessa, sauna, Hauki) määrittely.
+- Kosketusnappien asettelu puhelimella: koon ja paikan säätö, esimerkiksi vasenkätisille.
 
 ## Muita ideoita myöhemmäksi
 
