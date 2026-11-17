@@ -126,3 +126,4 @@ Myöhemmin:
 - Moottorijahtiin vesipullot: löytyvät roskiksista (jokaisessa kentässä vähintään yksi, teollisuusalueella kaksi) ja joskus vihollisilta. Pullo laskee humalaa 25 ja antaa +5 energiaa.
 - Moottorijahdin humalatasapaino: humala laskee 0,7/s, joten kuparia pitää täydentää. Paras taso on Kova kunto (55–79, voima 140 %). Liikaa! (80+): voima 160 %, mutta Esa horjahtelee ja 25 % lyönneistä menee ohi (OHI!). Viestit varoittavat liiasta ja liian selvästä humalasta.
 - Altaalla kupari juodaan vain napauttamalla tölkkejä pöydällä (tai välilyönnillä). Napautus muualle ei juota, vaan antaa vihjeen korkeintaan 4 s välein.
+- Koodikatselmointi ja optimointi: revontulet ja taustayleisöt välimuistikerrokseen (päivitys 20 krt/s), revontulten liukuvärit valmiiksi piirretyiksi liuskoiksi, retrotilan välipiirroissa kopioidaan vain muuttunut alue ja pikselipuskuri näytönohjaimelle. Korjattu musiikin rätinä, kun välilehti palaa taustalta intro- tai vaikeustasoruudulla.
