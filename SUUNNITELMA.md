@@ -109,3 +109,8 @@ Myöhemmin:
 
 - Yhteinen ennätyslista pelilinkkiin, jolla pelaajat näkevät toistensa tulokset nimimerkkeineen.
 - Lisää salaisuuksia, kuten Plaid-nopeus, muihin vaiheisiin.
+
+## Tehty myöhemmin
+
+- Moottorijahti laajennettu: pääkatu, huoltoasema, teollisuusalue, romuttamo (välivastus Trukki-Taisto) ja Mersumies. Mersumiehen voitto täyttää sydämet.
+- Ohjainten jatko: syötteen mukaiset nappivihjeet (näppäin, Xbox tai PlayStation), altaan näppäinten määrittely, kosketusnappien koko ja vasenkätinen asettelu.
