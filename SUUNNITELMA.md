@@ -112,7 +112,7 @@ Myöhemmin:
 
 ## Tehty myöhemmin
 
-- Moottorijahti laajennettu: pääkatu, huoltoasema, teollisuusalue, romuttamo (välivastus Trukki-Taisto) ja Mersumies. Mersumiehen voitto täyttää sydämet.
+- Moottorijahti laajennettu: pääkatu, huoltoasema, teollisuusalue, romuttamo (välivastus Trukki-Taisto) ja Mersumies. Trukki-Taisto antaa yhden sydämen (täysillä sydämillä +150 pistettä).
 - Ohjainten jatko: syötteen mukaiset nappivihjeet (näppäin, Xbox tai PlayStation), altaan näppäinten määrittely, kosketusnappien koko ja vasenkätinen asettelu.
 - Teollisuusalueelle kattojen tasohyppely (tikkaat, kaksi kattoa, kuja ja paloportaat) sekä putki ja ketju aseiksi, jotka hajoavat muutamassa iskussa.
 - Altaan ohjaus yhtenäistetty muun pelin kanssa: alanapit poistettu, toiminnot napautetaan suoraan kohteista (tölkit tai Esa = juo, mökin ovi = vessa, uusi saunamökki = sauna, Hauki-pullo = naukku, BAARIIN-kyltti = lähtö). Kohteissa on nimilaput ja näppäin- tai ohjainvihjeet. B-näppäin lähtee baariin.
@@ -129,3 +129,4 @@ Myöhemmin:
 - Koodikatselmointi ja optimointi: revontulet ja taustayleisöt välimuistikerrokseen (päivitys 20 krt/s), revontulten liukuvärit valmiiksi piirretyiksi liuskoiksi, retrotilan välipiirroissa kopioidaan vain muuttunut alue ja pikselipuskuri näytönohjaimelle. Korjattu musiikin rätinä, kun välilehti palaa taustalta intro- tai vaikeustasoruudulla.
 - Moottorijahti: hahmot pysyvät taistelussa ruudulla. Viholliset rajataan näkyvään alueeseen, kun ne ovat kerran tulleet ruutuun, ja reunaan lentävä hahmo kimpoaa takaisin. Esa ja kaverit eivät enää jää puoliksi reunan taakse, eivätkä kaverit karkaa oikealle ruudun ulkopuolelle.
 - Moottorijahti: tyrmätyltä viholliselta putoaa kuparitölkki 30 %:n todennäköisyydellä, Kovalla vaikeustasolla 15 %:lla (ennen noin 10 %). Muuten pudotukset ennallaan: Pasi putken 60 %:lla, muut vesipullon tai aseen 25 %:lla.
+- Moottorijahdin järjestys: pääkatu, huoltoasema, romuttamo (Trukki-Taisto), teollisuusalue (katot) ja Mersumiehen autotalli. Trukki-Taisto antaa yhden sydämen. Mersumies ei enää täytä sydämiä, joten säästetyt sydämet näkyvät lopputuloksissa (100 p/kpl).
