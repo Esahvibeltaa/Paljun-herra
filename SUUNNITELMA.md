@@ -5,7 +5,7 @@
 Pelissä on jo seuraavat vaiheet:
 
 1. Allas ja sauna (aloitusohje ja tavoitelista)
-2. Mökki
+2. Mökki (kenkäjahti: tiirikointi, makuuhuone, takka, jääkaappi ja peili)
 3. Lento Cessnalla (Plaid-nopeus)
 4. Yökerho Falcon
 5. Taistelu (Diesel-Pena ja Turbo-Tapsa)
@@ -108,5 +108,4 @@ Myöhemmin:
 ## Muita ideoita myöhemmäksi
 
 - Yhteinen ennätyslista pelilinkkiin, jolla pelaajat näkevät toistensa tulokset nimimerkkeineen.
-- Mökki-vaiheeseen lisää tekemistä ja vitsejä.
 - Lisää salaisuuksia, kuten Plaid-nopeus, muihin vaiheisiin.
