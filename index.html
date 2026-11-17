@@ -1116,6 +1116,7 @@ addEventListener('keydown',e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDe
 function end(r){state='over';loseLife();reason=r;ot=0;drinking=false;trip=-1;sEnd(r);best=Math.max(best,t);
  msgL=r==='d'?['Nukahdit ja vajosit pinnan alle.','Liian monta tölkkiä liian nopeasti.']:r==='w'?['Allas muuttui keltaiseksi...','Olisit voinut käydä vessassa.']:r==='x'?['Taju lähti kuumassa saunassa.','Löylyä olisi pitänyt hillitä.']:r==='y'?['Sammuitte saunaan ja ikkuna jäi auki!','Liikaa kuparia kuumassa saunassa.']:['Jäätyit porealtaaseen.','Palelu voitti tällä kertaa.']}
 function step(dt){if(stage===7){stepMJ(dt);return}if(stage===6){step6(dt);return}if(stage===5){stepFight(dt);return}if(stage===4){step4(dt);return}if(stage===3){step3(dt);return}if(stage===2){step2(dt);return}if(state==='sauna'){stepSauna(dt);return}
+ musicTick();
  if(state==='title'){TI.t+=dt;if(TI.f>0)TI.f=Math.max(0,TI.f-dt);if(ambG){ambG.gain.value=0;bubG.gain.value=0}flakes.forEach(f=>{f.y+=f.v*dt;f.x+=Math.sin(f.p+f.y/20)*8*dt;if(f.y>H){f.y=0;f.x=Math.random()*W}});return}
  flakes.forEach(f=>{f.y+=f.v*dt;f.x+=Math.sin(f.p+f.y/20)*8*dt;if(f.y>H){f.y=0;f.x=Math.random()*W}});
  if(Math.random()<dt*10)steam.push({x:86+Math.random()*150,y:wl,l:0});
@@ -1711,7 +1712,7 @@ function titleLogo(){const c=document.createElement('canvas');c.width=300;c.heig
  const id=x.getImageData(0,0,c.width,c.height),d=id.data;for(let i=0;i<d.length;i+=4){if(d[i+3]<120)d[i+3]=0;else{d[i+3]=255;for(let k=0;k<3;k++)d[i+k]=Math.round(d[i+k]/36)*36}}x.putImageData(id,0,0);return c}
 function titleHit(x,y){if(x>=104&&x<=216){if(y>=134&&y<147)return 0;if(y>=150&&y<163)return 1}return-1}
 function titleMove(){TI.sel^=1;if(AC)tn(880,880,.05,.06,'square')}
-function titlePress(){audioInit();if(!TI.on){TI.on=true;TI.f=.35;TI.sel=0;if(AC){[523,659,784,1047].forEach((f,i)=>tn(f,f,.09,.07,'square',i*.06));musicStart('t')}return}
+function titlePress(){audioInit();if(AC&&AC.state!=='running')try{AC.resume()}catch(x){}if(!TI.on){TI.on=true;TI.f=.35;TI.sel=0;if(AC){[523,659,784,1047].forEach((f,i)=>tn(f,f,.09,.07,'square',i*.06));musicStart('t')}return}
  if(TI.sel===1){openCfg();return}if(AC)tn(1047,1568,.18,.08,'square');state='ready';hideBtns(false);msgL=['Valitse vaikeustaso ja aloita.','Älä palellu tai huku.']}
 addEventListener('keydown',e=>{if(stage!==1||state!=='title'||PAUSED||CFG.open)return;if(e.key===' '||e.key==='Enter')return;
  if(TI.on&&['ArrowUp','ArrowDown','w','W','s','S'].includes(e.key)){e.preventDefault();titleMove();return}if(!TI.on&&e.key.length<=12&&!['p','P','Escape'].includes(e.key))titlePress()});
