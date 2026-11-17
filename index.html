@@ -917,7 +917,7 @@ const MV={punch:{h:'mid',d:6,r:26,st:.08,ac:.1,rc:.16},upper:{h:'hi',d:9,r:22,st
 for(const k in MV)MV[k].n=k;
 const FOES=[{name:'DIESEL-PENA',sp:'pe',hp:120,spd:24,mult:1.3,tk:.8,moves:['punch','kick','upper','punch','kick'],blk:.22,pref:26,def:.8,jmp:0},
  {name:'TURBO-TAPSA',sp:'ta',hp:90,spd:50,mult:.9,tk:.5,moves:['punch','kick','hikick','sweep'],blk:.32,pref:32,def:1,jmp:.28}];
-const pow=h=>h<20?.5:h<55?1:h<80?1.4:1.6,dly=h=>h<20?0:h<55?.1:h<80?.25:.4;
+const pow=h=>h<20?.5:h<55?1:h<80?1.4:1.6,dly=h=>h<20?0:h<55?.1:h<80?.25:.4;const dlyM=h=>Math.min(.15,dly(h)*.4);
 const CHE={a:['Aapeli: Potkase, niinku ID.3 kiihtyy!','Aapeli: Sähkövoimaa, Esa!'],k:['Kermis: Hevi-voimaa, Esa!','Kermis: Vasen, oikea, ROCK!'],w:['Hempukka: Esa! Esa!','Hempukka: Näytä niille!'],
  pe:['Diesel-Pena: Diesel jyrää!','Diesel-Pena: Tule tänne, tonttu!'],ta:['Turbo-Tapsa: Turbo päälle!','Turbo-Tapsa: Liian hidas, sähköjätkä!']};
 function mkF(sp,x,face,hp,fd){return{sp,x,y:0,vx:0,vy:0,face,hp,mhp:hp,st:'idle',atk:null,wk:0,ht:0,dt:0,bt:0,th:1.2,sc:4,jk:0,fd:fd||null,sw:0,rw:0,rwv:0}}
@@ -1413,7 +1413,7 @@ function mjUpd(f,dt){phys(f,dt);
  if(f.team==='a'&&f.tired>0){f.tired-=dt;if(f.st==='down'||f.st==='ko'){f.ko=1;f.st='ko'}if(f.tired<=0){f.ko=0;f.hp=f.mhp*.55;if(f.st==='ko'){f.st='down';f.dt=.1}}}
  if(f.st==='ko'&&f.team==='e'){f.kt=(f.kt||0)+dt;if(f.kt>1.6)f.gone=1}
  f.cd-=dt;f.ct+=dt;if(f.notes>0)f.notes-=dt}
-function mjCtrl(dt){const e=M.e,dl=dly(B.h);M.hist.push([M.ck,keysNow()]);while(M.hist.length>2&&M.hist[1][0]<=M.ck-dl)M.hist.shift();const d=M.hist[0][1];const RR=M.L.roof;
+function mjCtrl(dt){const e=M.e,dl=dlyM(B.h);M.hist.push([M.ck,keysNow()]);while(M.hist.length>2&&M.hist[1][0]<=M.ck-dl)M.hist.shift();const d=M.hist[0][1];const RR=M.L.roof;
  if(RR&&e.st==='climb'){e.vx=e.vz=0;if(d.u){e.base+=18*dt;e.cl=(e.cl||0)+dt;if(Math.floor(e.cl/.28)!==Math.floor((e.cl-dt)/.28))tn(1300,1200,.03,.05,'square')}else if(d.d){e.base-=22*dt;e.cl=(e.cl||0)+dt}if(e.base>=RR.A[2]){e.base=RR.A[2];e.lev='roof';e.x=RR.A[0]+10;e.z=6;e.st='idle';msgL=['Katolla!','Potki viholliset reunan yli.']}if(e.base<=0){e.base=0;e.st='idle'}return}
  if(RR&&e.lev!=='roof'&&!e.atk&&e.y===0&&['idle','walk'].includes(e.st)&&Math.abs(e.x-RR.lad)<12&&e.z<=8&&d.u){e.st='climb';e.x=RR.lad;e.z=1;e.cl=0;msgL=['Esa kiipeää tikkaita...'];return}
  const can=!e.atk&&e.y===0&&['idle','walk'].includes(e.st);
