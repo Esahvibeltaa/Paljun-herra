@@ -123,3 +123,4 @@ Myöhemmin:
 - Introruutu NES-henkeen: palikkamainen PALJUN HERRA -logo pudottautuu ruutuun, Esa kinoksella kupari koholla, Aapeli ja Hempukka paljussa, revontulet ja vierivät vuoret ja metsä, "PAINA START" ja valikko (Aloita peli / Asetukset). Oma chiptune-tunnari (E-molli, 150 bpm: pulssiaaltomelodia, kolmiobasso, arpeggiot ja kohinarummut) alkaa ensimmäisestä painalluksesta. Retrohehku ei enää tartu valkoiseen lumeen.
 - Koko näyttö -nappi: avaa pelin koko näytölle ja kääntää puhelimen vaakaan, jos selain sallii. iPhonessa ohjeistetaan lisäämään peli Koti-valikkoon.
 - Moottorijahdissa humalan aiheuttama ohjausviive puolitettu ja rajattu enintään 0,15 sekuntiin (ennen jopa 0,4 s). Falconin taistelussa viive ennallaan.
+- Moottorijahtiin vesipullot: löytyvät roskiksista (jokaisessa kentässä vähintään yksi, teollisuusalueella kaksi) ja joskus vihollisilta. Pullo laskee humalaa 25 ja antaa +5 energiaa.
