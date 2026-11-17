@@ -116,3 +116,4 @@ Myöhemmin:
 - Ohjainten jatko: syötteen mukaiset nappivihjeet (näppäin, Xbox tai PlayStation), altaan näppäinten määrittely, kosketusnappien koko ja vasenkätinen asettelu.
 - Teollisuusalueelle kattojen tasohyppely (tikkaat, kaksi kattoa, kuja ja paloportaat) sekä putki ja ketju aseiksi, jotka hajoavat muutamassa iskussa.
 - Altaan ohjaus yhtenäistetty muun pelin kanssa: alanapit poistettu, toiminnot napautetaan suoraan kohteista (tölkit tai Esa = juo, mökin ovi = vessa, uusi saunamökki = sauna, Hauki-pullo = naukku, BAARIIN-kyltti = lähtö). Kohteissa on nimilaput ja näppäin- tai ohjainvihjeet. B-näppäin lähtee baariin.
+- Allas kavennettu ja piirretty syvyysvaikutelmalla: sivureunat perspektiivissä, sisäseinien varjot, kulmapylväät, portaat, pyöreä varjostus etuseinässä ja varjo hangella.
