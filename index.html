@@ -1317,7 +1317,7 @@ function stepMJ(dt){M.t+=dt;musicTick();M.sayT-=dt;M.fx.forEach(x=>x.t+=dt);M.fx
   M.al.forEach(a=>{a.st='idle';a.vx=a.vz=0;mjUpd(a,dt)});e.st='idle';e.vx=e.vz=0;mjUpd(e,dt);
   if(M.kt>=11.5){M.ph='done';M.t=0;tn(523,523,.3,.07,'triangle');tn(659,659,.3,.07,'triangle',.12);tn(784,784,.5,.07,'triangle',.24);msgL=['Kenttä 1 suoritettu!']}}
  if(M.ph==='done'||M.ph==='lose'){}}
-function mjVan(x,y,T){g.save();g.translate(x,y);let q=g.createLinearGradient(0,-36,0,0);q.addColorStop(0,'#5a5e68');q.addColorStop(1,'#2a2c34');g.fillStyle=q;g.beginPath();g.moveTo(0,-4);g.lineTo(0,-30);g.quadraticCurveTo(0,-34,4,-34);g.lineTo(52,-34);g.lineTo(62,-20);g.lineTo(70,-18);g.lineTo(70,-4);g.closePath();g.fill();g.strokeStyle='#111';g.lineWidth=.7;g.stroke();
+function mjVan(x,y,T){g.save();g.translate(x,y);g.scale(1.7,1.7);let q=g.createLinearGradient(0,-36,0,0);q.addColorStop(0,'#5a5e68');q.addColorStop(1,'#2a2c34');g.fillStyle=q;g.beginPath();g.moveTo(0,-4);g.lineTo(0,-30);g.quadraticCurveTo(0,-34,4,-34);g.lineTo(52,-34);g.lineTo(62,-20);g.lineTo(70,-18);g.lineTo(70,-4);g.closePath();g.fill();g.strokeStyle='#111';g.lineWidth=.7;g.stroke();
  g.fillStyle='#9ab8d8';g.beginPath();g.moveTo(52,-31);g.lineTo(60,-21);g.lineTo(52,-21);g.closePath();g.fill();R('#1a1a20',36,-31,12,10);R('#c8a020',4,-18,46,2.4);g.save();g.font='bold 6px monospace';g.fillStyle='#e8e0d0';g.fillText('DIESEL-JENGI',6,-24);g.restore();
  [12,56].forEach(wx=>{ell(wx,-3,6,6,'#141418','#000');ell(wx,-3,2.4,2.4,'#8a8a94')});ell(69,-12,1.6,1.2,'#fff4b0');
  for(let i=0;i<4;i++){const u=(T*1.5+i*.25)%1;ell(-4-u*20,-6-u*6,2+u*5,2+u*4,`rgba(40,40,44,${.5*(1-u)})`)}g.restore()}
@@ -1348,7 +1348,7 @@ function drawMJ(T){const e=M.e;g.font='bold 8px monospace';g.textBaseline='alpha
  M.items.forEach(it=>L.push([it.z-.1,()=>{if(it.t>11&&Math.sin(T*30)>0)return;const x=it.x-M.cam,y=112+it.z-2+Math.sin(T*4)*1;if(it.type==='c')can(x-3.5,y-12);else{g.save();g.translate(x,y-6);g.rotate(.6);wrench(-1,-6);g.restore()}}]));
  M.ents.forEach(f=>L.push([f.z+(f===e?.05:0),()=>mjDrawE(f,T)]));
  if(!M.w.gone){const w=M.w;L.push([w.z,()=>{const o=M.lock&&M.ph==='play'?{...idle(T,2),aL:2.6,aR:-2.6}:w.wk>0?walk(T,w.wk,2):idle(T,2);o.flip=w.face<0;if(M.ph==='kid'&&M.kt>1){o.aL=2.8;o.aR=-2.8}ell(w.x-M.cam,112+w.z+1,9,2.2,'rgba(0,0,0,.35)');drawChar(SP.w,w.x-M.cam,112+w.z,o)}])}
- if(M.van)L.push([M.van.z,()=>mjVan(M.van.x-M.cam-35,112+M.van.z+3,T)]);
+ if(M.van)L.push([M.van.z,()=>mjVan(M.van.x-M.cam-60,112+M.van.z+5,T)]);
  L.sort((a,b)=>a[0]-b[0]).forEach(x=>x[1]());
  M.proj.forEach(p=>{g.save();g.translate(p.x-M.cam,112+p.z-p.y);g.rotate(p.r);R('#8a8a94',-6,-1.6,12,3.2);R('#5a5a64',-6,-1.6,2,3.2);g.restore();ell(p.x-M.cam,112+p.z+1,4,1.2,'rgba(0,0,0,.3)')});
  M.fx.forEach(x=>{const u=x.t/.45,r=(x.big?12:8)*(.4+u),sx=x.x-M.cam;g.strokeStyle='#fff36a';g.globalAlpha=1-u;g.lineWidth=1.1;for(let i=0;i<8;i++){const a=i*.785+.3;g.beginPath();g.moveTo(sx+Math.cos(a)*r*.4,x.y+Math.sin(a)*r*.4);g.lineTo(sx+Math.cos(a)*r,x.y+Math.sin(a)*r);g.stroke()}
