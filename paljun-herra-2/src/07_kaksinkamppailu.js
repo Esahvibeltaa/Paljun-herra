@@ -1,5 +1,6 @@
 /* Paljun Herra 2 – Kaksinkamppailu (1v1) ja yhteinen taistelumekaniikka (pohja: Paljun herra 1) */
-const FL=150,K={keys:{l:0,r:0,u:0,d:0}};let DIFF=0;try{DIFF=+(localStorage.getItem('ph_diff')||0)===1?1:0}catch(x){}
+// K = taistelun yhteinen tila; fx ja shake alustetaan heti, koska myös mätkintä (ilman 1v1-taistelua) käyttää niitä
+const FL=150,K={keys:{l:0,r:0,u:0,d:0},fx:[],shake:0};let DIFF=0;try{DIFF=+(localStorage.getItem('ph_diff')||0)===1?1:0}catch(x){}
 const MV={punch:{h:'mid',d:6,r:31,st:.08,ac:.1,rc:.16},upper:{h:'hi',d:9,r:26,st:.12,ac:.1,rc:.22},lowp:{h:'lo',d:5,r:29,st:.08,ac:.1,rc:.16,cr:1},kick:{h:'mid',d:8,r:38,st:.13,ac:.1,rc:.2},
  hikick:{h:'hi',d:10,r:38,st:.17,ac:.1,rc:.24},bkick:{h:'mid',d:11,r:38,st:.22,ac:.1,rc:.26},sweep:{h:'lo',d:7,r:40,st:.14,ac:.1,rc:.3,cr:1,kd:1},fkick:{h:'mid',d:14,r:36,st:.05,ac:.4,rc:0,air:1,kd:1},
  jpunch:{h:'mid',d:6,r:29,st:.05,ac:.25,rc:0,air:1},spin:{h:'mid',d:22,r:38,st:.1,ac:.5,rc:.25,both:1,kd:1},smoke:{h:'mid',d:0,r:0,st:.5,ac:.1,rc:.5,fx:1},throw:{h:'mid',d:0,r:0,st:.3,ac:.1,rc:.3,fx:2},dash:{h:'mid',d:12,r:22,st:.3,ac:.5,rc:.3,dash:1}};
@@ -93,7 +94,7 @@ function launch(f,dir,str){f.st='fly';f.atk=null;f.y=Math.max(f.y,.01);f.vy=60+s
 function phys(f,dt){
  if(f.st==='fly'){f.vy-=440*dt;f.y+=f.vy*dt;f.rw+=f.rwv*dt;if(Math.abs(f.rw)>1.6){f.rw=Math.sign(f.rw)*1.6;f.rwv*=.4}
   if(f.y<=0){f.y=0;if(!f.bn&&f.vy<-70){f.bn=1;f.vy=-f.vy*.3;f.vx*=.55;sThud(false);K.shake=Math.max(K.shake,.15)}
-   else{f.vy=0;f.lie=f.rw>=0?1:-1;f.st=f.ko?'ko':'down';f.dt=.6;sThud(true);K.fx.push({x:f.x+f.lie*20,y:FL-3,t:0,c:'#e8e0ff'})}}}
+   else{f.vy=0;f.lie=f.rw>=0?1:-1;f.st=f.ko?'ko':'down';f.dt=.6;sThud(true);if(stage===5)K.fx.push({x:f.x+f.lie*20,y:FL-3,t:0,c:'#e8e0ff'})}}}
  else if(f.st==='down'||f.st==='ko'){if(f.lie===undefined){f.lie=-f.face}f.rw+=(f.lie*1.5-f.rw)*Math.min(1,dt*12);const cx=Math.max(PHB[0]+(f.lie<0?44:0),Math.min(PHB[1]-(f.lie>0?44:0),f.x));f.x+=(cx-f.x)*Math.min(1,dt*5)}
  else if(f.st==='roll'){f.gt+=dt;const u=Math.min(1,f.gt/.5);f.rw=f.lie*(1.5+(Math.PI*2-1.5)*ease(u));f.vx=f.lie*50*(1-u*.5);if(u>=1){f.st='idle';f.rw=0;f.rwv=0;f.vx=0;f.lie=undefined}}
  else if(f.st==='kip'){f.gt+=dt;if(f.gt>.16&&!f.kj){f.kj=1;f.vy=130;f.y=.01;voice(VO(f)*1.1,VO(f)*1.3,.12,'u',.4);nz(.12,'highpass',2000,.08,4500)}
