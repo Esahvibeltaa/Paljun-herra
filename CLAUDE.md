@@ -20,3 +20,9 @@ Selainpeli yhdessä tiedostossa (`index.html`). Suunnitelma ja muutoshistoria: `
 - Julkaisu artifactiin https://claude.ai/artifact/5G6NK3T25MGUbhniSuJ5hX
 - Commit haaraan `claude/paljun-herra-project-import-0ezkqx` ja push myös `main`-haaraan.
 - Merkintä `SUUNNITELMA.md`:n kohtaan "Tehty myöhemmin".
+
+## Windows-versio
+
+- `desktop/build.sh <neutralino-win_x64.exe> [kohde]` rakentaa `PaljunHerra-Windows.zip`:n (Neutralinojs 5.6.0, WebView2).
+- Sisältö paketoidaan omalla `desktop/pack_neu.py`-skriptillä (asar-muoto), ei npm-riippuvuuksia.
+- Rakennetaan uudelleen aina, kun `index.html` muuttuu ja Windows-versio halutaan päivittää.

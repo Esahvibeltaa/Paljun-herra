@@ -1,0 +1,34 @@
+PALJUN HERRA – Windows-versio
+=============================
+
+Peli toimii Windows 10:ssä ja 11:ssä ilman nettiyhteyttä.
+
+KÄYNNISTYS
+1. Pura zip-tiedosto haluamaasi kansioon (esim. Työpöydälle).
+   Älä käynnistä peliä suoraan zipin sisältä.
+2. Kaksoisnapsauta tiedostoa  PaljunHerra-win_x64.exe
+
+Jos Windows näyttää ilmoituksen "Windows suojasi tietokonettasi":
+   valitse "Lisätietoja" ja sitten "Suorita silti".
+   Ilmoitus tulee, koska peliä ei ole allekirjoitettu kaupallisella
+   varmenteella. Peli ei asenna mitään eikä käytä nettiä.
+
+Kansiossa pitää olla molemmat tiedostot vierekkäin:
+   PaljunHerra-win_x64.exe   (ohjelma)
+   resources.neu             (pelin sisältö)
+
+VAATIMUKSET
+- Windows 10 tai 11 (64-bit)
+- Microsoft Edge WebView2 -ajonaikainen ympäristö. Se on valmiina
+  Windows 11:ssä ja päivitetyissä Windows 10 -koneissa. Jos peli ei
+  käynnisty, asenna "WebView2 Runtime" Microsoftin sivuilta
+  (developer.microsoft.com/microsoft-edge/webview2) ja yritä uudelleen.
+
+VINKIT
+- Ikkunan kokoa voi muuttaa vapaasti, peli skaalautuu.
+- Isompi ikkuna: suurenna ikkuna Windowsin suurenna-painikkeella
+  (ikkunan oikea yläkulma) tai vedä reunoista.
+- Ennätykset ja asetukset tallentuvat koneelle.
+- Poisto: poista kansio. Mitään ei ole asennettu muualle.
+
+Hyviä löylyjä!
