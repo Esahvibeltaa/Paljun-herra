@@ -780,11 +780,11 @@ const SP={e:[0,1,2,3,4,5].map(o=>buildSpr(genEsa,o)),w:buildSpr(genW,0),ws:build
 SP.eS=[0,1,2,3,4,5].map(o=>buildSpr(()=>{const sk=genEsa(o);['legL','legR'].forEach(k=>LY[k]&&LY[k].forEach((r,y)=>{if(y>=48)for(let i=0;i<r.length;i++)if(r[i])r[i]=y>=50?'#c4c4d0':'#ececf2'}));return sk}));
 const OCv=document.createElement('canvas');OCv.width=128;OCv.height=144;const oc=OCv.getContext('2d');
 const ease=u=>{u=Math.max(0,Math.min(1,u));return u*u*(3-2*u)};
-function drawChar(sp,x,y,o){o=o||{};if(o.prof&&sp.P)sp=sp.P;const PV=sp.pv;const legD=(up,lo,lx,a,k)=>{a=a||0;k=k||0;oc.save();oc.translate(lx,36);oc.rotate(a);oc.save();oc.translate(0,6);oc.rotate(k);if(lo)oc.drawImage(lo,-lx-1,-42-1);oc.restore();if(up)oc.drawImage(up,-lx-1,-36-1);oc.restore()};const armD=(up,lo,sh,ax,a,e,sc)=>{sc=sc||1;a=a||0;e=e||0;oc.save();oc.translate(ax,23);oc.rotate(a);oc.save();oc.translate(0,5.6*sc);oc.rotate(e);oc.scale(1,sc);if(lo)oc.drawImage(lo,-ax-1,-28.6-1);oc.restore();oc.scale(1,sc);if(up)oc.drawImage(up,-ax-1,-23-1);oc.restore();if(sh)oc.drawImage(sh,ax-2.5,20.5)};const B=o.bob||0,tl=o.tilt||0;
+function drawChar(sp,x,y,o){o=o||{};if(o.prof&&sp.P)sp=sp.P;const PV=sp.pv;const legD=(up,lo,lx,a,k,sc)=>{sc=sc||1;a=a||0;k=k||0;oc.save();oc.translate(lx,36);oc.rotate(a);oc.save();oc.translate(0,6*sc);oc.rotate(k);oc.scale(1,sc);if(lo)oc.drawImage(lo,-lx-1,-42-1);oc.restore();oc.scale(1,sc);if(up)oc.drawImage(up,-lx-1,-36-1);oc.restore()};const armD=(up,lo,sh,ax,a,e,sc)=>{sc=sc||1;a=a||0;e=e||0;oc.save();oc.translate(ax,23);oc.rotate(a);oc.save();oc.translate(0,5.6*sc);oc.rotate(e);oc.scale(1,sc);if(lo)oc.drawImage(lo,-ax-1,-28.6-1);oc.restore();oc.scale(1,sc);if(up)oc.drawImage(up,-ax-1,-23-1);oc.restore();if(sh)oc.drawImage(sh,ax-2.5,20.5)};const B=o.bob||0,tl=o.tilt||0;
  oc.setTransform(1,0,0,1,0,0);oc.clearRect(0,0,128,144);oc.imageSmoothingEnabled=false;oc.setTransform(2,0,0,2,36,20);
  const d=(c,ax,ay,a,sy)=>{if(!c)return;oc.save();oc.translate(ax,ay);if(a)oc.rotate(a);if(sy&&sy!==1)oc.scale(1,sy);oc.drawImage(c,-ax-1,-ay-1);oc.restore()};
  oc.save();oc.translate(0,B);d(sp.back,12.5,20,tl);oc.restore();
- if(PV)armD(sp.armL,sp.armL2,null,12.5,o.aL,o.eL,o.sL);legD(sp.legL,sp.legL2,PV?12:10,o.lL,o.kL);legD(sp.legR,sp.legR2,PV?12.5:15,o.lR,o.kR);
+ if(PV)armD(sp.armL,sp.armL2,null,12.5,o.aL,o.eL,o.sL);legD(sp.legL,sp.legL2,PV?12:10,o.lL,o.kL,o.qL);legD(sp.legR,sp.legR2,PV?12.5:15,o.lR,o.kR,o.qR);
  oc.save();oc.translate(0,B);d(sp.torso,0,0);d(sp.front,0,0);
  oc.save();oc.translate(12.5,20);oc.rotate(tl);oc.translate(-12.5,-20);oc.drawImage(o.blink?sp.headB:sp.head,-1,-1);
  if(o.blush>0){oc.fillStyle=`rgba(230,70,90,${o.blush})`;oc.fillRect(9,15,2,1);oc.fillRect(15,15,2,1)}oc.restore();
@@ -913,9 +913,9 @@ function draw4(T){const b=B;g.font='bold 8px monospace';g.textBaseline='alphabet
  if(b.ph==='out'&&b.pt>.8)box3('ESA SAMMUI TISKILLE',['Taistelukunto hukkui kuparin pohjalle.',RT()]);
  if(b.ph==='fight'&&b.pt>.6)box3('TAISTELU!',['Esa vs. Diesel-Pena ja Turbo-Tapsa','Taistelukunto: '+ku[0]+' (humala '+Math.round(b.h)+')','Hauki-shotteja: '+b.hs+'   Fiilis: '+Math.round(b.fi)+' %','Ohjaus: ristiohjain + LYÖNTI / POTKU','Napauta: taisteluun!'])}
 const FL=150,K={keys:{l:0,r:0,u:0,d:0}};let DIFF=0;try{DIFF=+(localStorage.getItem('ph_diff')||0)===1?1:0}catch(x){}
-const MV={punch:{h:'mid',d:6,r:26,st:.08,ac:.1,rc:.16},upper:{h:'hi',d:9,r:22,st:.12,ac:.1,rc:.22},lowp:{h:'lo',d:5,r:24,st:.08,ac:.1,rc:.16,cr:1},kick:{h:'mid',d:8,r:32,st:.13,ac:.1,rc:.2},
- hikick:{h:'hi',d:10,r:32,st:.17,ac:.1,rc:.24},bkick:{h:'mid',d:11,r:32,st:.22,ac:.1,rc:.26},sweep:{h:'lo',d:7,r:34,st:.14,ac:.1,rc:.3,cr:1,kd:1},fkick:{h:'mid',d:14,r:30,st:.05,ac:.4,rc:0,air:1,kd:1},
- jpunch:{h:'mid',d:6,r:24,st:.05,ac:.25,rc:0,air:1},spin:{h:'mid',d:22,r:38,st:.1,ac:.5,rc:.25,both:1,kd:1},smoke:{h:'mid',d:0,r:0,st:.5,ac:.1,rc:.5,fx:1},throw:{h:'mid',d:0,r:0,st:.3,ac:.1,rc:.3,fx:2},dash:{h:'mid',d:12,r:22,st:.3,ac:.5,rc:.3,dash:1}};
+const MV={punch:{h:'mid',d:6,r:31,st:.08,ac:.1,rc:.16},upper:{h:'hi',d:9,r:26,st:.12,ac:.1,rc:.22},lowp:{h:'lo',d:5,r:29,st:.08,ac:.1,rc:.16,cr:1},kick:{h:'mid',d:8,r:38,st:.13,ac:.1,rc:.2},
+ hikick:{h:'hi',d:10,r:38,st:.17,ac:.1,rc:.24},bkick:{h:'mid',d:11,r:38,st:.22,ac:.1,rc:.26},sweep:{h:'lo',d:7,r:40,st:.14,ac:.1,rc:.3,cr:1,kd:1},fkick:{h:'mid',d:14,r:36,st:.05,ac:.4,rc:0,air:1,kd:1},
+ jpunch:{h:'mid',d:6,r:29,st:.05,ac:.25,rc:0,air:1},spin:{h:'mid',d:22,r:38,st:.1,ac:.5,rc:.25,both:1,kd:1},smoke:{h:'mid',d:0,r:0,st:.5,ac:.1,rc:.5,fx:1},throw:{h:'mid',d:0,r:0,st:.3,ac:.1,rc:.3,fx:2},dash:{h:'mid',d:12,r:22,st:.3,ac:.5,rc:.3,dash:1}};
 for(const k in MV)MV[k].n=k;
 const FOES=[{name:'DIESEL-PENA',sp:'pe',hp:120,spd:24,mult:1.3,tk:.8,moves:['punch','kick','upper','punch','kick'],blk:.22,pref:26,def:.8,jmp:0},
  {name:'TURBO-TAPSA',sp:'ta',hp:90,spd:50,mult:.9,tk:.5,moves:['punch','kick','hikick','sweep'],blk:.32,pref:32,def:1,jmp:.28}];
@@ -1068,7 +1068,8 @@ function fpose(f,T,isE){const a=f.atk,m=a&&a.m,ex=a?(a.t<m.st?ease(a.t/m.st):a.t
   else if(n==='spin'){o.aL=1.57;o.eL=0;o.aR=-1.57;o.eR=0;o.flipX=Math.floor(a.t/.06)%2===0;o.bob=-2}
   else if(n==='smoke'){o.rot=.18*ex;o.cy=26;o.aL=.4;o.eL=-.6;o.aR=-.6;o.eR=-1.6;o.blink=ex>.5}
   else if(n==='throw'){if(a.t<m.st){o.aR=lp(-1.15,2.4);o.eR=lp(-1.55,.9)}else{o.aR=-1.5;o.eR=0}}
-  else if(n==='dash'){o.rot=.28*ex;o.cy=26;o.aL=.9;o.eL=0;o.aR=-1.2;o.eR=-.6;o.lL=.5;o.kL=.9;o.lR=-.6;o.kR=.3}}
+  else if(n==='dash'){o.rot=.28*ex;o.cy=26;o.aL=.9;o.eL=0;o.aR=-1.2;o.eR=-.6;o.lL=.5;o.kL=.9;o.lR=-.6;o.kR=.3}
+  if(n==='punch'||n==='jpunch'||n==='lowp')o.sR=1+.34*ex;else if(n==='upper')o.sR=1+.2*ex;else if(n==='kick'||n==='hikick'||n==='bkick')o.qR=1+.28*ex;else if(n==='sweep')o.qR=1+.25*ex;else if(n==='fkick')o.qR=1.26}
  else o=G;
  if(isE&&B.h>=55&&f.st!=='ko'&&f.st!=='down'){o.rot=(o.rot||0)+Math.sin(T*1.7)*(B.h-55)/220;o.cy=o.cy||26}
  if(isE)o.blush=Math.min(.55,Math.max(0,(B.h-25)/80));return o}
@@ -1348,7 +1349,7 @@ SP.ms=buildSpr(recol(genTapsa,{'#1e1e28':'#2a2a32','#121218':'#16161a','#f0f0f0'
 function pipeW(a,b){g.fillStyle=mkLg(0,0,[]);const q=g.createLinearGradient(a,0,a+3,0);q.addColorStop(0,'#5a5e68');q.addColorStop(.4,'#c8ccd6');q.addColorStop(1,'#5a5e68');g.fillStyle=q;g.fillRect(a,b,3,18);R('#3a3e46',a-.5,b,4,2);R('#3a3e46',a-.5,b+16,4,2);R('rgba(140,60,20,.5)',a,b+8,3,2)}
 function chainW(a,b){for(let i=0;i<7;i++){g.strokeStyle=i%2?'#8a8e98':'#c8ccd6';g.lineWidth=.9;g.beginPath();g.ellipse(a+1.5+Math.sin(i*1.3)*.8,b+i*2.5,1.3,1.8,0,0,7);g.stroke()}R('#5a3a1a',a,b+16,3,4)}
 function wrench(a,b){R('#9aa0ac',a,b+2,2.4,10);ell(a+1.2,b+1.5,2.6,2.2,'#b8bcc8','#333');ell(a+1.2,b+1.5,1,1,'#222');R('#5a5a64',a,b+9,2.4,3)}
-const MVJ={};for(const k in MV)MVJ[k]=Object.assign({},MV[k],{r:MV[k].r*.8});MVJ.solo={h:'mid',d:0,r:0,st:.3,ac:1.2,rc:.3,fx:3,n:'solo'};MVJ.star={h:'mid',d:0,r:0,st:.35,ac:.1,rc:.35,fx:4,n:'throw'};MVJ.throw.fx=2;
+const MVJ={};for(const k in MV)MVJ[k]=Object.assign({},MV[k],{r:MV[k].r*.95});MVJ.solo={h:'mid',d:0,r:0,st:.3,ac:1.2,rc:.3,fx:3,n:'solo'};MVJ.star={h:'mid',d:0,r:0,st:.35,ac:.1,rc:.35,fx:4,n:'throw'};MVJ.throw.fx=2;
 const KT={tt:{sp:'tt',hp:120,spd:28,dm:1.3,sc:1.12,nm:'TRUKKI-TAISTO'},rn:{sp:'rn',hp:36,spd:30},pasi:{sp:'pasi',hp:30,spd:34},tp:{sp:'tp',hp:30,spd:46},pe:{sp:'pe',hp:80,spd:24,dm:1.4},ta:{sp:'ta',hp:60,spd:46,dm:1.1},ms:{sp:'ms',hp:240,spd:26,dm:1.3,sc:1.22,nm:'MERSUMIES'}};
 const L1={n:1,name:'pääkatu',theme:'city',len:1500,waves:[{x:260,list:['rn','rn','rn']},{x:620,list:['rn','pasi','rn']},{x:980,list:['rn','rn','rn','rn']},{x:1300,list:['pasi','rn','rn','pasi','rn']}],bins:[[200,30,'c'],[540,8,'w'],[700,24,'v'],[860,34,'p'],[1180,12,'c']]};
 const LG={n:2,name:'huoltoasema',theme:'gas',len:1400,waves:[{x:260,list:['rn','rn','pasi']},{x:600,list:['tp','rn','tp']},{x:950,list:['pasi','rn','tp','rn']},{x:1240,list:['rn','tp','pasi','rn','tp']}],bins:[[170,32,'c'],[480,8,'p'],[650,26,'v'],[820,30,'c'],[1120,14,'k']],msg:['Kenttä 2: huoltoasema','Pakun jäljet kääntyivät tänne.'],say:['a','Aapeli: Täällä ei edes oo latauspistettä!'],done:['Kassa: "Musta paku ajoi romuttamolle."','Napauta: kenttä 3.']};
@@ -1397,7 +1398,7 @@ function mjDamage(a,d,m){let dmg=m.d*(a.team==='p'?pow(B.h):a.team==='a'?.8:(DIF
 function mjHitCheck(a){const m=a.atk.m;
  if(a.team==='p')M.objs.forEach(o=>{if(o.br||a.atk.hits.has(o)||a.lev==='roof')return;const dx=o.x-a.x;if((m.both||Math.sign(dx)===a.face)&&Math.abs(dx)<=m.r+4&&Math.abs(o.z-a.z)<9){a.atk.hits.add(o);o.br=1;o.bt=0;tn(500,300,.15,.25,'square');nz(.3,'bandpass',1200,.3,400);M.items.push({x:o.x+a.face*10,z:o.z,type:o.drop,t:0});M.fx.push({x:o.x,y:112+o.z-8,t:0})}});
  for(const d of M.ents){if(d===a||d.team===a.team||(a.team!=='e'&&d.team!=='e'))continue;if(a.atk.hits.has(d)||['down','ko','fly','roll','kip'].includes(d.st))continue;
-  const dx=d.x-a.x;if(!m.both&&Math.sign(dx)!==a.face&&Math.abs(dx)>3)continue;if(Math.abs(dx)>m.r+(a.team==='p'&&a.wpn>0?WN[a.wt||'w'][4]:0)||Math.abs(d.z-a.z)>7)continue;if(m.h==='lo'&&d.y>8)continue;if(d.st==='climb'||Math.abs((d.base||0)-(a.base||0))>12)continue;
+  const dx=d.x-a.x;if(!m.both&&Math.sign(dx)!==a.face&&Math.abs(dx)>3)continue;if(Math.abs(dx)>m.r+(a.team==='p'&&a.wpn>0?WN[a.wt||'w'][4]:0)||Math.abs(d.z-a.z)>9)continue;if(m.h==='lo'&&d.y>8)continue;if(d.st==='climb'||Math.abs((d.base||0)-(a.base||0))>12)continue;
   if(a.team==='p'&&B.h>=80&&Math.random()<.25){a.atk.hits.add(d);M.fx.push({x:(a.x+d.x)/2,y:112+d.z-30-d.y-(d.base||0),t:0,txt:'OHI!'});nz(.15,'highpass',2500,.08,1200);continue}
   a.atk.hits.add(d);mjDamage(a,d,m)}}
 function mjSpecial(f){const fx=f.atk.m.fx;

@@ -131,3 +131,4 @@ Myöhemmin:
 - Moottorijahti: tyrmätyltä viholliselta putoaa kuparitölkki 30 %:n todennäköisyydellä, Kovalla vaikeustasolla 15 %:lla (ennen noin 10 %). Muuten pudotukset ennallaan: Pasi putken 60 %:lla, muut vesipullon tai aseen 25 %:lla.
 - Moottorijahdin järjestys: pääkatu, huoltoasema, romuttamo (Trukki-Taisto), teollisuusalue (katot) ja Mersumiehen autotalli. Trukki-Taisto antaa yhden sydämen. Mersumies ei enää täytä sydämiä, joten säästetyt sydämet näkyvät lopputuloksissa (100 p/kpl).
 - Kenttien siirtymät tarkistettu uudessa järjestyksessä: aamu sarastaa nyt johdonmukaisesti (pääkatu ja huoltoasema yötä, romuttamolla ensimmäinen kajo, teollisuusalueella kirkkaampi rusko ja himmeämmät tähdet, lopuksi autotallin sisätila).
+- Lyöntien ulottuvuus: lyönnit ja potkut ulottuvat noin 20 % pidemmälle (esim. lyönti 26 → 31, potku 32 → 38), Moottorijahdissa lyhennyskerroin 0,8 → 0,95 ja syvyystoleranssi 7 → 9. Raajat venyvät iskiessä: käsi noin +34 %, jalka noin +28 %.
