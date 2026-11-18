@@ -1,4 +1,4 @@
-# Paljun Herra 2 – the paluu of drunken master
+# Paljun Herra 2 Paluu of drunken master
 
 ## Tavoite
 
@@ -12,7 +12,7 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 ## Nykytila (prototyyppi)
 
 - Moottori erotettu ykkösosasta moduuleiksi (`src/`), koonti yhdeksi tiedostoksi.
-- Intro: PALJUN HERRA 2 – THE PALUU OF DRUNKEN MASTER, tunnusmusiikki.
+- Intro: PALJUN HERRA 2 – PALUU OF DRUNKEN MASTER, tunnusmusiikki.
 - Kulku: intro → harjoituskenttä (mätkintä) → pomotaistelu (1v1) → loppuruutu → intro.
 - Viholliset ja pomot ovat ykkösosan **paikkamerkkejä** (Diesel-jengi, Pena, Tapsa).
 - Ykkösosan tarinakentät ovat vielä mukana tietona (`L1`, `LG`, `LS`, `L2`, `LB`), mutta eivät käytössä.
@@ -59,3 +59,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Projektin pohja: moduulit, koonti, intro, harjoituskenttä, pomotaistelu ja loppuruutu.
 - Suorituskykykorjaukset ykkösosasta: apukankaat prosessorilla (willReadFrequently), ääniparametrit setAP-funktion kautta, kankaan skaalaus enintään 4×, yksi hehkukerros, vinjetti ja rivivarjo CSS-kerroksena (#fxov), introruutu 30 fps:llä, Shift+F-kehysnopeusmittari.
 - Tarinapolun karkea luonnos.
+- Nimi muutettu muotoon Paljun Herra 2 Paluu of drunken master (intro: PALUU OF DRUNKEN MASTER).

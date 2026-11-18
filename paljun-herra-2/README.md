@@ -1,4 +1,4 @@
-# Paljun Herra 2 – the paluu of drunken master
+# Paljun Herra 2 Paluu of drunken master
 
 Jatko-osa [Paljun herralle](../README.md). Retrohenkinen mätkintäpeli: Esa, Aapeli, Kermis ja Hempukka palaavat.
 

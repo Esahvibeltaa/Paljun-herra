@@ -17,4 +17,4 @@ Peli ei asenna mitään. Poistoon riittää kansion poistaminen. Tarvitsee Micro
 
 ## Jatko-osa
 
-**Paljun Herra 2 – the paluu of drunken master** on työn alla kansiossa [`paljun-herra-2/`](paljun-herra-2/).
+**Paljun Herra 2 Paluu of drunken master** on työn alla kansiossa [`paljun-herra-2/`](paljun-herra-2/).

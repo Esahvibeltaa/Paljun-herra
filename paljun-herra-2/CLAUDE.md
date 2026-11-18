@@ -1,4 +1,4 @@
-# Paljun Herra 2 – the paluu of drunken master – työohjeet
+# Paljun Herra 2 Paluu of drunken master – työohjeet
 
 Jatko-osa Paljun herralle. Pohjana ykkösosan taistelumekaniikka, retrografiikka ja koodaussäännöt.
 Suunnitelma: `SUUNNITELMA.md`.

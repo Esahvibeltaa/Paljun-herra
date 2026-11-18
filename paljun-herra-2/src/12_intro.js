@@ -34,7 +34,7 @@ function drawTitle(T){const t=TI.t;
  flakes.forEach(f=>{g.fillStyle='rgba(255,255,255,.85)';g.fillRect(f.x|0,f.y|0,1,1)});
  // logo
  if(!TI.logo)TI.logo=titleLogo();{const u=Math.min(1,t/.9),yb=-90+(1-Math.pow(1-u,3))*100+(u>=1?Math.sin(Math.max(0,t-.9)*7)*Math.exp(-(t-.9)*3)*4:0),sm=g.imageSmoothingEnabled;g.imageSmoothingEnabled=false;g.drawImage(TI.logo,10,yb|0,300,96);g.imageSmoothingEnabled=sm}
- g.save();g.textAlign='center';g.font='bold 7px monospace';g.fillStyle='#bfe8ff';if(t>.9)g.fillText('– THE PALUU OF DRUNKEN MASTER –',W/2,118);
+ g.save();g.textAlign='center';g.font='bold 7px monospace';g.fillStyle='#bfe8ff';if(t>.9)g.fillText('– PALUU OF DRUNKEN MASTER –',W/2,118);
  if(!TI.on){if(t>1.2&&Math.floor(T*2.2)%2===0){g.font='bold 10px monospace';g.fillStyle='#000';g.fillText('PAINA START',W/2+1,145);g.fillStyle='#ffe23a';g.fillText('PAINA START',W/2,144)}g.font='6px monospace';g.fillStyle='#c8d4ff';if(t>1.2)g.fillText(INP==='touch'?'napauta ruutua':INP==='gp'?'Start / '+gpG(GB.sel):'Enter / välilyönti / mikä tahansa näppäin',W/2,154)}
  else{['ALOITA PELI','ASETUKSET'].forEach((l,i)=>{const y=134+i*16,on=TI.sel===i;g.fillStyle=on?'rgba(255,226,58,.95)':'rgba(10,14,40,.75)';g.fillRect(104,y,112,13);g.fillStyle=on?'#2a0a3a':'#e8eeff';g.font='bold 8px monospace';g.fillText((on&&Math.floor(T*4)%2?'▶ ':'  ')+l,W/2,y+9.5)})}
  g.font='bold 5px monospace';g.fillStyle='#4a5694';g.fillText('© 2026 PALJUSOFT  ·  ESA & KUPARIBÄNDI',W/2,196);g.restore();
