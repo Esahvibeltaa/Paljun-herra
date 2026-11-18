@@ -135,3 +135,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Kylttien luettavuus: SAMPOKESKUS-kyltti omalle tummalle taululle tolppineen; pienille nimikylteille (HISSI, LUKITTU/VAPAA) yhteinen tumma tausta `labelBoard`, jotta taustatalojen ikkunat eivät sekoitu tekstiin.
 - Valojen sovitus rakennuksiin: Koskikadun näyteikkunat himmeiksi ja jäsennellyiksi (kehys, ruudut, tuotteet, markiisi, ei hehkua), lumipenkat himmeiksi ja varjostetuiksi, avoimen oven ja kioskin valo himmeämmäksi.
 - Lumipenkoille satunnainen muoto (`snowBank`, `SNOWB`): 1–3 kumparetta vaihtelevin leveyksin, korkeuksin ja paikoin, epätasainen väli ja välillä aukko.
+- Osioiden rajat siistiksi: Koskikadun ja aukion taustatalot piirretään vain kokonaisina (ei terävästi katkeavia julkisivuja tai näyteikkunoita, `rovaStrip` clip=false), sillan päähän kivinen maatuki lyhtyineen peittämään sillan ja kadun rajan, PUB-ovi siirretty LORDIN AUKIO -kyltin edestä.
