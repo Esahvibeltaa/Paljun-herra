@@ -9,7 +9,7 @@ LV.length=1;LV.push(LT);
 
 const START_HS=2;
 
-function startGame(){LIVES=3;for(const k in PTS)PTS[k]=0;B.h=0;B.hs=START_HS;S2.outfit=2;musicStop();startCut(INTRO_CUT,showSoon,true)}
+function startGame(){LIVES=3;for(const k in PTS)PTS[k]=0;B.h=0;B.hs=START_HS;S2.outfit=2;musicStop();startCut(INTRO_CUT,()=>startCut(MATKA_CUT,showSoon),true)}
 /* Toistaiseksi alkunäytöksen jälkeen vain musta ruutu: pelattavissa pian (kenttä ja pomo odottavat uusia vihollisia) */
 function showSoon(){stage=9;state='soon';ot=0;showPad(false);musicStop()}
 function drawSoon(){R('#000',0,0,W,H);g.save();g.globalAlpha=Math.min(1,ot/1.2);g.textAlign='center';g.font='bold 10px monospace';g.fillStyle='#e8eeff';g.fillText('PELATTAVISSA PIAN'+'...'.slice(0,1+Math.floor(ot*1.5)%3),W/2,H/2+3);g.restore()}
