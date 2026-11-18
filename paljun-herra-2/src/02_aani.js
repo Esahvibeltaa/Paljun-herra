@@ -28,3 +28,5 @@ function sFlush(){nz(1.4,'lowpass',900,.18,300)}
 function sEnd(r){if(r==='d'){[0,.3,.6].forEach((d,i)=>tn(500-i*100,200,.25,.18,'sine',d));nz(1.2,'lowpass',700,.12,200)}else if(r==='f'){tn(1400,300,.9,.1,'triangle');tn(2400,2300,.5,.05,'sine',.1)}else{[[330,250,.4,0],[300,220,.4,.4],[270,170,.9,.8]].forEach(a=>tn(a[0],a[1],a[2],.08,'sawtooth',a[3]));nz(2,'bandpass',1500,.05,900)}}
 /* Puhelimen soittoääni: kaksi vuorottelevaa piippausta */
 function sRing(){[0,.11,.22,.33,.44].forEach((d,i)=>tn(i%2?1660:1320,i%2?1660:1320,.08,.045,'square',d))}
+/* Hiljainen kuorsaus: matala sahalaitasurina ja suodatettu kohina; k vaihtelee sävelkorkeutta nukkujittain */
+function sSnore(k){const f=58+k*9;tn(f,f*.85,1.1,.022,'sawtooth');nz(1.1,'bandpass',260+k*40,.03,170)}

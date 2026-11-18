@@ -2,10 +2,10 @@
 // Kuva-alue ja tekstialue (ruudun koordinaatit)
 const CP={x:16,y:12,w:288,h:110},CTX={x:26,y:140,w:268,lh:11,font:'bold 8px monospace'};
 // Säädettävät: kirjoitusnopeus (merkkiä/s), kohtauksen häivytys sisään ja loppuhäivytys mustaan (s), soittoäänen väli (s)
-const CUTK={cps:38,fadeIn:.35,fadeOut:2.6,ring:1.3};
+const CUTK={cps:38,fadeIn:.35,fadeOut:2.6,ring:1.3,snore:2.6,logoIn:1.5,subIn:1.2,titleWait:2.4};
 // Puhujien nimien värit
 const SPK={Esa:'#ffe23a',Pera:'#7dff9a'};
-const CUT={list:null,i:0,sc:null,li:0,ch:0,t:0,fin:0,rt:0,done:null};
+const CUT={list:null,i:0,sc:null,li:0,ch:0,t:0,fin:0,tt:0,rt:0,sn:0,sk:0,amb:0,endTitle:false,done:null};
 
 /* Staattinen kerros piirretään kerran omaan kankaaseen (2x tarkkuus) ja kopioidaan joka kehys */
 const CUTL={};
@@ -16,23 +16,31 @@ function glow(x,y,r,rgb,a){const k=r+'|'+rgb;let c=GLOW[k];if(!c){c=document.cre
  g.save();g.globalCompositeOperation='lighter';g.globalAlpha=a;g.drawImage(c,x-r,y-r,r*2,r*2);g.restore()}
 
 /* ---- Välinäytöksen kulku ---- */
-function startCut(list,done){stage=6;state='cut';CUT.list=list;CUT.done=done;CUT.fin=0;showPad(false);msgL=[''];cutScene(0)}
-function cutScene(i){CUT.i=i;CUT.sc=CUT.list[i];CUT.t=0;CUT.li=0;CUT.ch=0;CUT.rt=0;if(CUT.sc.music&&!mus)musicStart(CUT.sc.music)}
+/* list = kohtaukset; done = jatko; endTitle = häivytyksen jälkeen pelin nimi mustalla */
+function startCut(list,done,endTitle){stage=6;state='cut';CUT.list=list;CUT.done=done;CUT.endTitle=!!endTitle;CUT.fin=0;CUT.tt=0;CUT.amb=0;showPad(false);msgL=[''];cutScene(0)}
+function cutScene(i){CUT.i=i;CUT.sc=CUT.list[i];CUT.t=0;CUT.li=0;CUT.ch=0;CUT.rt=0;CUT.sn=0}
+/* Kohtauksen musiikki (merkkijono tai repliikin mukaan valitseva funktio); käynnistyy myös, jos ääni avautuu vasta kesken näytöksen */
+function cutMusic(m){if(!AC)return;if(!m){if(mus)musicStop();return}if(!mus||mus.m!==m){if(mus)musicStop();musicStart(m)}}
+function cutFinish(){musicStop();CUT.fin=0;CUT.tt=0;CUT.done()}
 function cutWrap(){return wrapLines([CUT.sc.lines[CUT.li][1]],CTX.w,CTX.font)}
 function cutLen(){return cutWrap().reduce((a,l)=>a+l.length,0)}
 function stepCut(dt){musicTick();CUT.t+=dt;
- if(CUT.fin){CUT.fin+=dt;if(CUT.fin>=CUTK.fadeOut){CUT.fin=0;musicStop();CUT.done()}return}
+ // mökin ja kentän taustaäänet (tuuli, poreet) pois näytöksen ajaksi
+ if(ambG&&!CUT.amb){CUT.amb=1;setAP(ambG.gain,0,.05);setAP(bubG.gain,0,.05)}
+ if(CUT.tt){CUT.tt+=dt;cutMusic('t');return}
+ if(CUT.fin){CUT.fin+=dt;if(CUT.fin>=CUTK.fadeOut){if(CUT.endTitle){CUT.fin=0;CUT.tt=1e-6;musicStop()}else cutFinish()}return}
+ const m=CUT.sc.music;if(m!==undefined)cutMusic(typeof m==='function'?m(CUT.li):m);
  const n=cutLen();if(CUT.t>CUTK.fadeIn&&CUT.ch<n){const p=CUT.ch|0;CUT.ch=Math.min(n,CUT.ch+CUTK.cps*dt);if((CUT.ch|0)!==p&&p%3===0&&AC)tn(1180,1180,.025,.022,'square')}
  if(CUT.sc.tick)CUT.sc.tick(dt)}
 /* Napautus: ensin koko repliikki näkyviin, sitten seuraava repliikki tai kohtaus; viimeisen jälkeen hidas häivytys mustaan */
-function actCut(e){if(CUT.fin)return;const tap=e&&e.target===cv&&e.clientX!==undefined;
+function actCut(e){if(CUT.tt){if(CUT.tt>CUTK.titleWait)cutFinish();return}if(CUT.fin)return;const tap=e&&e.target===cv&&e.clientX!==undefined;
  if(tap){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;if(x>240&&y>184){cutSkip();return}}
  if(CUT.ch<cutLen()){CUT.ch=cutLen();return}
  if(CUT.li<CUT.sc.lines.length-1){CUT.li++;CUT.ch=0;return}
  if(CUT.i<CUT.list.length-1)cutScene(CUT.i+1);else{CUT.fin=1e-6;if(mus)setAP(mus.g.gain,0,CUTK.fadeOut/3)}}
-function cutSkip(){if(stage!==6)return;musicStop();CUT.fin=0;CUT.done()}
+function cutSkip(){if(stage===6)cutFinish()}
 addEventListener('keydown',e=>{if(stage===6&&!PAUSED&&(e.key==='s'||e.key==='S'))cutSkip()});
-function drawCut(T){R('#000',0,0,W,H);g.save();g.beginPath();g.rect(CP.x,CP.y,CP.w,CP.h);g.clip();CUT.sc.draw(T,CUT.t);g.restore();
+function drawCut(T){if(CUT.tt){drawCutTitle(T);return}R('#000',0,0,W,H);g.save();g.beginPath();g.rect(CP.x,CP.y,CP.w,CP.h);g.clip();CUT.sc.draw(T,CUT.t);g.restore();
  g.strokeStyle='#3a4270';g.lineWidth=1;g.strokeRect(CP.x-.5,CP.y-.5,CP.w+1,CP.h+1);
  const fi=1-CUT.t/CUTK.fadeIn;if(fi>0)R(`rgba(0,0,0,${fi})`,CP.x,CP.y,CP.w,CP.h);
  cutText(T);if(CUT.fin)R(`rgba(0,0,0,${Math.min(1,CUT.fin/CUTK.fadeOut)})`,0,0,W,H)}
@@ -40,7 +48,7 @@ function cutText(T){const who=CUT.sc.lines[CUT.li][0],L=cutWrap();let left=CUT.c
  if(who){g.font='bold 7px monospace';g.fillStyle=SPK[who]||'#fff';g.fillText(who.toUpperCase(),CTX.x,CTX.y-4)}
  g.font=CTX.font;g.fillStyle='#f0f2ff';L.forEach((l,i)=>{if(left>0)g.fillText(l.slice(0,left),CTX.x,CTX.y+8+i*CTX.lh);left-=l.length});
  if(CUT.ch>=cutLen()&&Math.floor(T*3)%2===0){g.fillStyle='#ffe23a';g.fillText('▼',CTX.x+CTX.w-6,CTX.y+8+3*CTX.lh)}
- g.font='bold 5px monospace';g.textAlign='right';g.fillStyle='#5a6090';g.fillText((INP==='touch'?'':INP==='gp'?gpG(1)+': ':'S: ')+'OHITA ▶▶',W-6,196);g.restore()}
+ g.font='bold 5px monospace';if(!AC){g.fillStyle='#8a90c0';g.fillText('♪ Napauta: äänet päälle',CTX.x,196)}g.textAlign='right';g.fillStyle='#5a6090';g.fillText((INP==='touch'?'':INP==='gp'?gpG(1)+': ':'S: ')+'OHITA ▶▶',W-6,196);g.restore()}
 
 /* ---- Kohtaus 1: krapulainen mökki ja soiva puhelin ---- */
 function mokkiBg(){const X=CP.x,Y=CP.y,FY=Y+92;
@@ -83,14 +91,15 @@ function cutMokki(T,t){cutLayer('mokki',mokkiBg);const ring=CUT.li===1,ans=CUT.l
  if(ring){glow(149,84,18,'110,210,255',.5+.3*Math.sin(T*16));g.font='bold 6px monospace';g.textAlign='center';const k=Math.floor(T*6)%2;tx(k?'♪':'♫',149+Math.sin(T*5)*8,74-(T*10)%8,'#bfefff','center')}
  if(ans)glow(66,66,10,'110,210,255',.35);
  g.font='bold 6px monospace';if(!ans)zzz(84,62,T);zzz(272,66,T+1);zzz(166,70,T+2);zzz(222,98,T+3)}
-function cutRing(dt){if(CUT.li!==1)return;CUT.rt-=dt;if(CUT.rt<=0){CUT.rt=CUTK.ring;sRing()}}
+/* Mökin äänet: hiljainen kuorsaus puhelimen soittoon asti, sitten soittoääni */
+function mokkiSound(dt){if(CUT.li===0){CUT.sn-=dt;if(CUT.sn<=0){CUT.sn=CUTK.snore;sSnore(CUT.sk=(CUT.sk+1)%4)}}else if(CUT.li===1){CUT.rt-=dt;if(CUT.rt<=0){CUT.rt=CUTK.ring;sRing()}}}
 
 /* ---- Kohtaus 2: vihreä takasiipinen Tesla kiitää Lapin yössä ---- */
 function tieSky(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,Y+96,[[0,'#03041a'],[.6,'#121a4a'],[1,'#26306a']]);g.fillRect(X,Y,CP.w,96);
  for(let i=0;i<60;i++)R(i%5?'#c8ccf0':'#ffffff',X+(i*53)%CP.w,Y+(i*29)%60,i%7?1:1.5,i%7?1:1.5);ell(266,30,8,8,'#f4ecc0');ell(263,28,2,2,'#c8bf90')}
 /* Tesla Model 3 (Highland) sivuprofiilina, nokka oikealle: matala pyöreä nokka, pitkä kalteva tuulilasi, yhtenäinen kattokaari viistoperään,
    musta lasikatto, kapeat viiltovalot ja tummat aerovanteet. Lisänä iso takasiipi. Mitat auton keskeltä, maa y=0. */
-const TESLA={body:'#2fae4a',shade:'#1d7a32',dark:'#145a24',hi:'#7ae890',glass:'#0b0f18',win:'#16263a',wheels:[-25,24],sc:1.2};
+const TESLA={body:'#2fae4a',shade:'#1d7a32',dark:'#145a24',hi:'#7ae890',glass:'#04060a',win:'#070a12',wheels:[-25,24],sc:1.2};
 function teslaPath(){g.beginPath();g.moveTo(-38,-2.5);g.lineTo(-40,-6);g.lineTo(-40,-12.5);g.quadraticCurveTo(-39.5,-15,-36,-15.4);g.quadraticCurveTo(-22,-23.5,-8,-24.8);
  g.quadraticCurveTo(0,-24.8,4,-22.5);g.lineTo(16,-14.6);g.quadraticCurveTo(32,-12.5,39,-9.5);g.quadraticCurveTo(41.5,-7,39.5,-3.5);g.lineTo(38,-2.5);g.closePath()}
 function teslaCar(T,t){const C=TESLA,sp=t*36;
@@ -108,7 +117,7 @@ function teslaCar(T,t){const C=TESLA,sp=t*36;
  g.fillStyle=C.win;g.beginPath();g.moveTo(12.4,-15.2);g.lineTo(3,-21.6);g.quadraticCurveTo(-1,-22.9,-4.6,-23);g.lineTo(-4.6,-15.7);g.fill();
  g.beginPath();g.moveTo(-6.6,-15.8);g.lineTo(-6.6,-23.1);g.quadraticCurveTo(-17,-22,-26.5,-17.2);g.fill();
  g.strokeStyle=C.body;g.lineWidth=.7;g.beginPath();g.moveTo(3.2,-22.9);g.quadraticCurveTo(-.5,-24.5,-8,-24.5);g.quadraticCurveTo(-21,-23.1,-31.5,-16.8);g.stroke();
- R('#4a6a9a',1,-21,3,.6);R('#4a6a9a',-12,-21.6,3,.6);
+ R('#26344c',1,-21,3,.5);R('#26344c',-12,-21.6,3,.5);
  // ovien saumat, upotetut kahvat ja sivupeili
  R(C.dark,-5.4,-15.4,.5,11);R(C.dark,-21,-16.4,.5,11.6);R(C.dark,-1.4,-12.8,3,.7);R(C.dark,-17.4,-13.4,3,.7);g.fillStyle=C.body;g.beginPath();g.ellipse(11.5,-15.6,2.2,1.2,.3,0,7);g.fill();
  // iso takasiipi
@@ -129,6 +138,8 @@ function cutTie(T,t){cutLayer('tie',tieSky);
 
 /* ---- Kohtaus 3: auton sisältä pelkääjän paikalta; kuski näkyy vain hämäränä ääriviivana ---- */
 const VP={x:150,y:50};
+// Peran pipon tupsun säde (täysin pyöreä)
+const PIPO={r:4.2,y:41.2};
 function sisaBg(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,VP.y,[[0,'#02030c'],[1,'#141c42']]);g.fillRect(X,Y,CP.w,VP.y-Y);
  for(let i=0;i<40;i++)R('#b8c0e8',X+(i*67)%CP.w,Y+(i*31)%30,1,1);
  g.fillStyle='#10163a';g.beginPath();g.moveTo(X,VP.y);for(let x=X;x<=X+CP.w;x+=6)g.lineTo(x,VP.y-3-Math.abs(Math.sin(x/37))*7);g.lineTo(X+CP.w,VP.y);g.fill();
@@ -151,16 +162,23 @@ function cutSisa(T,t){g.save();g.translate(0,Math.sin(T*27)*.3);cutLayer('sisa',
  glow(sx+20,sy+11,30,'60,170,255',.22);
  // kuski: tumma hahmo, jonka reunaa näytön valo juuri ja juuri hipaisee
  const kc='#030409',rim=.25+.2*Math.sin(T*2.3)+(Math.sin(T*.9)>.97?.4:0);
- g.fillStyle=kc;ell(70,60,9,10.5,kc);g.fillRect(65,68,10,8);g.beginPath();g.moveTo(44,CP.y+CP.h);g.lineTo(46,82);g.quadraticCurveTo(52,74,70,74);g.quadraticCurveTo(90,74,96,84);g.lineTo(100,CP.y+CP.h);g.fill();
+ g.fillStyle=kc;ell(70,60,9,10.5,kc);g.beginPath();g.ellipse(70,55,10.5,10,0,Math.PI,0);g.fill();R(kc,58.5,53,23,4.5);g.beginPath();g.arc(70,PIPO.y,PIPO.r,0,Math.PI*2);g.fill();g.fillRect(65,68,10,8);g.beginPath();g.moveTo(44,CP.y+CP.h);g.lineTo(46,82);g.quadraticCurveTo(52,74,70,74);g.quadraticCurveTo(90,74,96,84);g.lineTo(100,CP.y+CP.h);g.fill();
  lim(92,86,104,98,4,kc,kc);
  g.strokeStyle=`rgba(110,200,255,${rim})`;g.lineWidth=.8;g.beginPath();g.arc(70,60,9.5,-1.1,.7);g.stroke();g.beginPath();g.moveTo(80,75);g.quadraticCurveTo(91,76,96,84);g.stroke();
- if(Math.sin(T*.7)>.92)R('#bfefff',76,58,1.5,.8);
+ if(Math.sin(T*.7)>.92)R('#bfefff',76,58,1.5,.8);g.beginPath();g.arc(70,PIPO.y,PIPO.r+.3,-1.2,.9);g.stroke();g.beginPath();g.ellipse(70,55,10.8,10.3,0,-1.2,-.1);g.stroke();
  // ratti
  g.strokeStyle='#06070c';g.lineWidth=3.2;g.beginPath();g.ellipse(80,104,18,8,-.15,0,7);g.stroke();g.strokeStyle=`rgba(110,200,255,${rim*.5})`;g.lineWidth=.6;g.beginPath();g.ellipse(80,104,19.4,9.2,-.15,-1.2,.2);g.stroke();
  g.restore();R('rgba(10,30,60,.12)',CP.x,CP.y,CP.w,CP.h)}
 
 /* Alkunäytös: krapula → puhelu → Tesla Lapin yössä → auton sisällä → häivytys mustaan */
 const INTRO_CUT=[
- {draw:cutMokki,tick:cutRing,lines:[['','Lappi. Mökki. Bileiden jälkeinen aamuyö. Sankarit potevat ankaraa krapulaa.'],['','PIRRR... PIRRR...'],['Esa','Nnngh... Esa. Kuka soittaa tähän aikaan?']]},
- {draw:cutTie,music:'n',lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
- {draw:cutSisa,lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
+ {draw:cutMokki,tick:mokkiSound,music:li=>li>=2?'n':null,lines:[['','Lappi. Mökki. Bileiden jälkeinen aamuyö. Sankarit potevat ankaraa krapulaa.'],['','PIRRR... PIRRR...'],['Esa','Nnngh... Esa. Kuka soittaa tähän aikaan?']]},
+ {draw:cutTie,music:'d',lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
+ {draw:cutSisa,music:'d',lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
+
+/* Loppu: pelin nimi esiin mustalla, tunnari soi; napautus aloittaa pelin */
+function drawCutTitle(T){const t=CUT.tt;R('#000',0,0,W,H);
+ TI.stars.forEach(s=>{const a=.5+.5*Math.sin(T*3+s.p);g.fillStyle=`rgba(255,250,230,${(.15+a*.35)*Math.min(1,t)})`;g.fillRect(s.x|0,s.y|0,s.s,s.s)});
+ if(!TI.logo)TI.logo=titleLogo();const sm=g.imageSmoothingEnabled;g.globalAlpha=Math.min(1,t/CUTK.logoIn);g.imageSmoothingEnabled=false;g.drawImage(TI.logo,10,40,300,96);g.imageSmoothingEnabled=sm;g.globalAlpha=1;
+ g.save();g.textAlign='center';if(t>CUTK.subIn){g.globalAlpha=Math.min(1,(t-CUTK.subIn)/.8);g.font='bold 8px monospace';g.fillStyle='#bfe8ff';g.fillText('– PALUU OF DRUNKEN MASTER –',W/2,150);g.globalAlpha=1}
+ if(t>CUTK.titleWait&&Math.floor(T*2.2)%2===0){g.font='bold 8px monospace';g.fillStyle='#ffe23a';g.fillText(INP==='touch'?'NAPAUTA: ALOITA':INP==='gp'?'PAINA '+gpG(GB.sel)+': ALOITA':'ENTER: ALOITA',W/2,178)}g.restore()}

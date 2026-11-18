@@ -30,6 +30,6 @@ Suunnitelma: `SUUNNITELMA.md`.
 ## Työtapa
 
 - Julkaisu artifactiin https://claude.ai/artifact/PfPEXVXgVBtXA21taSFgks (julkaistaan tiedostosta `dist/index.html`).
-- Koonti ja Playwright-testit jokaisen muutoksen jälkeen (koko pelikulku: intro → kenttä → pomo → loppu).
+- Koonti ja Playwright-testit jokaisen muutoksen jälkeen (koko pelikulku: alkunäytös → nimiruutu → kenttä → pomo → loppu).
 - Commit haaraan `claude/paljun-herra-project-import-0ezkqx` ja push myös `main`-haaraan.
 - Merkintä `SUUNNITELMA.md`:hen.

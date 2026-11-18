@@ -9,10 +9,11 @@ LV.length=1;LV.push(LT);
 
 const START_HS=2;
 
-function startGame(){LIVES=3;for(const k in PTS)PTS[k]=0;B.h=0;B.hs=START_HS;S2.outfit=2;musicStop();startCut(INTRO_CUT,()=>startMJ())}
+function startGame(){LIVES=3;for(const k in PTS)PTS[k]=0;B.h=0;B.hs=START_HS;S2.outfit=2;musicStop();startCut(INTRO_CUT,()=>startMJ(),true)}
 function onLevelsDone(){startFight()}
 function onBossWon(){stage=8;state='end';ot=0;TI.on=false;PTS.lives=LIVES*100;showPad(false);musicStop();musicStart('t');msgL=['Prototyyppi läpäisty!']}
-function restartAll(){stage=1;state='title';TI.on=false;TI.t=0;showPad(false);musicStop();msgL=['Paljun Herra 2']}
+// Ei päävalikkoa vielä: alkuun = alkunäytös
+function restartAll(){showPad(false);musicStop();startGame()}
 
 function step(dt){if(stage===6){stepCut(dt);return}if(stage===7){stepMJ(dt);return}if(stage===5){stepFight(dt);return}
  musicTick();if(stage===8)ot+=dt;TI.t+=dt;if(TI.f>0)TI.f=Math.max(0,TI.f-dt);
@@ -33,4 +34,5 @@ document.getElementById('m').addEventListener('click',e=>{mute=!mute;e.target.te
 ['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>audioInit(),{passive:true}));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&stage!==1&&stage!==8)setPause(true)});
 
+startGame();
 requestAnimationFrame(loop);

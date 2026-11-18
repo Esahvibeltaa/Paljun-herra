@@ -29,8 +29,8 @@ function titleStep(t0,st,L){const s=st%16,b0=Math.floor(st/16),intro=b0<2,bar=b0
  if(s===4||s===12)mn(t0,.13,'bandpass',2600,.3);if(s%2===1)mn(t0,.025,'highpass',8500,.07);if(s===14&&bar===7)mn(t0,.2,'bandpass',1800,.25);
  tv(t0,mf(r+24+c[s%3]),L*.85,.035,.125);
  if(!intro){const row=TM[bar],n=row[s];if(n>0){let k=0;while(k<3&&row[s+1+k]===-1)k++;const d=L*(1+k)*.92;tv(t0,mf(n),d,.1,.25);tv(t0+L*.75,mf(n),d*.6,.025,.25)}}}
-function musicTick(){if(!mus||!AC)return;const L=60/(mus.m==='t'?150:mus.m==='o'?112:mus.m==='b'?150:mus.m==='bb'?164:mus.m==='n'?132:140)/4;if(mus.next<AC.currentTime-.1){const k=Math.ceil((AC.currentTime-mus.next)/L);mus.step+=k;mus.next+=k*L}
- while(mus.next<AC.currentTime+.2){if(mus.m==='t'){titleStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='n'){cutStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='b'||mus.m==='bb'){beatStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='o'){orientStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='e'||mus.m==='c'){euroStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}const t0=mus.next,st=mus.step,s=st%16,c=CH[Math.floor(st/16)%4];
+function musicTick(){if(!mus||!AC)return;const L=60/(mus.m==='t'?150:mus.m==='o'?112:mus.m==='b'?150:mus.m==='bb'?164:mus.m==='n'?132:mus.m==='d'?150:140)/4;if(mus.next<AC.currentTime-.1){const k=Math.ceil((AC.currentTime-mus.next)/L);mus.step+=k;mus.next+=k*L}
+ while(mus.next<AC.currentTime+.2){if(mus.m==='t'){titleStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='n'){cutStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='d'){driveStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='b'||mus.m==='bb'){beatStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='o'){orientStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='e'||mus.m==='c'){euroStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}const t0=mus.next,st=mus.step,s=st%16,c=CH[Math.floor(st/16)%4];
   if(s%4===0)mt(t0,150,42,.14,.9,'sine');
   if(s%4===2){mn(t0,.09,'highpass',8000,.18);mt(t0,c[0],c[0],.17,.28,'sawtooth')}
   if(s===4||s===12){mn(t0,.12,'bandpass',1600,.35);mn(t0+.012,.1,'bandpass',2200,.2)}
@@ -48,3 +48,16 @@ function cutStep(t0,st,L){const s=st%16,bar=Math.floor(st/16)%4,r=CB[bar];
  if(s===8)mn(t0,.16,'bandpass',1800,.18);if(s%4===2)mn(t0,.03,'highpass',8000,.05);
  if(st>=32){const c=CA[bar];tv(t0,mf(r+24+c[s%4]),L*.8,.03,.125)}
  if(s===0&&bar===0)tv(t0,mf(r+36),L*12,.022,.5)}
+
+/* Ajobiitti (alkuperäinen sävellys, A-molli, 150 bpm) 16-bittisten toimintapelien hengessä: funkahtava oktaaveja hyppivä
+   slap-basso, kova virveli, tiheä hi-hat, lyhyet sahalaitasoinnut ja tarttuva pulssilead (8 tahdin kierto, lead tahdeista 5–8) */
+const DRB=[33,-1,45,33,-1,33,45,-1,33,-1,43,-1,45,-1,40,43],DRT=[0,0,-4,-2],DRK=[0,7,10],DRC=[[0,3,7],[0,3,7],[0,4,7],[0,4,7]],DRS=[0,3,6,10];
+const DRM=[[69,-1,72,-1,74,-1,72,74,-1,76,-1,74,72,-1,69,-1],[67,-1,69,-1,72,-1,69,67,-1,64,-1,67,-1,-1,-1,-1],[65,-1,69,-1,72,-1,74,72,-1,69,-1,72,-1,74,76,-1],[79,-1,76,-1,74,-1,76,-1,72,-1,74,-1,71,-1,-1,-1]];
+function driveStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,tr=DRT[bar],n=DRB[s];
+ if(n>0){const f=mf(n+tr);mt(t0,f*2.02,f,.03,.14,'square');tv(t0,f,L*.9,.2,.25);mt(t0,f/2,f/2,L*.9,.16,'sine')}
+ if(DRK.includes(s))mt(t0,150,40,.15,.95,'sine');
+ if(s===4||s===12){mn(t0,.18,'bandpass',1700,.42);mn(t0+.01,.12,'highpass',4500,.16);mt(t0,230,170,.08,.18,'triangle')}
+ mn(t0,.025,'highpass',9000,s%2?.04:.065);if(s===14)mn(t0,.12,'highpass',7000,.07);
+ if(DRS.includes(s)&&b8!==3){const r=mf(57+tr);DRC[bar].forEach(c=>{const f=r*Math.pow(2,c/12);mt(t0,f,f,.09,.03,'sawtooth',-8);mt(t0,f,f,.09,.03,'sawtooth',8)})}
+ if(b8>=4){const row=DRM[bar],m=row[s];if(m>0){let k=0;while(k<3&&row[s+1+k]===-1)k++;const d=L*(1+k)*.9;tv(t0,mf(m),d,.085,.125);tv(t0+L*.75,mf(m),d*.6,.022,.125)}}
+ if(s===15&&bar===3)mn(t0,.3,'highpass',2500,.14)}

@@ -13,7 +13,7 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 
 - Moottori erotettu ykkösosasta moduuleiksi (`src/`), koonti yhdeksi tiedostoksi.
 - Intro: PALJUN HERRA 2 – PALUU OF DRUNKEN MASTER, tunnusmusiikki.
-- Kulku: intro → harjoituskenttä (mätkintä) → pomotaistelu (1v1) → loppuruutu → intro.
+- Kulku: linkki aloittaa suoraan alkunäytöksen (ei päävalikkoa vielä) → pelin nimi mustalla → harjoituskenttä (mätkintä) → pomotaistelu (1v1) → loppuruutu → alkunäytös.
 - Viholliset ja pomot ovat ykkösosan **paikkamerkkejä** (Diesel-jengi, Pena, Tapsa).
 - Ykkösosan tarinakentät ovat vielä mukana tietona (`L1`, `LG`, `LS`, `L2`, `LB`), mutta eivät käytössä.
 
@@ -62,3 +62,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Nimi muutettu muotoon Paljun Herra 2 Paluu of drunken master (intro: PALUU OF DRUNKEN MASTER).
 - Alkunäytös: välinäytösmoottori (`12b_alkunaytos.js`: kuva-alue, kirjoituskoneteksti, puhujan nimi, ohitus S / B / OHITA), kolme kohtausta (krapulainen mökki, Tesla Lapin yössä, auton sisänäkymä), jännitysteema (`cutStep`), soittoääni (`sRing`). Intron vuoret ja kuusirivi yhteisiksi funktioiksi (`ridge`, `spruceRow`). Piirto noin 2–3 ms/kehys.
 - Teslan sivuprofiili Model 3:n (Highland) mukaan: matala pyöreä nokka, kalteva tuulilasi, yhtenäinen kattokaari viistoperään, musta lasikatto, viiltovalot, aerovanteet (`TESLA`, `teslaPath`), koko 1,2×.
+- Alkunäytöksen äänet ja loppu: mökissä ei taustaääniä, hiljainen kuorsaus (`sSnore`) soittoon asti ja jännitysteema vastaamisen jälkeen; autokohtauksissa oma ajobiitti (`driveStep`, 16-bittisten toimintapelien henkeen, alkuperäinen sävellys); häivytyksen jälkeen pelin nimi mustalla tunnarin kera (`drawCutTitle`). Teslan sivulasit tummennettu, Peralle pipo ja täysin pyöreä tupsu (`PIPO`). Linkki aloittaa suoraan alkunäytöksen, päävalikko jätetty pois toistaiseksi.
