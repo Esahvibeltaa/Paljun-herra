@@ -4,7 +4,7 @@ Jatko-osa [Paljun herralle](../README.md). Retrohenkinen mätkintäpeli: Esa, Aa
 
 Pelaa prototyyppiä: https://claude.ai/artifact/PfPEXVXgVBtXA21taSFgks
 
-Tila: **prototyyppi** (harjoituskenttä ja pomotaistelu, viholliset vielä paikkamerkkejä).
+Tila: **alkunäytös** julkaistu, peli pelattavissa pian (harjoituskenttä ja pomotaistelu koodissa, viholliset vielä paikkamerkkejä).
 
 ## Kehitys
 

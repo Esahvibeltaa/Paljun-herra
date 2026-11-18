@@ -69,3 +69,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Autokohtausten musiikiksi valittu Varjojahti (`darkStep`), muut vaihtoehdot ja valintanappi poistettu. Nimiruudulle neljä vaihtoehtoa vertailuun (`TTV`, nappi Nimiruudun musiikki tai M): Mestarin paluu (E-molli 140), Lumimyrsky (H-molli 170), Viimeinen tuoppi (A-molli 96) ja vanha tunnari. Yhteinen melodiasoitin `leadNote`.
 - Nimiruudun musiikiksi valittu Viimeinen tuoppi (`vtStep`), muut vaihtoehdot ja valintanappi poistettu. Nimiruudun alareunaan © 2026 PALJUSOFT · ESA & KUPARIBÄNDI.
 - Nimiruudun ALOITA vie toistaiseksi mustaan ruutuun: PELATTAVISSA PIAN... (`showSoon`, stage 9). Kenttä ja pomo jäävät koodiin odottamaan uusia vihollisia.
+- Sivun alateksti: alkunäytös, peli pelattavissa pian, äänet päälle (jakoa varten).
