@@ -191,8 +191,8 @@ function cutSisa(T,t){g.save();g.translate(0,Math.sin(T*27)*.3);cutLayer('sisa',
 /* Alkunäytös: krapula → puhelu → Tesla Lapin yössä → auton sisällä → häivytys mustaan */
 const INTRO_CUT=[
  {draw:cutMokki,tick:mokkiSound,music:li=>li>=2?'n':null,lines:[['','Lappi. Mökki. Bileiden jälkeinen aamuyö. Sankarit potevat ankaraa krapulaa.'],['','PIRRR... PIRRR...'],['Esa','Nnngh... Esa. Kuka soittaa tähän aikaan?']]},
- {draw:cutTie,music:'d',lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
- {draw:cutSisa,music:'d',lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
+ {draw:cutTie,music:driveMode,lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
+ {draw:cutSisa,music:driveMode,lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
 
 /* Loppu: pelin nimi esiin mustalla, tunnari soi; napautus aloittaa pelin */
 function drawCutTitle(T){const t=CUT.tt;R('#000',0,0,W,H);

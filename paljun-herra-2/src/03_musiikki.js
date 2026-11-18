@@ -29,8 +29,8 @@ function titleStep(t0,st,L){const s=st%16,b0=Math.floor(st/16),intro=b0<2,bar=b0
  if(s===4||s===12)mn(t0,.13,'bandpass',2600,.3);if(s%2===1)mn(t0,.025,'highpass',8500,.07);if(s===14&&bar===7)mn(t0,.2,'bandpass',1800,.25);
  tv(t0,mf(r+24+c[s%3]),L*.85,.035,.125);
  if(!intro){const row=TM[bar],n=row[s];if(n>0){let k=0;while(k<3&&row[s+1+k]===-1)k++;const d=L*(1+k)*.92;tv(t0,mf(n),d,.1,.25);tv(t0+L*.75,mf(n),d*.6,.025,.25)}}}
-function musicTick(){if(!mus||!AC)return;const L=60/(mus.m==='t'?150:mus.m==='o'?112:mus.m==='b'?150:mus.m==='bb'?164:mus.m==='n'?132:mus.m==='d'?150:140)/4;if(mus.next<AC.currentTime-.1){const k=Math.ceil((AC.currentTime-mus.next)/L);mus.step+=k;mus.next+=k*L}
- while(mus.next<AC.currentTime+.2){if(mus.m==='t'){titleStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='n'){cutStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='d'){driveStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='b'||mus.m==='bb'){beatStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='o'){orientStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='e'||mus.m==='c'){euroStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}const t0=mus.next,st=mus.step,s=st%16,c=CH[Math.floor(st/16)%4];
+function musicTick(){if(!mus||!AC)return;const L=60/(MST[mus.m]?MST[mus.m][0]:mus.m==='t'?150:mus.m==='o'?112:mus.m==='b'?150:mus.m==='bb'?164:140)/4;if(mus.next<AC.currentTime-.1){const k=Math.ceil((AC.currentTime-mus.next)/L);mus.step+=k;mus.next+=k*L}
+ while(mus.next<AC.currentTime+.2){if(mus.m==='t'){titleStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(MST[mus.m]){MST[mus.m][1](mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='b'||mus.m==='bb'){beatStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='o'){orientStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='e'||mus.m==='c'){euroStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}const t0=mus.next,st=mus.step,s=st%16,c=CH[Math.floor(st/16)%4];
   if(s%4===0)mt(t0,150,42,.14,.9,'sine');
   if(s%4===2){mn(t0,.09,'highpass',8000,.18);mt(t0,c[0],c[0],.17,.28,'sawtooth')}
   if(s===4||s===12){mn(t0,.12,'bandpass',1600,.35);mn(t0+.012,.1,'bandpass',2200,.2)}
@@ -61,3 +61,35 @@ function driveStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,tr=DRT
  if(DRS.includes(s)&&b8!==3){const r=mf(57+tr);DRC[bar].forEach(c=>{const f=r*Math.pow(2,c/12);mt(t0,f,f,.09,.03,'sawtooth',-8);mt(t0,f,f,.09,.03,'sawtooth',8)})}
  if(b8>=4){const row=DRM[bar],m=row[s];if(m>0){let k=0;while(k<3&&row[s+1+k]===-1)k++;const d=L*(1+k)*.9;tv(t0,mf(m),d,.085,.125);tv(t0+L*.75,mf(m),d*.6,.022,.125)}}
  if(s===15&&bar===3)mn(t0,.3,'highpass',2500,.14)}
+
+/* Varjojahti (alkuperäinen, D-molli, 160 bpm) 8-bittisten ninjapelien hengessä: pumppaava kolmioaaltobasso kromaattisin
+   lähestymisin, kohinarummut, nopea 12,5 %:n pulssiarpeggio ja dramaattinen lead, jossa harmonisen mollin johtosävel (A-duuri) */
+const VJR=[38,34,36,33],VJC=[[0,3,7,12],[0,4,7,12],[0,4,7,12],[0,4,7,10]];
+const VJM=[[74,-1,-1,-1,77,-1,76,-1,74,-1,72,-1,74,-1,-1,-1],[70,-1,-1,-1,74,-1,72,-1,70,-1,69,-1,70,-1,-1,-1],[72,-1,-1,-1,76,-1,79,-1,77,-1,76,-1,72,-1,-1,-1],[73,-1,-1,-1,76,-1,-1,-1,81,-1,-1,-1,79,-1,76,-1]];
+function darkStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,r=VJR[bar];
+ if(s%2===0){const n=bar===3&&s>=12?r+(s-12)/2+1:s%4===2?r+12:r;tv(t0,mf(n),L*1.8,.36,'triangle')}
+ if(s===0||s===8||(b8>=4&&(s===6||s===10)))mt(t0,130,38,.12,.85,'sine');
+ if(s===4||s===12)mn(t0,.14,'bandpass',2200,.34);if(s%2===0)mn(t0,.02,'highpass',9000,.05);
+ tv(t0,mf(r+36+VJC[bar][s%4]),L*.7,.028,.125);
+ if(b8>=4){const row=VJM[bar],m=row[s];if(m>0){let k=0;while(k<3&&row[s+1+k]===-1)k++;const d=L*(1+k)*.95;tv(t0,mf(m),d,.09,.25);tv(t0+L*.5,mf(m)*1.004,d*.7,.03,.25)}}
+ if(s===15&&b8===7)mn(t0,.35,'highpass',2000,.16)}
+/* Kohtalon yö (alkuperäinen, C-molli, 112 bpm): hidas ja uhkaava. Matala drooni, taikomaiset tomit, sydämenlyönti-basso,
+   vähennetyt soinnut ja harmonisen mollin lead (soinnut Cm, Ab, Fm, G) */
+const KYR=[36,32,29,31],KYC=[[0,3,6,9],[0,3,6,9],[0,3,6,9],[1,4,7,10]];
+const KYM=[[72,-1,-1,-1,-1,-1,75,-1,74,-1,-1,-1,72,-1,71,-1],[68,-1,-1,-1,-1,-1,72,-1,75,-1,-1,-1,74,-1,72,-1],[77,-1,-1,-1,75,-1,74,-1,72,-1,-1,-1,68,-1,-1,-1],[71,-1,-1,-1,74,-1,-1,-1,77,-1,-1,-1,79,-1,-1,-1]];
+function dramaStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,r=KYR[bar];
+ if(s===0){tv(t0,mf(r),L*16,.07,'sawtooth');tv(t0,mf(r+7),L*16,.04,'sawtooth');mt(t0,90,30,.6,.9,'sine')}
+ if(s===0||s===3)tv(t0,mf(r+12),L*1.2,.3,'triangle');
+ if([0,3,6,10,12,13].includes(s)&&b8>=2)mt(t0,s>=12?190:150,s>=12?70:55,.22,.5,'triangle');
+ if(s===8)mn(t0,.3,'bandpass',900,.25);if(s%4===2)mn(t0,.02,'highpass',8000,.035);
+ if((s===0||s===6)&&bar%2===1)KYC[bar].forEach(c=>{const f=mf(r+24+c);mt(t0,f,f,.18,.025,'sawtooth',-6);mt(t0,f,f,.18,.025,'sawtooth',6)});
+ if(st>=32){const row=KYM[bar],m=row[s];if(m>0){let k=0;while(k<5&&row[s+1+k]===-1)k++;const d=L*(1+k)*.95;tv(t0,mf(m),d,.085,.5);tv(t0,mf(m-12),d,.03,.25);tv(t0+L,mf(m),d*.6,.025,.5)}}}
+/* Musiikkitilat taulukkona: tempo (bpm) ja askelfunktio */
+const MST={n:[132,cutStep],d:[150,driveStep],d2:[160,darkStep],d3:[112,dramaStep]};
+/* Autokohtausten musiikkivaihtoehdot (valinta tallennetaan selaimeen, vaihdetaan napista tai M-näppäimellä) */
+const DRV=[{m:'d',name:'Ajobiitti'},{m:'d2',name:'Varjojahti'},{m:'d3',name:'Kohtalon yö'}];let drvSel=0;try{drvSel=Math.min(DRV.length-1,+(localStorage.getItem('ph2_drive')||0)||0)}catch(x){}
+function driveMode(){return DRV[drvSel].m}
+function drvCycle(){drvSel=(drvSel+1)%DRV.length;try{localStorage.setItem('ph2_drive',drvSel)}catch(x){}drvLabel()}
+function drvLabel(){const b=document.getElementById('mv');if(b)b.textContent='Automusiikki: '+(drvSel+1)+'/'+DRV.length+' '+DRV[drvSel].name+' (M)'}
+{const b=document.createElement('button');b.id='mv';b.addEventListener('click',drvCycle);document.getElementById('side').appendChild(b);drvLabel()}
+addEventListener('keydown',e=>{if(e.key==='m'||e.key==='M')drvCycle()});
