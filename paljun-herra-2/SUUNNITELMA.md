@@ -74,3 +74,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Alkunäytöstä ei voi enää ohittaa vahingossa nopeilla painalluksilla: häivytyksen aikana painallus ei tee mitään, repliikin voi näyttää kokonaan aikaisintaan 0,25 s alusta, seuraavaan pääsee vasta lukuajan jälkeen (vähintään 0,6 s ja pituus/30 merkkiä/s, `cutReady`), ▼ näkyy vasta kun eteneminen on mahdollista, pohjassa pidetyn Enterin toisto ei etene.
 - Jokaisella kuvalla vähimmäiskesto 4 s ennen seuraavaan siirtymistä (`CUTK.minScene`, kohtauskohtainen `min`), myös nimiruudun ALOITA vasta 4 s jälkeen.
 - Alkunäytöksen ohitus poistettu kokonaan (S, ohjaimen B ja OHITA-kohta eivät toimi, OHITA-teksti pois).
+- Kuorsaus kuuluvammaksi: keskitaajuinen rahiseva sisäänhengitys (kohinaa katkova värinä) ja tuhiseva uloshengitys (`SNR`, `noiseEnv`), alkaa heti kun ääni avautuu ensimmäisestä napautuksesta. Soittoääni hieman kovemmaksi kuin kuorsaus.

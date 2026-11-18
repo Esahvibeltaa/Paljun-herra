@@ -94,8 +94,8 @@ function cutMokki(T,t){cutLayer('mokki',mokkiBg);const ring=CUT.li===1,ans=CUT.l
  if(ring){glow(149,84,18,'110,210,255',.5+.3*Math.sin(T*16));g.font='bold 6px monospace';g.textAlign='center';const k=Math.floor(T*6)%2;tx(k?'♪':'♫',149+Math.sin(T*5)*8,74-(T*10)%8,'#bfefff','center')}
  if(ans)glow(66,66,10,'110,210,255',.35);
  g.font='bold 6px monospace';if(!ans)zzz(84,62,T);zzz(272,66,T+1);zzz(166,70,T+2);zzz(222,98,T+3)}
-/* Mökin äänet: hiljainen kuorsaus puhelimen soittoon asti, sitten soittoääni */
-function mokkiSound(dt){if(CUT.li===0){CUT.sn-=dt;if(CUT.sn<=0){CUT.sn=CUTK.snore;sSnore(CUT.sk=(CUT.sk+1)%4)}}else if(CUT.li===1){CUT.rt-=dt;if(CUT.rt<=0){CUT.rt=CUTK.ring;sRing()}}}
+/* Mökin äänet: kuorsaus ja tuhina puhelimen soittoon asti (alkaa heti kun ääni avautuu), sitten soittoääni */
+function mokkiSound(dt){if(!AC)return;if(CUT.li===0){CUT.sn-=dt;if(CUT.sn<=0){CUT.sn=CUTK.snore;sSnore(CUT.sk=(CUT.sk+1)%4)}}else if(CUT.li===1){CUT.rt-=dt;if(CUT.rt<=0){CUT.rt=CUTK.ring;sRing()}}}
 
 /* ---- Kohtaus 2: vihreä takasiipinen Tesla kiitää Lapin yössä ---- */
 function tieSky(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,Y+96,[[0,'#03041a'],[.6,'#121a4a'],[1,'#26306a']]);g.fillRect(X,Y,CP.w,96);

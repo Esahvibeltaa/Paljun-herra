@@ -27,6 +27,11 @@ function sDoor(){tn(220,330,.35,.05,'sawtooth');tn(90,50,.15,.3,'sine',.3)}
 function sFlush(){nz(1.4,'lowpass',900,.18,300)}
 function sEnd(r){if(r==='d'){[0,.3,.6].forEach((d,i)=>tn(500-i*100,200,.25,.18,'sine',d));nz(1.2,'lowpass',700,.12,200)}else if(r==='f'){tn(1400,300,.9,.1,'triangle');tn(2400,2300,.5,.05,'sine',.1)}else{[[330,250,.4,0],[300,220,.4,.4],[270,170,.9,.8]].forEach(a=>tn(a[0],a[1],a[2],.08,'sawtooth',a[3]));nz(2,'bandpass',1500,.05,900)}}
 /* Puhelimen soittoääni: kaksi vuorottelevaa piippausta */
-function sRing(){[0,.11,.22,.33,.44].forEach((d,i)=>tn(i%2?1660:1320,i%2?1660:1320,.08,.045,'square',d))}
-/* Hiljainen kuorsaus: matala sahalaitasurina ja suodatettu kohina; k vaihtelee sävelkorkeutta nukkujittain */
-function sSnore(k){const f=58+k*9;tn(f,f*.85,1.1,.022,'sawtooth');nz(1.1,'bandpass',260+k*40,.03,170)}
+function sRing(){[0,.11,.22,.33,.44].forEach((d,i)=>tn(i%2?1660:1320,i%2?1660:1320,.08,.08,'square',d))}
+/* Kuorsaus ja tuhina: rahiseva sisäänhengitys (kaistasuodatettu kohina, jota nopea kanttiaalto katkoo kuin kitalaki värisisi)
+   ja perään pehmeä uloshengitys. Taajuudet keskialueella, jotta kuuluu myös puhelimen kaiuttimesta. k vaihtelee nukkujittain. */
+const SNR={inF:380,inQ:2.5,inV:.22,inD:1.3,flut:22,exF:1200,exV:.08,exD:1};
+function noiseEnv(t0,type,f,q,pts){const s=AC.createBufferSource();s.buffer=nb;const fl=AC.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const e=AC.createGain();e.gain.setValueAtTime(0,t0);pts.forEach(([dt,v])=>e.gain.linearRampToValueAtTime(v,t0+dt));s.connect(fl);fl.connect(e);s.start(t0,Math.random());s.stop(t0+pts[pts.length-1][0]+.05);return e}
+function sSnore(k){if(!AC)return;const n=AC.currentTime,S=SNR,d=S.inD;
+ const e=noiseEnv(n,'bandpass',S.inF+k*60,S.inQ,[[.55,S.inV],[d*.8,S.inV*.6],[d,0]]);const fl=AC.createGain();fl.gain.value=.5;const lfo=AC.createOscillator();lfo.type='square';lfo.frequency.value=S.flut+k*3;const lg=AC.createGain();lg.gain.value=.5;lfo.connect(lg);lg.connect(fl.gain);e.connect(fl);fl.connect(master);lfo.start(n);lfo.stop(n+d);
+ noiseEnv(n+d+.1,'bandpass',S.exF,.8,[[.25,S.exV],[S.exD,0]]).connect(master)}
