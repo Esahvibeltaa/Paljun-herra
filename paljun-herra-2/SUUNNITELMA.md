@@ -28,6 +28,15 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 - **Rakenne:** alkuun road trip Rovaniemelle; kentät Santapark ja Rovaniemen keskusta. Sattuman kautta tie vie Rovaniemen lentokentältä Thaimaahan: viidakko ja Mersumiehen salainen huvila Pattayan lähellä.
 - **Drunken master:** humala on resurssi. Sopiva humala avaa horjuvan väistön ja erikoisliikkeet, liian vähällä tyylit eivät toimi, liialla Esa sammuu.
 - **Pelattavat:** Esa menee yksin; kaverit (Aapeli, Kermis, Hempukka) ovat välillä mukana yksittäin tai porukalla. Pera on vierailijatähti siellä täällä, esimerkiksi kuskina.
+
+## Päätökset (kysymyskierros 2)
+
+- **Suomesta Thaimaahan:** porukka jahtaa Mersumiestä Rovaniemen lentokentälle ja livahtaa hänen yksityiskoneensa ruumaan juuri ennen lähtöä; herätys Pattayalla.
+- **Mestari:** Lapin vanhus, pöhnäinen kota-ukko Santaparkin lähellä. Opettaa humalanyrkin jo Suomen-osuudessa; Thaimaassa taidot pannaan koetukselle.
+- **Viholliset Suomessa:** dieselsällit (Mersumiehen kätyrit, vanhat tutut uudistettuina) ja kaapatut tontut (Santaparkin aivopestyt tontut: pieniä, nopeita, heittävät lahjapaketteja, palaavat järkiinsä voitettuina).
+- **Pomot:** mietitään myöhemmin; ainakin **Pajakylän paha joulupukki**.
+- **Hempukka:** mukana välillä tekoälynä kuten muut kaverit.
+
 - Alla oleva vanha tarinaluonnos (Kloori-Kalle, palju) on korvautunut näillä; siitä voi poimia ideoita.
 
 ## Tarinapolku (karkea luonnos, kommentoitavana)
