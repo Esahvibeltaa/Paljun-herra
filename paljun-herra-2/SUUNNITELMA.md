@@ -19,11 +19,11 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 
 ## Tarinapolku (karkea luonnos, kommentoitavana)
 
-Perusidea: **Esalta viedään palju.** Ilman paljua ei ole paljun herraa. Esa saa ensin turpaansa, oppii humalanyrkin vanhalta mestarilta ja hakee valtaistuimensa takaisin. Klassinen drunken master -kaari: nöyryytys → harjoitus → paluu.
+Perusidea (tarkentuu alkunäytöksen mukaan: Mersumies on palannut ja kaapannut Sam Discon palvelimen): **Esalta viedään palju.** Ilman paljua ei ole paljun herraa. Esa saa ensin turpaansa, oppii humalanyrkin vanhalta mestarilta ja hakee valtaistuimensa takaisin. Klassinen drunken master -kaari: nöyryytys → harjoitus → paluu.
 
 | # | Vaihe | Tyyppi | Tapahtumat |
 |---|-------|--------|------------|
-| 0 | **Prologi: Tyhjä laituri** | välinäytös | Vuosi ykkösosan jälkeen. Talviyö, Esa nukkuu paljussa. Aamulla Esa herää hangesta: palju on poissa, jäljellä vain lavettiauton renkaanjäljet ja käyntikortti: *"Kloori-Kalle – Kylpyläimperiumi Oy. Puulämmitys on mennyttä aikaa."* Aapeli: "Esa, sun palju." Esa: "Mun... palju." |
+| 0 | **Alkunäytös (tehty)** | välinäytös | NES-tyylinen elokuvakohtaus. Mökissä sankarit potevat ankaraa krapulaa, Esan puhelin soi. Vihreä takasiipinen Tesla Model 3 kiitää Lapin yössä: "Hei Esa, Pera tässä. Meillä on ongelma." Auton sisältä pelkääjän paikalta, kuski vain hämäränä ääriviivana: "Mersumies on palannut. Sam Discon palvelin on kaapattu..." Hidas häivytys mustaan. |
 | 1 | **Kenttä 1: Kyläraitti** | mätkintä | Kioski, grilli, huoltoasema. Kloori-Kallen kylpytakkijengi jakaa mainoksia ("Uusi AquaDome – ei enää halkoja!"). Väliottelu: Diesel-Pena (vanha tuttu, nyt kylpylän vartijana). |
 | 2 | **Nöyryytys** | välinäytös + pomo, jota ei voi voittaa | Kenttä 1:n lopussa vastaan tulee Kloori-Kallen henkivartija **Hana-Harri**. Esa on krapulassa ja häviää, vaikka tekisi mitä. Esa herää savusaunan lauteilta. |
 | 3 | **Savusauna: Mestarin oppi** | harjoituskenttä | Järven takana asuu **Löylymestari** (vanha, aina pöhnässä, puhuu arvoituksin: "Tyhjä tuoppi on täynnä mahdollisuuksia."). Hän opettaa **humalanyrkin** (drunken master -mekaniikka) vaiheittain. Nykyinen harjoituskenttä sopii tähän. Lopuksi koe: 1v1 Mestaria vastaan. |
@@ -60,3 +60,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Suorituskykykorjaukset ykkösosasta: apukankaat prosessorilla (willReadFrequently), ääniparametrit setAP-funktion kautta, kankaan skaalaus enintään 4×, yksi hehkukerros, vinjetti ja rivivarjo CSS-kerroksena (#fxov), introruutu 30 fps:llä, Shift+F-kehysnopeusmittari.
 - Tarinapolun karkea luonnos.
 - Nimi muutettu muotoon Paljun Herra 2 Paluu of drunken master (intro: PALUU OF DRUNKEN MASTER).
+- Alkunäytös: välinäytösmoottori (`12b_alkunaytos.js`: kuva-alue, kirjoituskoneteksti, puhujan nimi, ohitus S / B / OHITA), kolme kohtausta (krapulainen mökki, Tesla Lapin yössä, auton sisänäkymä), jännitysteema (`cutStep`), soittoääni (`sRing`). Intron vuoret ja kuusirivi yhteisiksi funktioiksi (`ridge`, `spruceRow`). Piirto noin 2–3 ms/kehys.

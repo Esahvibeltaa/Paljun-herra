@@ -29,8 +29,8 @@ function titleStep(t0,st,L){const s=st%16,b0=Math.floor(st/16),intro=b0<2,bar=b0
  if(s===4||s===12)mn(t0,.13,'bandpass',2600,.3);if(s%2===1)mn(t0,.025,'highpass',8500,.07);if(s===14&&bar===7)mn(t0,.2,'bandpass',1800,.25);
  tv(t0,mf(r+24+c[s%3]),L*.85,.035,.125);
  if(!intro){const row=TM[bar],n=row[s];if(n>0){let k=0;while(k<3&&row[s+1+k]===-1)k++;const d=L*(1+k)*.92;tv(t0,mf(n),d,.1,.25);tv(t0+L*.75,mf(n),d*.6,.025,.25)}}}
-function musicTick(){if(!mus||!AC)return;const L=60/(mus.m==='t'?150:mus.m==='o'?112:mus.m==='b'?150:mus.m==='bb'?164:140)/4;if(mus.next<AC.currentTime-.1){const k=Math.ceil((AC.currentTime-mus.next)/L);mus.step+=k;mus.next+=k*L}
- while(mus.next<AC.currentTime+.2){if(mus.m==='t'){titleStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='b'||mus.m==='bb'){beatStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='o'){orientStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='e'||mus.m==='c'){euroStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}const t0=mus.next,st=mus.step,s=st%16,c=CH[Math.floor(st/16)%4];
+function musicTick(){if(!mus||!AC)return;const L=60/(mus.m==='t'?150:mus.m==='o'?112:mus.m==='b'?150:mus.m==='bb'?164:mus.m==='n'?132:140)/4;if(mus.next<AC.currentTime-.1){const k=Math.ceil((AC.currentTime-mus.next)/L);mus.step+=k;mus.next+=k*L}
+ while(mus.next<AC.currentTime+.2){if(mus.m==='t'){titleStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='n'){cutStep(mus.next,mus.step,L);mus.next+=L;mus.step++;continue}if(mus.m==='b'||mus.m==='bb'){beatStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='o'){orientStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}if(mus.m==='e'||mus.m==='c'){euroStep(mus.next,mus.step);mus.next+=L;mus.step++;continue}const t0=mus.next,st=mus.step,s=st%16,c=CH[Math.floor(st/16)%4];
   if(s%4===0)mt(t0,150,42,.14,.9,'sine');
   if(s%4===2){mn(t0,.09,'highpass',8000,.18);mt(t0,c[0],c[0],.17,.28,'sawtooth')}
   if(s===4||s===12){mn(t0,.12,'bandpass',1600,.35);mn(t0+.012,.1,'bandpass',2200,.2)}
@@ -40,3 +40,11 @@ function musicTick(){if(!mus||!AC)return;const L=60/(mus.m==='t'?150:mus.m==='o'
   mus.next+=L;mus.step++}}
 function sSip(){nz(.7,'highpass',3500,.1,1500);[.35,.6].forEach(d=>tn(170,105,.12,.1,'sine',d))}
 function sTalk(w){[0,.09,.18].forEach((d,i)=>{const f0=w?150+i*12:480+i*40;tn(f0,f0*.9,.07,.05,'square',d)})}
+
+/* Välinäytöksen jännitysteema: alkuperäinen, E-molli, 132 bpm. Matala sykkivä basso, hiljainen arpeggio ja harva virveli */
+const CB=[40,36,38,35],CA=[[0,3,7,12],[0,4,7,12],[0,4,7,10],[0,3,7,12]];
+function cutStep(t0,st,L){const s=st%16,bar=Math.floor(st/16)%4,r=CB[bar];
+ if(s%2===0)tv(t0,mf(r),L*1.6,.34,'triangle');if(s===0||s===10)mt(t0,120,40,.16,.7,'sine');
+ if(s===8)mn(t0,.16,'bandpass',1800,.18);if(s%4===2)mn(t0,.03,'highpass',8000,.05);
+ if(st>=32){const c=CA[bar];tv(t0,mf(r+24+c[s%4]),L*.8,.03,.125)}
+ if(s===0&&bar===0)tv(t0,mf(r+36),L*12,.022,.5)}

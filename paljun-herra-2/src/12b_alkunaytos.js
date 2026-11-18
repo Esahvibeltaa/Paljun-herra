@@ -1,0 +1,153 @@
+/* Paljun Herra 2 – Välinäytökset NES-elokuvakohtausten tyyliin: animoitu kuva ylhäällä, teksti kirjoituskoneena alla */
+// Kuva-alue ja tekstialue (ruudun koordinaatit)
+const CP={x:16,y:12,w:288,h:110},CTX={x:26,y:140,w:268,lh:11,font:'bold 8px monospace'};
+// Säädettävät: kirjoitusnopeus (merkkiä/s), kohtauksen häivytys sisään ja loppuhäivytys mustaan (s), soittoäänen väli (s)
+const CUTK={cps:38,fadeIn:.35,fadeOut:2.6,ring:1.3};
+// Puhujien nimien värit
+const SPK={Esa:'#ffe23a',Pera:'#7dff9a'};
+const CUT={list:null,i:0,sc:null,li:0,ch:0,t:0,fin:0,rt:0,done:null};
+
+/* Staattinen kerros piirretään kerran omaan kankaaseen (2x tarkkuus) ja kopioidaan joka kehys */
+const CUTL={};
+function cutLayer(id,fn){let c=CUTL[id];if(!c){c=CUTL[id]=mk();const x=c.getContext('2d');x.setTransform(2,0,0,2,0,0);const gs=g;g=x;try{fn()}finally{g=gs}}g.drawImage(c,0,0,W,H)}
+/* Valohehku: säteittäinen liukuväri luodaan kerran kokoa ja väriä kohden, piirretään lisäävänä */
+const GLOW={};
+function glow(x,y,r,rgb,a){const k=r+'|'+rgb;let c=GLOW[k];if(!c){c=document.createElement('canvas');c.width=c.height=r*4;const q=c.getContext('2d'),gr=q.createRadialGradient(r*2,r*2,0,r*2,r*2,r*2);gr.addColorStop(0,`rgba(${rgb},1)`);gr.addColorStop(1,`rgba(${rgb},0)`);q.fillStyle=gr;q.fillRect(0,0,r*4,r*4);GLOW[k]=c}
+ g.save();g.globalCompositeOperation='lighter';g.globalAlpha=a;g.drawImage(c,x-r,y-r,r*2,r*2);g.restore()}
+
+/* ---- Välinäytöksen kulku ---- */
+function startCut(list,done){stage=6;state='cut';CUT.list=list;CUT.done=done;CUT.fin=0;showPad(false);msgL=[''];cutScene(0)}
+function cutScene(i){CUT.i=i;CUT.sc=CUT.list[i];CUT.t=0;CUT.li=0;CUT.ch=0;CUT.rt=0;if(CUT.sc.music&&!mus)musicStart(CUT.sc.music)}
+function cutWrap(){return wrapLines([CUT.sc.lines[CUT.li][1]],CTX.w,CTX.font)}
+function cutLen(){return cutWrap().reduce((a,l)=>a+l.length,0)}
+function stepCut(dt){musicTick();CUT.t+=dt;
+ if(CUT.fin){CUT.fin+=dt;if(CUT.fin>=CUTK.fadeOut){CUT.fin=0;musicStop();CUT.done()}return}
+ const n=cutLen();if(CUT.t>CUTK.fadeIn&&CUT.ch<n){const p=CUT.ch|0;CUT.ch=Math.min(n,CUT.ch+CUTK.cps*dt);if((CUT.ch|0)!==p&&p%3===0&&AC)tn(1180,1180,.025,.022,'square')}
+ if(CUT.sc.tick)CUT.sc.tick(dt)}
+/* Napautus: ensin koko repliikki näkyviin, sitten seuraava repliikki tai kohtaus; viimeisen jälkeen hidas häivytys mustaan */
+function actCut(e){if(CUT.fin)return;const tap=e&&e.target===cv&&e.clientX!==undefined;
+ if(tap){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;if(x>240&&y>184){cutSkip();return}}
+ if(CUT.ch<cutLen()){CUT.ch=cutLen();return}
+ if(CUT.li<CUT.sc.lines.length-1){CUT.li++;CUT.ch=0;return}
+ if(CUT.i<CUT.list.length-1)cutScene(CUT.i+1);else{CUT.fin=1e-6;if(mus)setAP(mus.g.gain,0,CUTK.fadeOut/3)}}
+function cutSkip(){if(stage!==6)return;musicStop();CUT.fin=0;CUT.done()}
+addEventListener('keydown',e=>{if(stage===6&&!PAUSED&&(e.key==='s'||e.key==='S'))cutSkip()});
+function drawCut(T){R('#000',0,0,W,H);g.save();g.beginPath();g.rect(CP.x,CP.y,CP.w,CP.h);g.clip();CUT.sc.draw(T,CUT.t);g.restore();
+ g.strokeStyle='#3a4270';g.lineWidth=1;g.strokeRect(CP.x-.5,CP.y-.5,CP.w+1,CP.h+1);
+ const fi=1-CUT.t/CUTK.fadeIn;if(fi>0)R(`rgba(0,0,0,${fi})`,CP.x,CP.y,CP.w,CP.h);
+ cutText(T);if(CUT.fin)R(`rgba(0,0,0,${Math.min(1,CUT.fin/CUTK.fadeOut)})`,0,0,W,H)}
+function cutText(T){const who=CUT.sc.lines[CUT.li][0],L=cutWrap();let left=CUT.ch|0;g.save();g.textAlign='left';
+ if(who){g.font='bold 7px monospace';g.fillStyle=SPK[who]||'#fff';g.fillText(who.toUpperCase(),CTX.x,CTX.y-4)}
+ g.font=CTX.font;g.fillStyle='#f0f2ff';L.forEach((l,i)=>{if(left>0)g.fillText(l.slice(0,left),CTX.x,CTX.y+8+i*CTX.lh);left-=l.length});
+ if(CUT.ch>=cutLen()&&Math.floor(T*3)%2===0){g.fillStyle='#ffe23a';g.fillText('▼',CTX.x+CTX.w-6,CTX.y+8+3*CTX.lh)}
+ g.font='bold 5px monospace';g.textAlign='right';g.fillStyle='#5a6090';g.fillText((INP==='touch'?'':INP==='gp'?gpG(1)+': ':'S: ')+'OHITA ▶▶',W-6,196);g.restore()}
+
+/* ---- Kohtaus 1: krapulainen mökki ja soiva puhelin ---- */
+function mokkiBg(){const X=CP.x,Y=CP.y,FY=Y+92;
+ R('#3b2412',X,Y,CP.w,CP.h);for(let y=Y;y<FY;y+=8){R('#6a4422',X,y,CP.w,6);R('#7c5230',X,y,CP.w,1.5);R('#2a160a',X,y+6,CP.w,2)}
+ for(let i=0;i<9;i++)ell(X+12+i*33+(i*17)%11,Y+3+((i*5)%10)*8,2,1.4,'#4e3018');
+ R('#4a2c14',X,FY,CP.w,CP.h-92);for(let x=X;x<X+CP.w;x+=23)R('#36200e',x,FY,1,CP.h-92);R('#2a160a',X,FY,CP.w,1.5);
+ // ikkuna: Lapin yö, kuu ja lumiset kuuset
+ {const wx=196,wy=22,ww=46,wh=34;R('#2a160a',wx-3,wy-3,ww+6,wh+6);g.fillStyle=mkLg(wy,wy+wh,[[0,'#060a24'],[1,'#1e2a5a']]);g.fillRect(wx,wy,ww,wh);
+  for(let i=0;i<12;i++)R('#e8ecff',wx+(i*13)%ww,wy+(i*7)%20,1,1);ell(wx+34,wy+8,4,4,'#f4ecc0');
+  R('#cfdcf4',wx,wy+wh-7,ww,7);for(let i=0;i<5;i++){const x=wx+4+i*10;g.fillStyle='#0c2a2a';g.beginPath();g.moveTo(x,wy+wh-16);g.lineTo(x+4,wy+wh-6);g.lineTo(x-4,wy+wh-6);g.fill()}
+  R('#2a160a',wx+ww/2-1,wy,2,wh);R('#2a160a',wx,wy+wh/2-1,ww,2);R('#e8f0ff',wx-3,wy+wh+3,ww+6,2)}
+ // juliste ja hylly
+ R('#c8323c',120,22,22,28);R('#ffe23a',123,26,16,3);R('#f4f4f4',124,32,14,12);R('#1a1a20',128,35,6,6);
+ R('#4e3018',36,34,48,3);[40,48,56,70].forEach((x,i)=>{i%2?can(x,22):bottle(x,21)});
+ // sohvan selkänoja ja nojatuolin selkä
+ R('#7a1e26',22,60,92,22);R('#8e2a32',22,60,92,3);R('#5e161c',22,78,92,4);
+ R('#2f5a3a',248,62,42,28);R('#3e7048',248,62,42,3);
+ // lattian roinat: pizzalaatikko ja kaatuneet tölkit
+ R('#c89a5a',56,110,24,5);R('#a87a3a',56,110,24,1);R('#d8c8a8',212,112,8,3);R('#c8702a',224,113,6,3)}
+function mokkiFurniture(ans){
+ // sohvan istuinosa ja käsinojat (Esan edessä)
+ R('#9a2a32',22,80,92,10);R('#b0363e',22,80,92,1.5);R('#6a161e',16,66,9,28);R('#6a161e',111,66,9,28);R('#2a0a0e',24,90,4,4);R('#2a0a0e',108,90,4,4);
+ // pöytä
+ R('#3a200c',130,92,4,18);R('#3a200c',182,92,4,18);R('#a8262c',124,88,68,15);for(let x=124;x<192;x+=6)R('#d8d0c0',x,88,3,15);R('#e8e0d0',124,88,68,1.2);R('#6a161a',124,102,68,1);
+ can(140,77);can(172,77);bottle(160,76);R('#b8c8d8',152,86,6,2);
+ // nojatuolin istuin ja käsinojat (Hempukan edessä)
+ R('#3e7048',246,92,46,14);R('#2f5a3a',244,80,6,26);R('#2f5a3a',288,80,6,26);R('#1a2a1a',248,106,4,4);R('#1a2a1a',286,106,4,4)}
+function cutMokki(T,t){cutLayer('mokki',mokkiBg);const ring=CUT.li===1,ans=CUT.li>=2;
+ // Hempukka nukkuu nojatuolissa, Kermis on nukahtanut pöydän ääreen, Aapeli lattialla
+ drawChar(SP.w,269,108,{s:.72,blink:true,tilt:.28,aL:.25,aR:-.25,bob:Math.sin(T*1.3)*.4});
+ drawChar(SP.k,154,106,{s:.72,blink:true,tilt:.45,rot:.22,aR:-.5,aL:.5,bob:1+Math.sin(T*1.1+1)*.3});
+ drawChar(SP.a,186,111,{s:.72,blink:true,rot:1.57,bob:Math.sin(T*1.2+2)*.3});
+ if(ans){const o={s:.72,blink:((t%3.4)<.12),aR:-2.75,eR:-1.9,aL:.25,tilt:-.08,qL:.5,qR:.5};drawChar(SP.e[2],62,96,o);R('#14141c',65,63,3,6);R('#6ad0ff',66,64,1,3)}
+ else drawChar(SP.e[2],104,75,{s:.72,blink:true,rot:-1.57,bob:Math.sin(T*1.4)*.4});
+ mokkiFurniture(ans);
+ // puhelin pöydällä: värisee ja hehkuu soidessa
+ if(!ans){const j=ring?Math.sin(T*90)*.7:0;R('#14141c',145+j,85,8,3);R(ring?'#6ad0ff':'#22283a',146+j,85,6,1)}
+ R('rgba(6,8,34,.38)',CP.x,CP.y,CP.w,CP.h);
+ glow(219,40,26,'120,150,255',.18);
+ if(ring){glow(149,84,18,'110,210,255',.5+.3*Math.sin(T*16));g.font='bold 6px monospace';g.textAlign='center';const k=Math.floor(T*6)%2;tx(k?'♪':'♫',149+Math.sin(T*5)*8,74-(T*10)%8,'#bfefff','center')}
+ if(ans)glow(66,66,10,'110,210,255',.35);
+ g.font='bold 6px monospace';if(!ans)zzz(84,62,T);zzz(272,66,T+1);zzz(166,70,T+2);zzz(222,98,T+3)}
+function cutRing(dt){if(CUT.li!==1)return;CUT.rt-=dt;if(CUT.rt<=0){CUT.rt=CUTK.ring;sRing()}}
+
+/* ---- Kohtaus 2: vihreä takasiipinen Tesla kiitää Lapin yössä ---- */
+function tieSky(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,Y+96,[[0,'#03041a'],[.6,'#121a4a'],[1,'#26306a']]);g.fillRect(X,Y,CP.w,96);
+ for(let i=0;i<60;i++)R(i%5?'#c8ccf0':'#ffffff',X+(i*53)%CP.w,Y+(i*29)%60,i%7?1:1.5,i%7?1:1.5);ell(266,30,8,8,'#f4ecc0');ell(263,28,2,2,'#c8bf90')}
+function teslaCar(T,t){const sp=t*36;
+ // valokeila tielle ja takavalon hehku
+ g.fillStyle='rgba(255,248,200,.16)';g.beginPath();g.moveTo(38,-9);g.lineTo(150,-14);g.lineTo(150,6);g.lineTo(38,-6);g.fill();
+ glow(38,-8,12,'255,250,210',.8);glow(-39,-9,8,'255,40,40',.7);
+ // lumipöllähdys takapyörän takaa
+ for(let k=0;k<12;k++){const p=(t*2.6+k/12)%1;g.globalAlpha=(1-p)*.8;R('#e8f0ff',-30-p*52,-2-Math.sin(p*Math.PI)*9-(k%3),1+p*2,1+p*2)}g.globalAlpha=1;
+ // runko
+ g.fillStyle='#1d7a32';g.beginPath();g.moveTo(-39,-3);g.lineTo(-39,-12);g.lineTo(-33,-15);g.lineTo(-24,-17);g.lineTo(-10,-23);g.lineTo(4,-25);g.lineTo(14,-23);g.lineTo(25,-15);g.lineTo(36,-12);g.lineTo(40,-8);g.lineTo(39,-3);g.closePath();g.fill();
+ g.fillStyle='#2fae4a';g.beginPath();g.moveTo(-38,-8);g.lineTo(-38,-11.5);g.lineTo(-32.5,-14.5);g.lineTo(-24,-16.5);g.lineTo(-10,-22.5);g.lineTo(4,-24.5);g.lineTo(14,-22.5);g.lineTo(25,-14.5);g.lineTo(35.5,-11.5);g.lineTo(39,-8);g.closePath();g.fill();
+ R('#7ae890',-32,-14.2,8,.8);R('#7ae890',25,-14.4,10,.8);R('#145a24',-38,-5,77,2);R('#0e3a18',-14,-12,1,8);R('#0e3a18',6,-12,1,8);
+ // lasit
+ g.fillStyle='#0b1626';g.beginPath();g.moveTo(-21,-16.5);g.lineTo(-9,-21.8);g.lineTo(4,-23.6);g.lineTo(13,-21.8);g.lineTo(22,-15);g.closePath();g.fill();R('#1d7a32',0,-23.5,1.5,9);R('#4a6a9a',-6,-20.8,5,.8);
+ // iso takasiipi
+ R('#111316',-35,-21,1.6,6.5);R('#111316',-29,-21.5,1.6,5.5);R('#111316',-43,-23.5,19,2.6);R('#2fae4a',-43,-23.5,19,.8);R('#111316',-43,-25,1.5,4.5);R('#111316',-25.5,-25,1.5,4.5);
+ // valot
+ R('#fff8d0',36,-10,3,1.5);R('#ff3030',-39,-10.5,2,2);
+ // pyörät
+ for(const wx of[-24,24]){ell(wx,-2,6,6,'#0a0a0e');ell(wx,-2,3.6,3.6,'#7a8090');for(let k=0;k<3;k++){const a=sp+k*2.09;lim(wx,-2,wx+Math.cos(a)*3.2,-2+Math.sin(a)*3.2,.8,'#c0c6d0','#3a3e48')}ell(wx,-2,1,1,'#2a2e38')}}
+function cutTie(T,t){cutLayer('tie',tieSky);
+ aurora('tie',T,()=>AG.forEach((q2,r)=>{for(let x=CP.x;x<CP.x+CP.w;x+=1.5){const y=CP.y+8+r*10+Math.sin(x/41+T*.5+r*1.7)*8+Math.sin(x/15+T)*3;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}));
+ ridge(t*10,86,24,'#232a5e',53,23);ridge(t*26,96,12,'#171c48',31,13);spruceRow(t*70,104,'#0a2226');
+ R('#c8d4f0',CP.x,102,CP.w,5);R('#1a1c26',CP.x,107,CP.w,12);R('#2a2c36',CP.x,107,CP.w,1);R('#dfe8ff',CP.x,119,CP.w,3);
+ const off=(t*320)%44;for(let x=CP.x-off;x<CP.x+CP.w;x+=44)R('#d8d8c0',x,112.5,18,1.2);
+ g.save();g.translate(148,116+Math.sin(T*22)*.35);teslaCar(T,t);g.restore();
+ for(const f of flakes){const x=CP.x+(((f.x-t*160)%CP.w)+CP.w)%CP.w;R('rgba(255,255,255,.85)',x,CP.y+f.y*CP.h/H,1.5,1)}}
+
+/* ---- Kohtaus 3: auton sisältä pelkääjän paikalta; kuski näkyy vain hämäränä ääriviivana ---- */
+const VP={x:150,y:50};
+function sisaBg(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,VP.y,[[0,'#02030c'],[1,'#141c42']]);g.fillRect(X,Y,CP.w,VP.y-Y);
+ for(let i=0;i<40;i++)R('#b8c0e8',X+(i*67)%CP.w,Y+(i*31)%30,1,1);
+ g.fillStyle='#10163a';g.beginPath();g.moveTo(X,VP.y);for(let x=X;x<=X+CP.w;x+=6)g.lineTo(x,VP.y-3-Math.abs(Math.sin(x/37))*7);g.lineTo(X+CP.w,VP.y);g.fill();
+ g.fillStyle=mkLg(VP.y,Y+CP.h,[[0,'#5a6aa0'],[1,'#c8d4f0']]);g.fillRect(X,VP.y,CP.w,Y+CP.h-VP.y);
+ g.fillStyle='#22263a';g.beginPath();g.moveTo(VP.x-2,VP.y);g.lineTo(VP.x+2,VP.y);g.lineTo(X+CP.w+40,Y+CP.h);g.lineTo(X-40,Y+CP.h);g.closePath();g.fill()}
+function cutSisa(T,t){g.save();g.translate(0,Math.sin(T*27)*.3);cutLayer('sisa',sisaBg);
+ // tien keskiviiva, heijastinpylväät ja kuuset kiitävät kohti katsojaa
+ for(let k=0;k<6;k++){const u=(t*1.5+k/6)%1,y=VP.y+u*u*60,w=.4+u*2.6;R('#e8e8c8',VP.x-w/2,y,w,.6+u*u*7)}
+ for(let k=0;k<5;k++){const u=(t*1.2+k/5)%1,d=u*u,y=VP.y+d*58;for(const s of[-1,1]){const x=VP.x+s*(6+d*190);R('#e0e0e8',x,y-1-d*12,.5+d*2,1+d*12);R('#ff9a2a',x,y-1-d*12,.5+d*2,.6+d*2)}}
+ for(let k=0;k<7;k++){const u=(t*.9+k/7)%1,d=u*u,y=VP.y+d*40;for(const s of[-1,1]){const x=VP.x+s*(18+d*300),h=3+d*70;g.fillStyle='#08162a';g.beginPath();g.moveTo(x,y-h);g.lineTo(x+h*.28,y);g.lineTo(x-h*.28,y);g.fill()}}
+ for(let k=0;k<26;k++){const a=k*2.4,u=(t*.8+k*.618)%1,r=u*u*170,x=VP.x+Math.cos(a)*r,y=VP.y+Math.sin(a)*r*.55;g.globalAlpha=u;lim(x,y,x+Math.cos(a)*r*.06,y+Math.sin(a)*r*.033,.6,'#ffffff','rgba(255,255,255,.3)')}g.globalAlpha=1;
+ // ikkunakehys ja kojelauta
+ g.fillStyle='#04050a';g.fillRect(CP.x,CP.y,CP.w,6);g.beginPath();g.moveTo(CP.x,CP.y);g.lineTo(CP.x+30,CP.y);g.lineTo(CP.x+8,CP.y+CP.h);g.lineTo(CP.x,CP.y+CP.h);g.fill();
+ g.beginPath();g.moveTo(CP.x+CP.w,CP.y);g.lineTo(CP.x+CP.w-24,CP.y);g.lineTo(CP.x+CP.w-4,CP.y+CP.h);g.lineTo(CP.x+CP.w,CP.y+CP.h);g.fill();
+ g.beginPath();g.moveTo(CP.x,96);g.quadraticCurveTo(150,84,CP.x+CP.w,94);g.lineTo(CP.x+CP.w,CP.y+CP.h);g.lineTo(CP.x,CP.y+CP.h);g.fill();
+ // keskinäyttö: kartta ja reitti
+ const sx=124,sy=88;R('#0a0c12',sx-1,sy-1,42,25);R('#0b2232',sx,sy,40,23);for(let i=0;i<5;i++)R('#123448',sx+((i*9+t*6)%40),sy,1,23);
+ g.strokeStyle='#3aa8ff';g.lineWidth=1.2;g.beginPath();g.moveTo(sx+20,sy+22);g.lineTo(sx+20,sy+12);g.lineTo(sx+28+Math.sin(t)*2,sy+2);g.stroke();
+ R('#ffffff',sx+19,sy+14,2,3);g.font='bold 4px monospace';tx('142',sx+3,sy+6,'#bfefff');
+ glow(sx+20,sy+11,30,'60,170,255',.22);
+ // kuski: tumma hahmo, jonka reunaa näytön valo juuri ja juuri hipaisee
+ const kc='#030409',rim=.25+.2*Math.sin(T*2.3)+(Math.sin(T*.9)>.97?.4:0);
+ g.fillStyle=kc;ell(70,60,9,10.5,kc);g.fillRect(65,68,10,8);g.beginPath();g.moveTo(44,CP.y+CP.h);g.lineTo(46,82);g.quadraticCurveTo(52,74,70,74);g.quadraticCurveTo(90,74,96,84);g.lineTo(100,CP.y+CP.h);g.fill();
+ lim(92,86,104,98,4,kc,kc);
+ g.strokeStyle=`rgba(110,200,255,${rim})`;g.lineWidth=.8;g.beginPath();g.arc(70,60,9.5,-1.1,.7);g.stroke();g.beginPath();g.moveTo(80,75);g.quadraticCurveTo(91,76,96,84);g.stroke();
+ if(Math.sin(T*.7)>.92)R('#bfefff',76,58,1.5,.8);
+ // ratti
+ g.strokeStyle='#06070c';g.lineWidth=3.2;g.beginPath();g.ellipse(80,104,18,8,-.15,0,7);g.stroke();g.strokeStyle=`rgba(110,200,255,${rim*.5})`;g.lineWidth=.6;g.beginPath();g.ellipse(80,104,19.4,9.2,-.15,-1.2,.2);g.stroke();
+ g.restore();R('rgba(10,30,60,.12)',CP.x,CP.y,CP.w,CP.h)}
+
+/* Alkunäytös: krapula → puhelu → Tesla Lapin yössä → auton sisällä → häivytys mustaan */
+const INTRO_CUT=[
+ {draw:cutMokki,tick:cutRing,lines:[['','Lappi. Mökki. Bileiden jälkeinen aamuyö. Sankarit potevat ankaraa krapulaa.'],['','PIRRR... PIRRR...'],['Esa','Nnngh... Esa. Kuka soittaa tähän aikaan?']]},
+ {draw:cutTie,music:'n',lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
+ {draw:cutSisa,lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
