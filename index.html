@@ -42,6 +42,10 @@ p{max-width:var(--gw);font-size:14px;opacity:.75;text-align:center;margin:10px 0
 <button id="m">Äänet: päällä</button>
 <p>Napauta tölkkejä pöydällä juodaksesi (välilyönti). Mökin ovi vie vessaan (W), saunamökki saunaan (S) ja Hauki-pullo antaa kulauksen (H). Kun seura on koossa, napauta BAARIIN-kylttiä (B). Olut lämmittää ja lisää vessahätää, mutta liian tiuhaan juotuna pää painuu pinnan alle.</p>
 <script>
+/* Kaikki apukankaat piirretään prosessorilla (willReadFrequently). Pikselimaailma luetaan joka kehys (getImageData), ja jos
+   apukankaat olisivat näytönohjaimella, Chromium siirtää ne kesken pelin prosessorille ja jokainen piirto kopioituisi
+   näytönohjaimelta takaisin (peli hidastui, jos valikossa odotti pitkään). Vain näkyvä pääkangas (#c) jää näytönohjaimelle. */
+{const gc=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,opt){if(type==='2d'&&this.id!=='c')opt=Object.assign({willReadFrequently:true},opt);return gc.call(this,type,opt)}}
 const cv=document.getElementById('c'),main=cv.getContext('2d'),W=320,H=200,wl=114;
 /* Kankaan enimmäisskaala: pikselimaailma on 320x200, joten suurempi kangas vain kuormittaa (puhelimissa lämpenemistä) */
 const MAX_SC=4;
@@ -153,6 +157,9 @@ const flakes=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,v:
 let steam=[];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 let AC=null,mute=false,muteM=false,musB=null,master,nb,sil=null,ambG=null,bubG=null;
+/* Äänen parametrin pehmeä siirtymä. Vanhat ajastukset poistetaan ensin: joka kehyksellä tehty asetus ei saa kasvattaa
+   selaimen ajastusjonoa (Chromium hidastui pitkän valikko-odotuksen jälkeen). */
+function setAP(p,v,tc){if(!AC)return;const t0=AC.currentTime;if(p.cancelAndHoldAtTime)p.cancelAndHoldAtTime(t0);else p.cancelScheduledValues(t0);p.setTargetAtTime(v,t0,tc)}
 function audioInit(){
  try{navigator.audioSession.type='playback'}catch(e){}if(!sil){sil=new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');sil.loop=true;sil.play().catch(()=>{})}if(AC){AC.resume();return}
  try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
@@ -355,8 +362,8 @@ function mokkiVig(){const q=g.createRadialGradient(160,90,70,160,90,210);q.addCo
 function startS2(){PTS.pool=cans*10+Math.floor(t);PTS.sauna=PTS.loyly*20;stage=2;state='s2';Object.assign(S2,{px:150,py:150,gx:150,gy:150,dir:1,hasB:false,bt:1,outfit:0,ph:'play',pt:0,say:null,sayT:0,nextSay:3,sipT:[0,0],nextSip:[2,5],t:0,wk:0,wt:0,m1:0,m2:0,cam:0,open:0,pin:0,clip:0,shoes:null,fire:0,fo:0,lp:null,lpT:0,breaks:0,drops:0,hint:0,seen:{},spots:Object.assign(Math.random()<.5?{sbed:'brown',shelf:'patent'}:{sbed:'patent',shelf:'brown'},{pile:'boots',corner:'slippers'})});
  msgL=['Etsi juomaa ja vaatetta baaria varten.'];
  document.getElementById('b').style.display='none';document.querySelector('.row').style.display='none';goBar.style.display='none';
- document.querySelector('p').textContent='Napauta paikkaa: Esa kävelee. Napauta samaa kohdetta uudelleen: käytä sitä.';sDoor();musicStart();if(ambG){ambG.gain.setTargetAtTime(0,AC.currentTime,.3);bubG.gain.setTargetAtTime(0,AC.currentTime,.3)}}
-function restartAll(){musicStop();engStop();murStop();showPad(false);{const b=document.getElementById('b');b.textContent='Juo olut'+hk('drink');b.disabled=false}if(ambG){ambG.gain.setTargetAtTime(1,AC.currentTime,.3);bubG.gain.setTargetAtTime(1,AC.currentTime,.3)}stage=1;state='ready';party=0;document.getElementById('b').style.display='none';document.querySelector('.row').style.display='none';goBar.style.display='none';delete goBar.dataset.s;document.querySelector('p').textContent=P0;msgL=['Valitse vaikeustaso ja aloita.','Älä palellu tai huku.']}
+ document.querySelector('p').textContent='Napauta paikkaa: Esa kävelee. Napauta samaa kohdetta uudelleen: käytä sitä.';sDoor();musicStart();if(ambG){setAP(ambG.gain,0,.3);setAP(bubG.gain,0,.3)}}
+function restartAll(){musicStop();engStop();murStop();showPad(false);{const b=document.getElementById('b');b.textContent='Juo olut'+hk('drink');b.disabled=false}if(ambG){setAP(ambG.gain,1,.3);setAP(bubG.gain,1,.3)}stage=1;state='ready';party=0;document.getElementById('b').style.display='none';document.querySelector('.row').style.display='none';goBar.style.display='none';delete goBar.dataset.s;document.querySelector('p').textContent=P0;msgL=['Valitse vaikeustaso ja aloita.','Älä palellu tai huku.']}
 function tap2(e){if(!e||e.clientX===undefined)return;if(S2.ph==='end'){startS3();return}if(S2.ph!=='play')return;
  const r=cv.getBoundingClientRect(),sx=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;if(S2.lp){lpTap(sx,y);return}
  const x=sx+S2.cam,h=HS.find(h=>x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h&&(S2.open||h.x<520));
@@ -392,8 +399,8 @@ let mus=null;
 const CH=[[55,[220,261.6,329.6]],[43.65,[174.6,220,261.6]],[65.41,[261.6,329.6,392]],[49,[196,246.9,293.7]]];
 const HOOK=[0,-1,2,-1,1,-1,2,-1,0,-1,2,-1,1,2,1,0];
 function musicStart(m){if(!AC||mus)return;const gn=AC.createGain();gn.gain.value=m==='e'?.26:.32;if(m==='e'){const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=4200;gn.connect(lp);lp.connect(musB||master)}else gn.connect(musB||master);mus={next:AC.currentTime+.15,step:0,g:gn,m}}
-function musicStop(){if(mus){mus.g.gain.setTargetAtTime(0,AC.currentTime,.15);mus=null}}
-function duck(v){if(mus)mus.g.gain.setTargetAtTime(v,AC.currentTime,.25)}
+function musicStop(){if(mus){setAP(mus.g.gain,0,.15);mus=null}}
+function duck(v){if(mus)setAP(mus.g.gain,v,.25)}
 function mt(t0,f,f2,dur,v,type,dt2){const o=AC.createOscillator();o.type=type||'sine';o.frequency.setValueAtTime(f,t0);if(f2!==f)o.frequency.exponentialRampToValueAtTime(f2,t0+dur);if(dt2)o.detune.value=dt2;const q=AC.createGain();q.gain.setValueAtTime(v,t0);q.gain.exponentialRampToValueAtTime(.001,t0+dur);o.connect(q);q.connect(mus.g);o.start(t0);o.stop(t0+dur+.02)}
 function mn(t0,dur,type,f,v){const s=AC.createBufferSource();s.buffer=nb;const fl=AC.createBiquadFilter();fl.type=type;fl.frequency.value=f;const q=AC.createGain();q.gain.setValueAtTime(v,t0);q.gain.exponentialRampToValueAtTime(.001,t0+dur);s.connect(fl);fl.connect(q);q.connect(mus.g);s.start(t0,Math.random());s.stop(t0+dur+.02)}
 const EL=[[76,-1,74,76,-1,72,-1,74,76,-1,79,-1,76,74,72,-1],[72,-1,72,74,-1,72,-1,69,72,-1,74,-1,72,69,65,-1],[72,-1,74,76,-1,79,-1,76,74,-1,72,-1,74,76,79,-1],[74,-1,71,74,-1,79,-1,74,71,-1,74,-1,76,74,71,-1]],mf=n=>440*Math.pow(2,(n-69)/12);
@@ -430,7 +437,7 @@ function musicTick(){if(!mus||!AC)return;const L=60/(mus.m==='t'?150:mus.m==='o'
 function sSip(){nz(.7,'highpass',3500,.1,1500);[.35,.6].forEach(d=>tn(170,105,.12,.1,'sine',d))}
 function sTalk(w){[0,.09,.18].forEach((d,i)=>{const f0=w?150+i*12:480+i*40;tn(f0,f0*.9,.07,.05,'square',d)})}
 let saunaWarm=45,saunaHum=8,saunaOK=false;const SA={};
-function hideBtns(v){if(ambG){const t0=AC.currentTime;ambG.gain.setTargetAtTime(v?0:1,t0,.3);bubG.gain.setTargetAtTime(v?0:1,t0,.3)}}
+function hideBtns(v){if(ambG){setAP(ambG.gain,v?0:1,.3);setAP(bubG.gain,v?0:1,.3)}}
 function enterSauna(){Object.assign(SA,{t:0,temp:78,F:40,mood:40,water:100,logs:8,ladle:0,log:0,puffs:[],steam:0,pr:{aap:aap!==1,wom:woman!==1},say:null,sayT:0,warnL:0,nx:6,win:0,nw:8,drink:0});state='sauna';msgL=['Saunassa on mukavan lämmin.','Lisää puita ja heitä löylyä.'];hideBtns(true)}
 function leaveSauna(ok){const s=SA;saunaOK=!!ok;if(ok)msgL=['Saunavuoro onnistui!','Hempukka lähtee mukaan altaaseen.'];saunaWarm=15+s.mood*.6;saunaHum=10+s.mood*.25;state='play';trip=inEnd-.01;hideBtns(false);sDoor()}
 function stepSauna(dt){const s=SA;s.t+=dt;
@@ -442,7 +449,7 @@ function stepSauna(dt){const s=SA;s.t+=dt;
  s.nx-=dt;if(s.nx<=0&&s.sayT<=0){s.nx=9+Math.random()*5;const w=[];if(s.pr.aap)w.push([1,'Aapeli: Lisää puita, Esa!']);if(s.pr.wom)w.push([0,'Hempukka: Tässä on hyvä tunnelma.']);if(w.length){s.say=[pick(w)];s.sayT=2.8}}
  const wv=s.temp>102?3:s.temp>95?2:s.temp<75?1:0;
  if(wv>s.warnL)msgL=wv===3?['Pää pyörii! Heitä vettä tai poistu!']:wv===2?['Alkaa olla tosi kuuma...']:['Tunnelma latistuu, lisää puita.'];s.warnL=wv;
- s.drink=Math.max(0,s.drink-dt);if(ambG)ambG.gain.setTargetAtTime(s.win?1.3:0,AC.currentTime,.4);hum=Math.max(0,hum-1.4*dt);if(s.win)s.temp-=4.5*dt;
+ s.drink=Math.max(0,s.drink-dt);if(ambG)setAP(ambG.gain,s.win?1.3:0,.4);hum=Math.max(0,hum-1.4*dt);if(s.win)s.temp-=4.5*dt;
  if(s.pr.aap&&!s.win){s.nw-=dt;if(s.nw<=0){s.win=1;s.say=[[1,'Aapeli: Vähän raitista ilmaa!']];s.sayT=2.8;msgL=['Aapeli avasi ikkunan!','Napauta ikkunaa sulkeaksesi.'];nz(.6,'bandpass',900,.1,500);nz(1.5,'bandpass',500,.08,900)}}
  if(hum>=100){s.win=1;end('y');hideBtns(false)}else if(s.temp>=108){end('x');hideBtns(false)}else if(s.t>=36)leaveSauna(true)}
 function tapSauna(e){if(!e||e.clientX===undefined)return;const s=SA,r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
@@ -566,10 +573,10 @@ const L3={
  w2:['Hempukka: Tästä tulee kuuma ilta, Esa...','Hempukka: Baarin jälkeen paljuun, kahdestaan?','Hempukka: Mulla on kuuma, eikä se oo sauna!','Hempukka: Lupaan illan, jota et unohda!']};
 let eng=null;
 function engStart(){if(!AC||eng)return;const o=AC.createOscillator(),f=AC.createBiquadFilter(),gn=AC.createGain(),s=AC.createBufferSource(),f2=AC.createBiquadFilter(),l=AC.createOscillator(),lg=AC.createGain(),ng=AC.createGain(),og=AC.createGain();
- o.type='sawtooth';o.frequency.value=62;f.type='lowpass';f.frequency.value=170;f.Q.value=.5;gn.gain.value=0;gn.gain.setTargetAtTime(.38,AC.currentTime,.8);
+ o.type='sawtooth';o.frequency.value=62;f.type='lowpass';f.frequency.value=170;f.Q.value=.5;gn.gain.value=0;setAP(gn.gain,.38,.8);
  s.buffer=nb;s.loop=true;f2.type='lowpass';f2.frequency.value=260;ng.gain.value=.14;og.gain.value=.1;l.frequency.value=14;lg.gain.value=.03;l.connect(lg);lg.connect(og.gain);
  o.connect(f);f.connect(og);og.connect(gn);s.connect(f2);f2.connect(ng);ng.connect(gn);gn.connect(master);o.start();s.start();l.start();eng={o,s,l,gn}}
-function engStop(){if(!eng)return;const e=eng;eng=null;e.gn.gain.setTargetAtTime(0,AC.currentTime,.2);setTimeout(()=>{try{e.o.stop();e.s.stop();e.l.stop()}catch(x){}},1200)}
+function engStop(){if(!eng)return;const e=eng;eng=null;setAP(e.gn.gain,0,.2);setTimeout(()=>{try{e.o.stop();e.s.stop();e.l.stop()}catch(x){}},1200)}
 function startS3(){PTS.mokki=(S2.outfit===4?70:50)+30+(S2.lpT<20?50:20)+(S2.breaks===0&&!S2.drops?50:0);stage=3;state='s3';Object.assign(F,{t:0,ph:'fly',pt:0,x:0,h:{p:Math.min(40,hum*.6),w:25,a:20,k:0},sip:{p:0,w:0,a:0,k:0},si:{p:'c',w:'c',a:'c',k:'c'},th:{w:false,a:false},tn:{w:4,a:7},mood:50,say:null,sayT:0,nx:2.5,fly:null,sel:'c',hauki:S2.hasB?3:0,cans:0,slept:{w:0,a:0},al:0,cs:0,plaid:0,pl:0});
  msgL=['Kermis: Tervetuloa kyytiin!','Tarjoile kuparia seuralle.'];
  const b=document.getElementById('b');b.style.display='';b.disabled=false;document.querySelector('.row').style.display='none';goBar.style.display='none';selBtn();
@@ -590,7 +597,7 @@ function serve(who){const f=F,it=f.sel;if(it==='h'&&f.hauki<=0)return;
  if(who==='p'){drink('p',it);return}
  if(f.sip[who]>0)return;f.fly={who,it,u:0};tn(500,700,.08,.04)}
 function drink(who,it){const f=F;
- if(who==='eng'){f.hauki--;selFix();f.plaid=10;f.pl=1;f.say=['k','Kermis: Siirryimme Plaid-nopeuteen!'];f.sayT=3.5;msgL=['Esa kaatoi Haukea moottoriin!','PLAID-NOPEUS!'];sShot();nz(1.2,'highpass',1500,.25,4000);tn(120,900,1.2,.12,'sawtooth');if(eng)eng.o.frequency.setTargetAtTime(120,AC.currentTime,.3);return}
+ if(who==='eng'){f.hauki--;selFix();f.plaid=10;f.pl=1;f.say=['k','Kermis: Siirryimme Plaid-nopeuteen!'];f.sayT=3.5;msgL=['Esa kaatoi Haukea moottoriin!','PLAID-NOPEUS!'];sShot();nz(1.2,'highpass',1500,.25,4000);tn(120,900,1.2,.12,'sawtooth');if(eng)setAP(eng.o.frequency,120,.3);return}
  if(who==='k'){if(it==='c'){f.say=['k','Kermis: Ei lentäessä! Baarissa sitten.'];f.sayT=3;sTalk(1);f.mood=Math.min(100,f.mood+2);return}
   f.hauki--;selFix();f.sip.k=1.3;f.si.k='h';sShot();f.ph='wobble';f.pt=0;f.say=['k','Kermis: HAUKEA?! No yks naukku...'];f.sayT=3;msgL=['Kermis otti Haukea!','Cessna lähtee lapasesta!'];return}
  f.sip[who]=1.3;f.si[who]=it;
@@ -598,7 +605,7 @@ function drink(who,it){const f=F;
  if(who==='p'){msgL=it==='h'?['Esa otti naukun Haukea.','Lämmittää mukavasti!']:pick([['Kippis! Kupari sihahtaa.'],['Esa: Ahh, kupari maistuu ilmassa!']]);return}
  if(f.th[who]){f.th[who]=false;f.mood=Math.min(100,f.mood+15);f.tn[who]=7+Math.random()*5}else f.mood=Math.min(100,f.mood+4);
  f.say=[who,it==='h'?(who==='w'?'Hempukka: Uuh, Hauki! Nyt kuumenee...':'Aapeli: Hauki! Nyt kiihtyy kuin ID.3!'):(who==='w'?pick(['Hempukka: Kiitos, komistus!','Hempukka: Kippis, Esa!']):pick(['Aapeli: Kiitti! Kippis!','Aapeli: Kupari on kuin ID.3: aina ladattu!']))];f.sayT=2.8;f.nx=Math.max(f.nx,3);sTalk(who==='w'?0:1)}
-function step3(dt){const f=F;f.t+=dt;musicTick();f.x+=(f.ph==='crash'?20:70)*(f.plaid>0?4:1)*dt;if(f.plaid>0){f.plaid-=dt;f.t+=dt*.6;if(f.plaid<=0&&eng&&f.ph==='fly')eng.o.frequency.setTargetAtTime(62,AC.currentTime,.5)}f.sayT-=dt;
+function step3(dt){const f=F;f.t+=dt;musicTick();f.x+=(f.ph==='crash'?20:70)*(f.plaid>0?4:1)*dt;if(f.plaid>0){f.plaid-=dt;f.t+=dt*.6;if(f.plaid<=0&&eng&&f.ph==='fly')setAP(eng.o.frequency,62,.5)}f.sayT-=dt;
  ['p','w','a','k'].forEach(k=>{f.sip[k]=Math.max(0,f.sip[k]-dt)});
  if(f.ph==='fly'){
   ['p','w','a'].forEach(k=>{if(f.h[k]<100)f.h[k]=Math.max(0,f.h[k]-.5*dt)});
@@ -614,7 +621,7 @@ function step3(dt){const f=F;f.t+=dt;musicTick();f.x+=(f.ph==='crash'?20:70)*(f.
   if(f.lj>0){f.lj-=dt;if(f.lj<=0)msgL=pick([['Aapeli nauraa omalle vitsilleen.'],['Kukaan ei naura. Paitsi Aapeli.'],['Kermis: Huono. Mutta hyvä.']])}
   if(f.h.p>=100&&f.sip.p<=0){f.ph='out';f.pt=0;loseLife();engStop();musicStop();sEnd('d');msgL=['Esa sammui koneeseen.','Kohtuus olisi ollut valttia.']}
   else if(f.t>=45){f.ph='land';f.pt=0;msgL=['Kermis: Laskeudutaan! Baari näkyy!','Kiinnittäkää vyöt.']}}
- else if(f.ph==='wobble'){f.pt+=dt;f.al-=dt;if(f.al<=0){f.al=.35;tn(880,880,.16,.07,'square');tn(660,660,.16,.07,'square',.17)}if(eng)eng.o.frequency.setTargetAtTime(62+Math.sin(f.pt*6)*20+f.pt*15,AC.currentTime,.05);
+ else if(f.ph==='wobble'){f.pt+=dt;f.al-=dt;if(f.al<=0){f.al=.35;tn(880,880,.16,.07,'square');tn(660,660,.16,.07,'square',.17)}if(eng)setAP(eng.o.frequency,62+Math.sin(f.pt*6)*20+f.pt*15,.05);
   if(f.pt>=3.2){f.ph='crash';f.pt=0;loseLife();vib(300);engStop();musicStop();nz(1.6,'lowpass',500,.5,80);tn(120,40,.8,.4,'sine');msgL=['Cessna lähti lapasesta!','Kermis ei kestä Haukea.']}}
  else if(f.ph==='crash'){f.pt+=dt;if(f.pt>1.3&&!f.cs){f.cs=1;nz(.8,'lowpass',900,.3,200);f.say=['p','Esa: Onks tää jo baari?'];f.sayT=4;msgL=['Kermis: Pehmeä lasku! Ihan tahallaan.','Kermis ei kestä Haukea.']}}
  else if(f.ph==='land'){f.pt+=dt;if(f.pt>=5){f.ph='end';f.pt=0;engStop();[1,1.26,1.5].forEach((m,i)=>tn(523*m,523*m,.3,.07,'sine',i*.15))}}
@@ -841,7 +848,7 @@ const L4={a:['Aapeli: Täällä soi parempi musa kuin ID.3:n radiossa!','Aapeli:
  d:['Diesel-Pena: Mitä tuijotat, tonttu?','Turbo-Tapsa: Diesel on kunkku!']};
 let mur=null;
 function murStart(){if(!AC||mur)return;const s=AC.createBufferSource(),bp=AC.createBiquadFilter(),gn=AC.createGain(),l=AC.createOscillator(),lg=AC.createGain();s.buffer=nb;s.loop=true;bp.type='bandpass';bp.frequency.value=650;bp.Q.value=.9;gn.gain.value=.06;l.frequency.value=.37;lg.gain.value=.03;l.connect(lg);lg.connect(gn.gain);s.connect(bp);bp.connect(gn);gn.connect(master);s.start();l.start();mur={s,l,gn}}
-function murStop(){if(!mur)return;const m=mur;mur=null;m.gn.gain.setTargetAtTime(0,AC.currentTime,.2);setTimeout(()=>{try{m.s.stop();m.l.stop()}catch(x){}},900)}
+function murStop(){if(!mur)return;const m=mur;mur=null;setAP(m.gn.gain,0,.2);setTimeout(()=>{try{m.s.stop();m.l.stop()}catch(x){}},900)}
 function kunto(h){return h<20?['Selvä','#5a6a80']:h<55?['Hyvä fiilis','#0a7a2a']:h<80?['Kova kunto','#c06a00']:['Liikaa!','#c01020']}
 function startS4(){if(F.ph==='end')PTS.flight=F.cans*10+Math.round(F.mood)+(F.pl?100:0);stage=4;state='s4';Object.assign(B,{t:0,ph:'hang',pt:0,x:40,y:150,gx:40,gy:150,dir:1,wk:0,wx:18,wy:152,wwk:0,wSeat:false,h:Math.min(40,F.h?F.h.p:20),fi:60,cans:0,hs:0,dr:0,it:'c',dance:0,say:null,sayT:0,nx:4,cool:0,ai:0,at:0});
  msgL=['Tervetuloa Falconiin!','Juo, tanssi ja pidä Hempukka iloisena.'];
@@ -1165,7 +1172,7 @@ function end(r){state='over';loseLife();reason=r;ot=0;drinking=false;trip=-1;sEn
  msgL=r==='d'?['Nukahdit ja vajosit pinnan alle.','Liian monta tölkkiä liian nopeasti.']:r==='w'?['Allas muuttui keltaiseksi...','Olisit voinut käydä vessassa.']:r==='x'?['Taju lähti kuumassa saunassa.','Löylyä olisi pitänyt hillitä.']:r==='y'?['Sammuitte saunaan ja ikkuna jäi auki!','Liikaa kuparia kuumassa saunassa.']:['Jäätyit porealtaaseen.','Palelu voitti tällä kertaa.']}
 function step(dt){if(stage===7){stepMJ(dt);return}if(stage===6){step6(dt);return}if(stage===5){stepFight(dt);return}if(stage===4){step4(dt);return}if(stage===3){step3(dt);return}if(stage===2){step2(dt);return}if(state==='sauna'){stepSauna(dt);return}
  musicTick();
- if(state==='title'){TI.t+=dt;if(TI.f>0)TI.f=Math.max(0,TI.f-dt);if(ambG){ambG.gain.value=0;bubG.gain.value=0}flakes.forEach(f=>{f.y+=f.v*dt;f.x+=Math.sin(f.p+f.y/20)*8*dt;if(f.y>H){f.y=0;f.x=Math.random()*W}});return}
+ if(state==='title'){TI.t+=dt;if(TI.f>0)TI.f=Math.max(0,TI.f-dt);if(ambG&&!TI.amb){TI.amb=1;setAP(ambG.gain,0,.05);setAP(bubG.gain,0,.05)}flakes.forEach(f=>{f.y+=f.v*dt;f.x+=Math.sin(f.p+f.y/20)*8*dt;if(f.y>H){f.y=0;f.x=Math.random()*W}});return}
  flakes.forEach(f=>{f.y+=f.v*dt;f.x+=Math.sin(f.p+f.y/20)*8*dt;if(f.y>H){f.y=0;f.x=Math.random()*W}});
  if(Math.random()<dt*10)steam.push({x:86+Math.random()*150,y:wl,l:0});
  steam.forEach(s=>{s.l+=dt;s.y-=18*dt;s.x+=Math.sin(s.l*3)*6*dt});steam=steam.filter(s=>s.l<2.2);
@@ -1318,7 +1325,7 @@ function startEpi(){stage=6;state='s6';showPad(false);PTS.lives=LIVES*100;
  const d=new Date(),hs=loadHS(),me={s:tot,d:d.getDate()+'.'+(d.getMonth()+1)+'.',k:DIFF,id:Date.now()};hs.push(me);hs.sort((a,b)=>b.s-a.s);const top=hs.slice(0,5);try{localStorage.setItem('ph_hs',JSON.stringify(top))}catch(x){}
  Object.assign(E6,{t:0,i:0,say:null,sayT:0,ph:'scene',st:0,rows,tot,top,rank:top.findIndex(h=>h.id===me.id)});
  msgL=['Seuraavana aamuna mökillä...'];document.getElementById('b').style.display='none';document.querySelector('.row').style.display='none';goBar.style.display='none';
- document.querySelector('p').textContent='Napauta: seuraava repliikki.';musicStop();murStop();if(ambG){ambG.gain.setTargetAtTime(.6,AC.currentTime,.5);bubG.gain.setTargetAtTime(.5,AC.currentTime,.5)}}
+ document.querySelector('p').textContent='Napauta: seuraava repliikki.';musicStop();murStop();if(ambG){setAP(ambG.gain,.6,.5);setAP(bubG.gain,.5,.5)}}
 function act6(e){if(!e||e.target!==cv)return;if(E6.ph==='scene'){const nx=E6.i<EPI.length?EPI[E6.i][0]:27.5;E6.t=Math.max(E6.t,nx)}else if(E6.st>1){restartAll()}}
 function step6(dt){const s=E6;s.t+=dt;s.sayT-=dt;
  if(AC&&Math.random()<dt*.9){const f=2400+Math.random()*1400;[0,.09,.18].slice(0,1+(Math.random()*3|0)).forEach(d=>tn(f,f*1.25,.07,.025,'sine',d))}
@@ -1411,7 +1418,7 @@ function mjE(sp,x,z,team,kind,hp){const k=KT[kind]||{};return{sp,x,z,y:0,vx:0,vz
 function startMJ(retry){stage=7;state='s7';PHB=[16,304];if(retry){B.h=M.h0;B.hs=M.hs0}else{M.h0=B.h;M.hs0=B.hs;M.kills=0;M.bonus=0;M.lvl=1;M.hp=100}
  showPad(true);document.getElementById('bj').style.display='block';document.getElementById('bh').style.gridColumn='auto';
  document.querySelector('p').textContent='Ristiohjain liikuttaa (ylös/alas = kadun syvyys). LYÖNTI (sarja 1-2-3), POTKU, HYPPY ja HAUKI. Näppäimistö: nuolet tai WASD, J = lyönti, K = potku, välilyönti = hyppy, L = Hauki.';
- if(ambG){ambG.gain.setTargetAtTime(.5,AC.currentTime,.4);bubG.gain.setTargetAtTime(0,AC.currentTime,.2)}mjLevel(M.lvl,retry)}
+ if(ambG){setAP(ambG.gain,.5,.4);setAP(bubG.gain,0,.2)}mjLevel(M.lvl,retry)}
 function mjLevel(n,retry){const L=LV[n];M.lvl=n;M.L=L;const hp=retry?100:Math.min(100,(M.hp||100)+(n>1?30:0));
  M.e=mjE(SP.e[S2.outfit],70,22,'p','p',100);M.e.hp=hp;M.al=[mjE(SP.a,44,32,'a','a',80),mjE(SP.k,28,12,'a','k',90)];M.al[1].cd=4;
  if(L.boss){M.e.x=60;M.al[0].x=40;M.al[1].x=24}
@@ -1836,8 +1843,13 @@ function frameEnd(){rtFlush()}
 let last=performance.now();
 /* Introruutu piirretään 30 fps:llä: hidas animaatio, ja laite pysyy viileämpänä kun valikko on pitkään auki */
 let FRN=0;
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;gpPoll(dt);if((HT+=dt)>.5){HT=0;updHints()}if(!PAUSED)step(dt);
- if(!(stage===1&&state==='title'&&!PAUSED&&(FRN++&1))){frameBegin();draw(now/1000);drawLives();overlayFx(dt);gpDraw();frameEnd()}requestAnimationFrame(loop)}
+/* Kehysnopeusmittari testaukseen: Shift+F näyttää FPS:n ja kehysajan (pois päältä oletuksena) */
+const FPSM={on:false,n:0,acc:0,fps:0,ms:0,work:0};
+addEventListener('keydown',e=>{if(e.shiftKey&&(e.key==='F'||e.key==='f')){FPSM.on=!FPSM.on;e.preventDefault()}});
+function fpsMeter(dt,work){FPSM.n++;FPSM.acc+=dt;FPSM.work+=work;if(FPSM.acc>=.5){FPSM.fps=FPSM.n/FPSM.acc;FPSM.ms=FPSM.work/FPSM.n;FPSM.n=0;FPSM.acc=0;FPSM.work=0}
+ main.save();main.setTransform(SC,0,0,SC,0,0);main.fillStyle='rgba(0,0,0,.7)';main.fillRect(W-74,H-12,72,10);main.font='bold 7px monospace';main.textAlign='right';main.fillStyle=FPSM.fps<45?'#ff6a5a':'#7dff9a';main.fillText(FPSM.fps.toFixed(0)+' fps '+FPSM.ms.toFixed(1)+' ms',W-4,H-4.5);main.restore()}
+function loop(now){const w0=performance.now();const dt=Math.min(.05,(now-last)/1000);last=now;gpPoll(dt);if((HT+=dt)>.5){HT=0;updHints()}if(!PAUSED)step(dt);
+ if(!(stage===1&&state==='title'&&!PAUSED&&(FRN++&1))){frameBegin();draw(now/1000);drawLives();overlayFx(dt);gpDraw();frameEnd()}if(FPSM.on)fpsMeter(dt,performance.now()-w0);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 </script>
 </body>

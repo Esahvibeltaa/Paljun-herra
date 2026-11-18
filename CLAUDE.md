@@ -8,6 +8,8 @@ Selainpeli yhdessä tiedostossa (`index.html`). Suunnitelma ja muutoshistoria: `
    - ei turhaa työtä joka kehyksellä (välimuisti hitaasti muuttuville kerroksille, mittauksille ja laskennalle)
    - ei kankaiden, liukuvärien tai muiden olioiden luontia silmukoissa, jos ne voi luoda kerran
    - raskaat muutokset mitataan (ms/kehys) ennen ja jälkeen
+   - apukankaat ovat prosessorilla (keskitetty getContext-asetus), vain pääkangas näytönohjaimella; ääniparametrit muutetaan `setAP`-funktiolla, ei `.value`/`setTargetAtTime` suoraan joka kehys
+   - testaus: Shift+F näyttää kehysnopeusmittarin
 2. **Koodaa hyvän tavan mukaisesti.**
    - ei kopioitua koodia: toistuva logiikka yhteiseen funktioon (esim. `drawMsg`, `sbub`, `wrapLines`, `reachOf`)
    - kuvaavat nimet ja lyhyt kommentti ei-ilmeisille ratkaisuille
