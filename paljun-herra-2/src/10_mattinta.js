@@ -26,7 +26,7 @@ function mjE(sp,x,z,team,kind,hp){const k=KT[kind]||{};return{sp,x,z,y:0,vx:0,vz
 function startMJ(retry){stage=7;state='s7';PHB=[16,304];if(retry){B.h=M.h0;B.hs=M.hs0}else{M.h0=B.h;M.hs0=B.hs;M.kills=0;M.bonus=0;M.lvl=1;M.hp=100}
  showPad(true);document.getElementById('bj').style.display='block';document.getElementById('bh').style.gridColumn='auto';
  document.querySelector('p').textContent='Ristiohjain liikuttaa (ylös/alas = kadun syvyys). LYÖNTI (sarja 1-2-3), POTKU, HYPPY ja HAUKI. Näppäimistö: nuolet tai WASD, J = lyönti, K = potku, välilyönti = hyppy, L = Hauki.';
- if(ambG){ambG.gain.setTargetAtTime(.5,AC.currentTime,.4);bubG.gain.setTargetAtTime(0,AC.currentTime,.2)}mjLevel(M.lvl,retry)}
+ if(ambG){setAP(ambG.gain,.5,.4);setAP(bubG.gain,0,.2)}mjLevel(M.lvl,retry)}
 function mjLevel(n,retry){const L=LV[n];M.lvl=n;M.L=L;const hp=retry?100:Math.min(100,(M.hp||100)+(n>1?30:0));
  M.e=mjE(SP.e[S2.outfit],70,22,'p','p',100);M.e.hp=hp;M.al=[mjE(SP.a,44,32,'a','a',80),mjE(SP.k,28,12,'a','k',90)];M.al[1].cd=4;
  if(L.boss){M.e.x=60;M.al[0].x=40;M.al[1].x=24}

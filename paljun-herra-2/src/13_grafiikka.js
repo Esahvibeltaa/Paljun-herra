@@ -1,8 +1,8 @@
 /* Paljun Herra 2 – Retrografiikka ja pääsilmukka (pohja: Paljun herra 1) */
 const loCv=document.createElement('canvas');loCv.width=W;loCv.height=H;const lo=loCv.getContext('2d');window.__lo=lo;
 const glCv=document.createElement('canvas');glCv.width=W;glCv.height=H;const glc=glCv.getContext('2d');
-const gl2=[160,80,40].map(w=>{const c=document.createElement('canvas');c.width=w;c.height=w*H/W;return c});
-const RTX={seg:0,dirty:false,lut:null,gd:null,fx:null,fxK:0};
+const gl2=[160,80].map(w=>{const c=document.createElement('canvas');c.width=w;c.height=w*H/W;return c});
+const RTX={seg:0,dirty:false,lut:null,gd:null};
 {const Bm=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5],Lv=10;RTX.lut=Bm.map(b=>{const t=(b/16-.5)*.55,a=new Uint8ClampedArray(256);for(let v=0;v<256;v++)a[v]=Math.round(Math.min(1,Math.max(0,Math.floor(v/255*(Lv-1)+.5+t)/(Lv-1)))*255);return a})}
 RTX.bb=[1e9,1e9,-1e9,-1e9];RTX.full=false;
 function rtBB(x,y,w,h,pad){const t=lo.getTransform(),b=RTX.bb;for(const [px,py] of [[x,y],[x+w,y],[x,y+h],[x+w,y+h]]){const X=t.a*px+t.c*py+t.e,Y=t.b*px+t.d*py+t.f;if(X-pad<b[0])b[0]=X-pad;if(Y-pad<b[1])b[1]=Y-pad;if(X+pad>b[2])b[2]=X+pad;if(Y+pad>b[3])b[3]=Y+pad}}
@@ -20,12 +20,18 @@ function rtFlush(){if(!RTX.dirty)return;RTX.dirty=false;const m=main,first=RTX.s
  if(!first&&!RTX.full){const b=RTX.bb;bx=Math.max(0,Math.floor(b[0]));by=Math.max(0,Math.floor(b[1]));bw=Math.min(W,Math.ceil(b[2]))-bx;bh=Math.min(H,Math.ceil(b[3]))-by}
  if(bw>0&&bh>0){const k=cv.width/W;m.drawImage(loCv,bx,by,bw,bh,bx*k,by*k,bw*k,bh*k)}
  if(first){let src=glCv;for(const c of gl2){const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.imageSmoothingEnabled=true;x.drawImage(src,0,0,c.width,c.height);src=c}
-  m.imageSmoothingEnabled=true;m.globalCompositeOperation='lighter';m.globalAlpha=.42;m.drawImage(gl2[1],0,0,cv.width,cv.height);m.globalAlpha=.3;m.drawImage(gl2[2],0,0,cv.width,cv.height)}
+  m.imageSmoothingEnabled=true;m.globalCompositeOperation='lighter';m.globalAlpha=.6;m.drawImage(gl2[1],0,0,cv.width,cv.height)}
  m.restore();RTX.seg++;lo.save();lo.setTransform(1,0,0,1,0,0);if(bw>0&&bh>0)lo.clearRect(bx,by,bw,bh);lo.restore();RTX.bb=[1e9,1e9,-1e9,-1e9];RTX.full=false}
-function rtFx(){if(RTX.fxK!==cv.width){RTX.fxK=cv.width;const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;const x=c.getContext('2d'),q=x.createRadialGradient(c.width/2,c.height/2,c.height*.35,c.width/2,c.height/2,c.width*.62);q.addColorStop(0,'rgba(0,0,0,0)');q.addColorStop(1,'rgba(0,0,0,.32)');x.fillStyle=q;x.fillRect(0,0,c.width,c.height);x.fillStyle='rgba(0,0,0,.07)';for(let y=SC-1;y<c.height;y+=SC)x.fillRect(0,y,c.width,1);RTX.fx=c}
- main.save();main.setTransform(1,0,0,1,0,0);main.globalAlpha=1;main.globalCompositeOperation='source-over';main.drawImage(RTX.fx,0,0);main.restore()}
-function frameBegin(){g=lo;lo.setTransform(1,0,0,1,0,0);lo.imageSmoothingEnabled=false;lo.clearRect(0,0,W,H);RTX.seg=0;RTX.dirty=false;RTX.full=false;RTX.bb=[1e9,1e9,-1e9,-1e9];main.setTransform(1,0,0,1,0,0);main.clearRect(0,0,cv.width,cv.height)}
-function frameEnd(){rtFlush();rtFx()}
+function frameBegin(){g=lo;lo.setTransform(1,0,0,1,0,0);lo.imageSmoothingEnabled=false;lo.clearRect(0,0,W,H);RTX.seg=0;RTX.dirty=false;RTX.full=false;RTX.bb=[1e9,1e9,-1e9,-1e9];main.setTransform(1,0,0,1,0,0)}
+function frameEnd(){rtFlush()}
 let last=performance.now();
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;gpPoll(dt);if((HT+=dt)>.5){HT=0;updHints()}if(!PAUSED)step(dt);frameBegin();draw(now/1000);drawLives();overlayFx(dt);gpDraw();frameEnd();requestAnimationFrame(loop)}
+// Kehysnopeusmittari testaukseen: Shift+F näyttää FPS:n ja kehysajan (ms) oikeassa alakulmassa
+const FPSM={on:false,n:0,acc:0,fps:0,ms:0,work:0};
+addEventListener('keydown',e=>{if(e.shiftKey&&(e.key==='F'||e.key==='f')){FPSM.on=!FPSM.on;e.preventDefault()}});
+function fpsMeter(dt,work){FPSM.n++;FPSM.acc+=dt;FPSM.work+=work;if(FPSM.acc>=.5){FPSM.fps=FPSM.n/FPSM.acc;FPSM.ms=FPSM.work/FPSM.n;FPSM.n=0;FPSM.acc=0;FPSM.work=0}
+ main.save();main.setTransform(SC,0,0,SC,0,0);main.fillStyle='rgba(0,0,0,.7)';main.fillRect(W-74,H-12,72,10);main.font='bold 7px monospace';main.textAlign='right';main.fillStyle=FPSM.fps<45?'#ff6a5a':'#7dff9a';main.fillText(FPSM.fps.toFixed(0)+' fps '+FPSM.ms.toFixed(1)+' ms',W-4,H-4.5);main.restore()}
+// Introruutu piirretään 30 fps:llä (joka toinen kehys), pelilogiikka ajetaan silti joka kehys
+let FRN=0;
+function loop(now){const w0=performance.now();const dt=Math.min(.05,(now-last)/1000);last=now;gpPoll(dt);if((HT+=dt)>.5){HT=0;updHints()}if(!PAUSED)step(dt);
+ if(!(stage===1&&state==='title'&&!PAUSED&&(FRN++&1))){frameBegin();draw(now/1000);drawLives();overlayFx(dt);gpDraw();frameEnd()}if(FPSM.on)fpsMeter(dt,performance.now()-w0);requestAnimationFrame(loop)}
 

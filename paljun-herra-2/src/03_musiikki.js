@@ -3,8 +3,8 @@ let mus=null;
 const CH=[[55,[220,261.6,329.6]],[43.65,[174.6,220,261.6]],[65.41,[261.6,329.6,392]],[49,[196,246.9,293.7]]];
 const HOOK=[0,-1,2,-1,1,-1,2,-1,0,-1,2,-1,1,2,1,0];
 function musicStart(m){if(!AC||mus)return;const gn=AC.createGain();gn.gain.value=m==='e'?.26:.32;if(m==='e'){const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=4200;gn.connect(lp);lp.connect(musB||master)}else gn.connect(musB||master);mus={next:AC.currentTime+.15,step:0,g:gn,m}}
-function musicStop(){if(mus){mus.g.gain.setTargetAtTime(0,AC.currentTime,.15);mus=null}}
-function duck(v){if(mus)mus.g.gain.setTargetAtTime(v,AC.currentTime,.25)}
+function musicStop(){if(mus){setAP(mus.g.gain,0,.15);mus=null}}
+function duck(v){if(mus)setAP(mus.g.gain,v,.25)}
 function mt(t0,f,f2,dur,v,type,dt2){const o=AC.createOscillator();o.type=type||'sine';o.frequency.setValueAtTime(f,t0);if(f2!==f)o.frequency.exponentialRampToValueAtTime(f2,t0+dur);if(dt2)o.detune.value=dt2;const q=AC.createGain();q.gain.setValueAtTime(v,t0);q.gain.exponentialRampToValueAtTime(.001,t0+dur);o.connect(q);q.connect(mus.g);o.start(t0);o.stop(t0+dur+.02)}
 function mn(t0,dur,type,f,v){const s=AC.createBufferSource();s.buffer=nb;const fl=AC.createBiquadFilter();fl.type=type;fl.frequency.value=f;const q=AC.createGain();q.gain.setValueAtTime(v,t0);q.gain.exponentialRampToValueAtTime(.001,t0+dur);s.connect(fl);fl.connect(q);q.connect(mus.g);s.start(t0,Math.random());s.stop(t0+dur+.02)}
 const EL=[[76,-1,74,76,-1,72,-1,74,76,-1,79,-1,76,74,72,-1],[72,-1,72,74,-1,72,-1,69,72,-1,74,-1,72,69,65,-1],[72,-1,74,76,-1,79,-1,76,74,-1,72,-1,74,76,79,-1],[74,-1,71,74,-1,79,-1,74,71,-1,74,-1,76,74,71,-1]],mf=n=>440*Math.pow(2,(n-69)/12);

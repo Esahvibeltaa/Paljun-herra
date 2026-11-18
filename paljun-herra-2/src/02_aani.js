@@ -3,6 +3,8 @@ const flakes=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,v:
 let steam=[];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 let AC=null,mute=false,muteM=false,musB=null,master,nb,sil=null,ambG=null,bubG=null;
+// Ääniparametrin muutos: vanhat ajastukset poistetaan ensin, jotta niitä ei kerry (ei suoria .value/setTargetAtTime-asetuksia joka kehys)
+function setAP(p,v,tc){if(!AC)return;const t0=AC.currentTime;if(p.cancelAndHoldAtTime)p.cancelAndHoldAtTime(t0);else p.cancelScheduledValues(t0);p.setTargetAtTime(v,t0,tc)}
 function audioInit(){
  try{navigator.audioSession.type='playback'}catch(e){}if(!sil){sil=new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');sil.loop=true;sil.play().catch(()=>{})}if(AC){AC.resume();return}
  try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}

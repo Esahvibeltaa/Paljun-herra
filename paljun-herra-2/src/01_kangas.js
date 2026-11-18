@@ -1,7 +1,17 @@
 /* Paljun Herra 2 – Kangas, skaalaus ja piirtoapurit (pohja: Paljun herra 1) */
+/* Kaikki apukankaat piirretään prosessorilla (willReadFrequently). Pikselimaailma luetaan joka kehys (getImageData), ja jos
+   apukankaat olisivat näytönohjaimella, Chromium siirtää ne kesken pelin prosessorille ja jokainen piirto kopioituisi
+   näytönohjaimelta takaisin (peli hidastui, jos valikossa odotti pitkään). Vain näkyvä pääkangas (#c) jää näytönohjaimelle. */
+{const gc=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,opt){if(type==='2d'&&this.id!=='c')opt=Object.assign({willReadFrequently:true},opt);return gc.call(this,type,opt)}}
 const cv=document.getElementById('c'),main=cv.getContext('2d'),W=320,H=200,wl=114;
-let g=main,SC=2;function fitCanvas(){const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1,k=Math.min(5,Math.max(2,Math.round((r.width||640)*dpr/320)));if(k!==SC||cv.width!==320*k){SC=k;cv.width=320*k;cv.height=200*k}main.setTransform(SC,0,0,SC,0,0)}
+// Kankaan suurin skaalaus: pikselimaailma on 320×200, isompi kangas vain kuormittaa
+const MAX_SC=4;
+let g=main,SC=2;function fitCanvas(){const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1,k=Math.min(MAX_SC,Math.max(2,Math.round((r.width||640)*dpr/320)));if(k!==SC||cv.width!==320*k){SC=k;cv.width=320*k;cv.height=200*k}main.setTransform(SC,0,0,SC,0,0);placeFx()}
 {const sd=document.createElement('div');sd.id='side';sd.appendChild(document.getElementById('m'));cv.after(sd)}
+/* Vinjetti ja pikselirivien varjo CSS-kerroksena (#fxov) kankaan sisäalueen päällä: ei piirtoa joka kehys */
+function placeFx(){let el=placeFx.el;if(!el){el=placeFx.el=document.createElement('div');el.id='fxov';el.setAttribute('aria-hidden','true');document.body.appendChild(el)}
+ const r=cv.getBoundingClientRect(),bl=cv.clientLeft,bt=cv.clientTop,w=cv.clientWidth,h=cv.clientHeight;
+ Object.assign(el.style,{left:(r.left+bl+scrollX)+'px',top:(r.top+bt+scrollY)+'px',width:w+'px',height:h+'px'});el.style.setProperty('--row',(h/H)+'px')}
 fitCanvas();['resize','orientationchange'].forEach(ev=>addEventListener(ev,()=>{clearTimeout(fitCanvas.t);fitCanvas.t=setTimeout(fitCanvas,120)}));
 const tc=document.createElement('canvas').getContext('2d'),pats={};
 function pat(c){const r=!!window.__lo&&g===window.__lo,key=c+(r?'|r':'');if(!pats[key]){const p=document.createElement('canvas');p.width=p.height=2;const q=p.getContext('2d');q.fillStyle=c;q.fillRect(0,0,1,1);q.fillRect(1,1,1,1);pats[key]=tc.createPattern(p,'repeat');if(!r)try{pats[key].setTransform(new DOMMatrix([.5,0,0,.5,0,0]))}catch(e){}}return pats[key]}

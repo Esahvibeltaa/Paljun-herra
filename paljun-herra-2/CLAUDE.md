@@ -9,6 +9,9 @@ Suunnitelma: `SUUNNITELMA.md`.
    - ei turhaa työtä joka kehyksellä (välimuisti hitaasti muuttuville kerroksille, mittauksille ja laskennalle)
    - ei kankaiden, liukuvärien tai muiden olioiden luontia silmukoissa, jos ne voi luoda kerran
    - raskaat muutokset mitataan (ms/kehys) ennen ja jälkeen
+   - apukankaat ovat prosessorilla (keskitetty getContext-asetus, `willReadFrequently`), vain pääkangas `#c` näytönohjaimella
+   - ääniparametrit muutetaan `setAP`-funktiolla, ei `.value`/`setTargetAtTime` suoraan eikä joka kehys
+   - kehysnopeus mitataan pelissä Shift+F-mittarilla (`FPSM`, `fpsMeter`)
 2. **Koodaa hyvän tavan mukaisesti.**
    - ei kopioitua koodia: toistuva logiikka yhteiseen funktioon
    - kuvaavat nimet ja lyhyt kommentti ei-ilmeisille ratkaisuille
