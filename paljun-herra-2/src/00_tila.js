@@ -1,5 +1,5 @@
 /* Paljun Herra 2 – Pelin yhteinen tila (ladataan ensimmäisenä) */
-// stage: 1 = intro/valikko, 5 = kaksinkamppailu (pomo), 6 = välinäytös, 7 = mätkintäkenttä, 8 = loppu
+// stage: 1 = intro/valikko, 5 = kaksinkamppailu (pomo), 6 = välinäytös, 7 = mätkintäkenttä, 8 = loppu, 9 = pelattavissa pian
 let stage=1,state='title',t=0,ot=0,reason='',best=0,msgL=['Paljun Herra 2'];
 // Pisteet osa-alueittain (ptsSum laskee yhteen)
 const PTS={mj:0,fight:0,lives:0};
