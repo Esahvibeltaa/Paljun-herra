@@ -139,7 +139,7 @@ function teslaCar(T,t,parked){const C=TESLA,sp=parked?0:t*36;
  for(const wx of C.wheels){ell(wx,-2,7.3,7.3,'#07090a');ell(wx,-2,6,6,'#0a0a0e');ell(wx,-2,4.2,4.2,'#1c2026');
   for(let k=0;k<5;k++){const a=sp+k*1.2566;lim(wx+Math.cos(a)*1,-2+Math.sin(a)*1,wx+Math.cos(a+.5)*3.8,-2+Math.sin(a+.5)*3.8,.9,'#555c6a','#24282f')}ell(wx,-2,1,1,'#3a3e48')}}
 function cutTie(T,t,sc){cutLayer('tie',tieSky);
- aurora('tie',T,()=>AG.forEach((q2,r)=>{for(let x=CP.x;x<CP.x+CP.w;x+=1.5){const y=CP.y+8+r*10+Math.sin(x/41+T*.5+r*1.7)*8+Math.sin(x/15+T)*3;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}));
+ auroraSky('tie',T,CP.x,CP.w,CP.y+8,10,8,41,3,15,.5);
  ridge(t*10,86,24,'#232a5e',53,23);ridge(t*26,96,12,'#171c48',31,13);spruceRow(t*70,104,'#0a2226');
  R('#c8d4f0',CP.x,102,CP.w,5);R('#1a1c26',CP.x,107,CP.w,12);R('#2a2c36',CP.x,107,CP.w,1);R('#dfe8ff',CP.x,119,CP.w,3);
  const off=(t*320)%44;for(let x=CP.x-off;x<CP.x+CP.w;x+=44)R('#d8d8c0',x,112.5,18,1.2);
@@ -209,8 +209,10 @@ const INTRO_CUT=[
 /* ---- Mökin piha (pelattava, 12c_piha.js) ja sen jälkeen näytös: Peran selostus ja road trip kohti Rovaniemeä ---- */
 // Mökin pihan mitat: mökin ovi ja auton paikka
 const PIHA={door:105,car:256};
-function pihaBg(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,Y+80,[[0,'#03041a'],[1,'#1e2860']]);g.fillRect(X,Y,CP.w,92);
- for(let i=0;i<50;i++)R('#c8ccf0',X+(i*61)%CP.w,Y+(i*23)%40,1,1);
+/* Pihan kerrokset: taivas (tähdet) piirretään ensin, sitten revontulet, ja niiden päälle etuala (kuuset, mökki, palju, lumi) */
+function pihaSky(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,Y+80,[[0,'#03041a'],[1,'#1e2860']]);g.fillRect(X,Y,CP.w,92);
+ for(let i=0;i<50;i++)R('#c8ccf0',X+(i*61)%CP.w,Y+(i*23)%40,1,1)}
+function pihaBg(){const X=CP.x;
  spruceRow(0,94,'#0a2226');R('#cfdcf4',X,94,CP.w,28);R('#b4c2e2',PIHA.door,104,PIHA.car-PIHA.door-20,6);
  // hirsimökki lumisella katolla, valaistu ikkuna ja avoin ovi
  for(let y=56;y<104;y+=6){R('#5a3a1e',24,y,108,5);R('#6e4826',24,y,108,1.2);R('#2a160a',24,y+5,108,1)}

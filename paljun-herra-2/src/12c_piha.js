@@ -39,8 +39,9 @@ function actPiha(e){if(PZ.leave)return;const tap=e&&e.target===cv&&e.clientX!==u
 const PZKEYS={ArrowLeft:'kl',a:'kl',A:'kl',ArrowRight:'kr',d:'kr',D:'kr'};
 ['keydown','keyup'].forEach(ev=>addEventListener(ev,e=>{const k=PZKEYS[e.key];if(k&&stage===10){PZ[k]=ev==='keydown'?1:0;e.preventDefault()}}));
 
-function drawPiha(T){const t=performance.now()/1000;panelFrame(()=>{cutLayer('piha',pihaBg);
- aurora('piha',T,()=>AG.forEach((q2,r)=>{for(let x=CP.x;x<CP.x+CP.w;x+=1.5){const y=CP.y+6+r*9+Math.sin(x/41+T*.4+r*1.7)*7+Math.sin(x/15+T)*2;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}));
+function drawPiha(T){const t=performance.now()/1000;panelFrame(()=>{cutLayer('pihaSky',pihaSky);
+ auroraSky('piha',T,CP.x,CP.w,CP.y+6,9,7,41,2,15,.4);
+ cutLayer('piha',pihaBg);
  glow(54,74,22,'255,190,100',.35);glow(105,88,22,'255,200,120',.3);
  for(let k=0;k<5;k++){const p=(t*.25+k/5)%1;R(`rgba(200,205,225,${.5*(1-p)})`,112+Math.sin(p*5+k)*4+p*10,28-p*22,2+p*5,2+p*5)}
  for(let k=0;k<4;k++){const p=(t*.3+k/4)%1;R(`rgba(225,232,255,${.4*(1-p)})`,152+k*9+Math.sin(p*6+k)*3,88-p*20,3+p*5,3+p*5)}

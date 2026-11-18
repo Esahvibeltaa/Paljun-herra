@@ -13,13 +13,17 @@ function titlePress(){audioInit();if(AC&&AC.state!=='running')try{AC.resume()}ca
  if(TI.sel===1){openCfg();return}if(AC)tn(1047,1568,.18,.08,'square');startGame()}
 addEventListener('keydown',e=>{if(stage!==1||state!=='title'||PAUSED||CFG.open)return;if(e.key===' '||e.key==='Enter')return;
  if(TI.on&&['ArrowUp','ArrowDown','w','W','s','S'].includes(e.key)){e.preventDefault();titleMove();return}if(!TI.on&&e.key.length<=12&&!['p','P','Escape'].includes(e.key))titlePress()});
+/* Revontulet välimuistikerroksena: kolme värinauhaa (AGI) aaltoilevat vaakasuunnassa. Piirretään taivaan jälkeen ja ennen
+   maastoa, jotta vuoret, metsä ja rakennukset peittävät ne. x0, w = alue; y0, dy = ylimmän nauhan korkeus ja nauhojen väli;
+   a1, f1 = pääaallon korkeus ja pituus; a2, f2 = väreilyn korkeus ja pituus; sp = aaltoilun nopeus */
+function auroraSky(id,T,x0,w,y0,dy,a1,f1,a2,f2,sp){aurora(id,T,()=>AG.forEach((q2,r)=>{for(let x=x0;x<x0+w;x+=1.5){const y=y0+r*dy+Math.sin(x/f1+T*sp+r*1.7)*a1+Math.sin(x/f2+T)*a2;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}))}
 /* Yhteiset maisema-apurit (intro ja alkunäytös): vierivä tunturiharjanne ja lumikuusirivi; off = vierityksen siirtymä */
 function ridge(off,base,amp,col,f1,f2){g.fillStyle=col;g.beginPath();g.moveTo(0,H);for(let x=0;x<=W;x+=4){const u=x+off;g.lineTo(x,base-Math.abs(Math.sin(u/f1))*amp-Math.sin(u/f2)*amp*.35)}g.lineTo(W,H);g.fill()}
 function spruceRow(off,yb,col){off%=14;for(let i=-1;i<25;i++){const x=i*14-off+((i*37)%5),h=14+((i*53)%9);g.fillStyle=col||'#0c2a2a';g.beginPath();g.moveTo(x,yb-2-h);g.lineTo(x+6,yb);g.lineTo(x-6,yb);g.fill();g.fillStyle='#dfe8ff';g.fillRect(x-1,yb-h,2,2)}}
 function drawTitle(T){const t=TI.t;
  let q=g.createLinearGradient(0,0,0,H);q.addColorStop(0,'#05061a');q.addColorStop(.5,'#141a4a');q.addColorStop(.8,'#2a2a6a');q.addColorStop(1,'#3a3a7a');g.fillStyle=q;g.fillRect(0,0,W,H);
  TI.stars.forEach(s=>{const x=((s.x-t*s.v)%W+W)%W,a=.5+.5*Math.sin(T*3+s.p);g.fillStyle=`rgba(255,250,230,${.35+a*.65})`;g.fillRect(x|0,s.y|0,s.s,s.s)});
- aurora('intro',T,()=>AG.forEach((q2,r)=>{for(let x=0;x<W;x+=1.5){const y=26+r*12+Math.sin(x/37+T*.6+r*1.7)*9+Math.sin(x/13+T)*3;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}));
+ auroraSky('intro',T,0,W,26,12,9,37,3,13,.6);
  {const mx=268,my=34;q=g.createRadialGradient(mx,my,4,mx,my,30);q.addColorStop(0,'rgba(255,244,200,.35)');q.addColorStop(1,'rgba(255,244,200,0)');g.fillStyle=q;g.fillRect(mx-30,my-30,60,60);g.fillStyle='#f4ecc0';g.beginPath();g.arc(mx,my,11,0,7);g.fill();g.fillStyle='rgba(170,160,110,.45)';[[-3,-2,3],[4,2,3.5],[-1,5,2]].forEach(m=>{g.beginPath();g.arc(mx+m[0],my+m[1],m[2],0,7);g.fill()})}
  ridge(t*3,128,34,'#2a2f66',53,23);
  ridge(t*7,150,16,'#1b2050',31,13);
