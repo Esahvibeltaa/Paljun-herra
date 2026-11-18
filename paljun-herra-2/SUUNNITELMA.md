@@ -61,3 +61,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Tarinapolun karkea luonnos.
 - Nimi muutettu muotoon Paljun Herra 2 Paluu of drunken master (intro: PALUU OF DRUNKEN MASTER).
 - Alkunäytös: välinäytösmoottori (`12b_alkunaytos.js`: kuva-alue, kirjoituskoneteksti, puhujan nimi, ohitus S / B / OHITA), kolme kohtausta (krapulainen mökki, Tesla Lapin yössä, auton sisänäkymä), jännitysteema (`cutStep`), soittoääni (`sRing`). Intron vuoret ja kuusirivi yhteisiksi funktioiksi (`ridge`, `spruceRow`). Piirto noin 2–3 ms/kehys.
+- Teslan sivuprofiili Model 3:n (Highland) mukaan: matala pyöreä nokka, kalteva tuulilasi, yhtenäinen kattokaari viistoperään, musta lasikatto, viiltovalot, aerovanteet (`TESLA`, `teslaPath`), koko 1,2×.

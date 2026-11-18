@@ -88,30 +88,43 @@ function cutRing(dt){if(CUT.li!==1)return;CUT.rt-=dt;if(CUT.rt<=0){CUT.rt=CUTK.r
 /* ---- Kohtaus 2: vihreä takasiipinen Tesla kiitää Lapin yössä ---- */
 function tieSky(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,Y+96,[[0,'#03041a'],[.6,'#121a4a'],[1,'#26306a']]);g.fillRect(X,Y,CP.w,96);
  for(let i=0;i<60;i++)R(i%5?'#c8ccf0':'#ffffff',X+(i*53)%CP.w,Y+(i*29)%60,i%7?1:1.5,i%7?1:1.5);ell(266,30,8,8,'#f4ecc0');ell(263,28,2,2,'#c8bf90')}
-function teslaCar(T,t){const sp=t*36;
+/* Tesla Model 3 (Highland) sivuprofiilina, nokka oikealle: matala pyöreä nokka, pitkä kalteva tuulilasi, yhtenäinen kattokaari viistoperään,
+   musta lasikatto, kapeat viiltovalot ja tummat aerovanteet. Lisänä iso takasiipi. Mitat auton keskeltä, maa y=0. */
+const TESLA={body:'#2fae4a',shade:'#1d7a32',dark:'#145a24',hi:'#7ae890',glass:'#0b0f18',win:'#16263a',wheels:[-25,24],sc:1.2};
+function teslaPath(){g.beginPath();g.moveTo(-38,-2.5);g.lineTo(-40,-6);g.lineTo(-40,-12.5);g.quadraticCurveTo(-39.5,-15,-36,-15.4);g.quadraticCurveTo(-22,-23.5,-8,-24.8);
+ g.quadraticCurveTo(0,-24.8,4,-22.5);g.lineTo(16,-14.6);g.quadraticCurveTo(32,-12.5,39,-9.5);g.quadraticCurveTo(41.5,-7,39.5,-3.5);g.lineTo(38,-2.5);g.closePath()}
+function teslaCar(T,t){const C=TESLA,sp=t*36;
  // valokeila tielle ja takavalon hehku
  g.fillStyle='rgba(255,248,200,.16)';g.beginPath();g.moveTo(38,-9);g.lineTo(150,-14);g.lineTo(150,6);g.lineTo(38,-6);g.fill();
- glow(38,-8,12,'255,250,210',.8);glow(-39,-9,8,'255,40,40',.7);
+ glow(37,-9,12,'255,250,210',.8);glow(-39,-13,8,'255,40,40',.7);
  // lumipöllähdys takapyörän takaa
- for(let k=0;k<12;k++){const p=(t*2.6+k/12)%1;g.globalAlpha=(1-p)*.8;R('#e8f0ff',-30-p*52,-2-Math.sin(p*Math.PI)*9-(k%3),1+p*2,1+p*2)}g.globalAlpha=1;
- // runko
- g.fillStyle='#1d7a32';g.beginPath();g.moveTo(-39,-3);g.lineTo(-39,-12);g.lineTo(-33,-15);g.lineTo(-24,-17);g.lineTo(-10,-23);g.lineTo(4,-25);g.lineTo(14,-23);g.lineTo(25,-15);g.lineTo(36,-12);g.lineTo(40,-8);g.lineTo(39,-3);g.closePath();g.fill();
- g.fillStyle='#2fae4a';g.beginPath();g.moveTo(-38,-8);g.lineTo(-38,-11.5);g.lineTo(-32.5,-14.5);g.lineTo(-24,-16.5);g.lineTo(-10,-22.5);g.lineTo(4,-24.5);g.lineTo(14,-22.5);g.lineTo(25,-14.5);g.lineTo(35.5,-11.5);g.lineTo(39,-8);g.closePath();g.fill();
- R('#7ae890',-32,-14.2,8,.8);R('#7ae890',25,-14.4,10,.8);R('#145a24',-38,-5,77,2);R('#0e3a18',-14,-12,1,8);R('#0e3a18',6,-12,1,8);
- // lasit
- g.fillStyle='#0b1626';g.beginPath();g.moveTo(-21,-16.5);g.lineTo(-9,-21.8);g.lineTo(4,-23.6);g.lineTo(13,-21.8);g.lineTo(22,-15);g.closePath();g.fill();R('#1d7a32',0,-23.5,1.5,9);R('#4a6a9a',-6,-20.8,5,.8);
+ for(let k=0;k<12;k++){const p=(t*2.6+k/12)%1;g.globalAlpha=(1-p)*.8;R('#e8f0ff',-31-p*52,-2-Math.sin(p*Math.PI)*9-(k%3),1+p*2,1+p*2)}g.globalAlpha=1;
+ // kori: perusväri, alaosan varjo ja helman tumma reuna rajattuna korin muotoon
+ g.fillStyle=C.body;teslaPath();g.fill();g.save();teslaPath();g.clip();R(C.shade,-41,-7,82,5);R(C.dark,-41,-3.6,82,2);g.restore();
+ // olkalinjan heijastus
+ g.strokeStyle=C.hi;g.lineWidth=.6;g.beginPath();g.moveTo(-35,-15);g.quadraticCurveTo(-8,-14.6,31,-12.2);g.stroke();
+ // musta lasikatto ja sivuikkunat; katon reunassa kapea korinvärinen kaari
+ g.fillStyle=C.glass;g.beginPath();g.moveTo(14.5,-14.8);g.lineTo(3.4,-22.3);g.quadraticCurveTo(-.5,-24,-8,-24);g.quadraticCurveTo(-21,-22.6,-32,-16.2);g.quadraticCurveTo(-10,-16,14.5,-14.8);g.fill();
+ g.fillStyle=C.win;g.beginPath();g.moveTo(12.4,-15.2);g.lineTo(3,-21.6);g.quadraticCurveTo(-1,-22.9,-4.6,-23);g.lineTo(-4.6,-15.7);g.fill();
+ g.beginPath();g.moveTo(-6.6,-15.8);g.lineTo(-6.6,-23.1);g.quadraticCurveTo(-17,-22,-26.5,-17.2);g.fill();
+ g.strokeStyle=C.body;g.lineWidth=.7;g.beginPath();g.moveTo(3.2,-22.9);g.quadraticCurveTo(-.5,-24.5,-8,-24.5);g.quadraticCurveTo(-21,-23.1,-31.5,-16.8);g.stroke();
+ R('#4a6a9a',1,-21,3,.6);R('#4a6a9a',-12,-21.6,3,.6);
+ // ovien saumat, upotetut kahvat ja sivupeili
+ R(C.dark,-5.4,-15.4,.5,11);R(C.dark,-21,-16.4,.5,11.6);R(C.dark,-1.4,-12.8,3,.7);R(C.dark,-17.4,-13.4,3,.7);g.fillStyle=C.body;g.beginPath();g.ellipse(11.5,-15.6,2.2,1.2,.3,0,7);g.fill();
  // iso takasiipi
- R('#111316',-35,-21,1.6,6.5);R('#111316',-29,-21.5,1.6,5.5);R('#111316',-43,-23.5,19,2.6);R('#2fae4a',-43,-23.5,19,.8);R('#111316',-43,-25,1.5,4.5);R('#111316',-25.5,-25,1.5,4.5);
- // valot
- R('#fff8d0',36,-10,3,1.5);R('#ff3030',-39,-10.5,2,2);
- // pyörät
- for(const wx of[-24,24]){ell(wx,-2,6,6,'#0a0a0e');ell(wx,-2,3.6,3.6,'#7a8090');for(let k=0;k<3;k++){const a=sp+k*2.09;lim(wx,-2,wx+Math.cos(a)*3.2,-2+Math.sin(a)*3.2,.8,'#c0c6d0','#3a3e48')}ell(wx,-2,1,1,'#2a2e38')}}
+ R('#111316',-35,-21,1.6,6);R('#111316',-29,-21.5,1.6,6);R('#111316',-44,-23.5,19,2.6);R(C.body,-44,-23.5,19,.8);R('#111316',-44,-25,1.5,4.5);R('#111316',-26.5,-25,1.5,4.5);
+ // viiltovalot ja takavalo
+ g.lineCap='round';g.strokeStyle='#fff8d0';g.lineWidth=.9;g.beginPath();g.moveTo(37.6,-9.3);g.lineTo(31.5,-9.9);g.stroke();
+ g.strokeStyle='#ff3030';g.lineWidth=1.2;g.beginPath();g.moveTo(-39.4,-13.2);g.lineTo(-35,-13.8);g.stroke();
+ // pyöränkaaret ja tummat aerovanteet
+ for(const wx of C.wheels){ell(wx,-2,7.3,7.3,'#07090a');ell(wx,-2,6,6,'#0a0a0e');ell(wx,-2,4.2,4.2,'#1c2026');
+  for(let k=0;k<5;k++){const a=sp+k*1.2566;lim(wx+Math.cos(a)*1,-2+Math.sin(a)*1,wx+Math.cos(a+.5)*3.8,-2+Math.sin(a+.5)*3.8,.9,'#555c6a','#24282f')}ell(wx,-2,1,1,'#3a3e48')}}
 function cutTie(T,t){cutLayer('tie',tieSky);
  aurora('tie',T,()=>AG.forEach((q2,r)=>{for(let x=CP.x;x<CP.x+CP.w;x+=1.5){const y=CP.y+8+r*10+Math.sin(x/41+T*.5+r*1.7)*8+Math.sin(x/15+T)*3;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}));
  ridge(t*10,86,24,'#232a5e',53,23);ridge(t*26,96,12,'#171c48',31,13);spruceRow(t*70,104,'#0a2226');
  R('#c8d4f0',CP.x,102,CP.w,5);R('#1a1c26',CP.x,107,CP.w,12);R('#2a2c36',CP.x,107,CP.w,1);R('#dfe8ff',CP.x,119,CP.w,3);
  const off=(t*320)%44;for(let x=CP.x-off;x<CP.x+CP.w;x+=44)R('#d8d8c0',x,112.5,18,1.2);
- g.save();g.translate(148,116+Math.sin(T*22)*.35);teslaCar(T,t);g.restore();
+ g.save();g.translate(148,114+Math.sin(T*22)*.35);g.scale(TESLA.sc,TESLA.sc);teslaCar(T,t);g.restore();
  for(const f of flakes){const x=CP.x+(((f.x-t*160)%CP.w)+CP.w)%CP.w;R('rgba(255,255,255,.85)',x,CP.y+f.y*CP.h/H,1.5,1)}}
 
 /* ---- Kohtaus 3: auton sisältä pelkääjän paikalta; kuski näkyy vain hämäränä ääriviivana ---- */
