@@ -78,6 +78,7 @@ function mjUpd(f,dt){phys(f,dt);
  if(f.st==='ko'&&f.team==='e'){f.kt=(f.kt||0)+dt;if(f.kt>1.6)f.gone=1}
  f.cd-=dt;f.ct+=dt;if(f.notes>0)f.notes-=dt}
 function mjCtrl(dt){const e=M.e,dl=dlyM(B.h);M.hist.push([M.ck,keysNow()]);while(M.hist.length>1&&M.hist[1][0]<=M.ck-dl)M.hist.shift();const d=M.hist[0][1];const RR=M.L.roof;
+ if(M.lift&&M.lift.on){liftRide(e,dt);return}
  if(RR&&e.st==='climb'){e.vx=e.vz=0;if(RR.lift){liftRide(e,dt);return}if(d.u){e.base+=18*dt;e.cl=(e.cl||0)+dt;if(Math.floor(e.cl/.28)!==Math.floor((e.cl-dt)/.28))tn(1300,1200,.03,.05,'square')}else if(d.d){e.base-=22*dt;e.cl=(e.cl||0)+dt}if(e.base>=RR.A[2]){e.base=RR.A[2];e.lev='roof';e.x=RR.A[0]+10;e.z=6;e.st='idle';msgL=['Katolla!','Potki viholliset reunan yli.']}if(e.base<=0){e.base=0;e.st='idle'}return}
  if(RR&&e.lev!=='roof'&&!e.atk&&e.y===0&&['idle','walk'].includes(e.st)&&Math.abs(e.x-RR.lad)<12&&e.z<=8&&d.u){e.st='climb';e.x=RR.lad;e.z=1;e.cl=0;msgL=[RR.lift?'Hissi nousee...':'Esa kiipeää tikkaita...'];if(RR.lift)liftStart();return}
  if(M.stg>0){M.stg-=dt;e.vx=M.sgd*(30+Math.sin(M.stg*18)*14);e.vz=Math.sin(M.stg*11)*10;e.st='walk';e.wk+=dt*.6;return}
@@ -94,7 +95,7 @@ function mjCtrl(dt){const e=M.e,dl=dlyM(B.h);M.hist.push([M.ck,keysNow()]);while
   const daze=front.find(x=>x.st==='hit'&&Math.abs(x.x-e.x)<20);
   if(daze&&e.cmb>=2&&e.ct<.6){e.cmb=0;e.ct=9;mStart(e,'upper');e.atk.hits.add(daze);daze.x=e.x+e.face*4;daze.hp=Math.max(0,daze.hp-12);daze.ko=daze.hp<=0?1:0;launch(daze,-e.face,18);daze.vx=-e.face*150;if(daze.hp<=0){daze.dead=1;M.kills++}sImpact('k',true);crowd('ooh');msgL=['HEITTO!'];kiai(e);continue}
   e.cmb=e.ct<.55&&e.cmb<3?e.cmb+1:1;e.ct=0;mStart(e,e.cmb===3?'upper':'punch');if(e.cmb===3&&Math.random()<.5)kiai(e)}}
-function mjAlly(f,dt){if(f.tired>0||f.atk||f.y>0||!['idle','walk'].includes(f.st))return;
+function mjAlly(f,dt){if(f.inLift){f.vx=f.vz=0;return}if(f.tired>0||f.atk||f.y>0||!['idle','walk'].includes(f.st))return;
  let t=null,best=1e9;M.ents.forEach(x=>{if(x.team!=='e'||x.dead||x.st==='ko')return;const dd=Math.abs(x.x-f.x)+Math.abs(x.z-f.z)*2;if(dd<best){best=dd;t=x}});f.tgt=t;
  if(!t||best>220){const tx=M.e.x+(f.kind==='a'?-28:-48),tz=Math.max(0,Math.min(40,M.e.z+(f.kind==='a'?9:-9))),dx=tx-f.x,dz=tz-f.z;if(Math.abs(dx)>6||Math.abs(dz)>4){f.vx=Math.abs(dx)>6?Math.sign(dx)*Math.min(70,Math.abs(dx)*2):0;f.vz=Math.abs(dz)>4?Math.sign(dz)*28:0;f.st='walk';f.wk+=dt;if(Math.abs(dx)>6)f.face=Math.sign(dx)}else{f.vx=f.vz=0;f.st='idle';f.face=M.e.face}return}
  const dx=t.x-f.x,dz=t.z-f.z,want=f.kind==='a'?21:18;
@@ -220,7 +221,7 @@ function mjRoof(f,dt){const r=M.L.roof;if(!r||f.gone)return;f.base=f.base||0;con
  else if(!f.fallR&&f.st!=='climb'&&f.x>r.A[0]-2&&f.x<r.S){f.x=f.x<(r.A[0]+r.S)/2?r.A[0]-2:r.S}
  if(f.fallR&&f===e&&f.y===0&&f.vy===0){f.fallR=0;f.st='idle';f.vx=0;f.hp=Math.max(0,f.hp-15);sThud(true);vib(120);K.shake=.3;
   if(f.hp<=0){M.ph='lose';M.t=0;loseLife();bell(3);msgL=['Esa putosi katolta!']}else{f.lev='roof';f.base=r.A[2];f.x=r.A[0]+18;f.z=20;msgL=['Auts! Esa putosi kujalle.','Takaisin katolle... -15 energiaa'];M.al.forEach(a=>{a.lev='roof';a.base=r.A[2];a.x=r.A[0]+10;a.y=0})}}}
-function mjAllySync(){const r=M.L.roof;if(!r)return;const e=M.e;if(e.st==='climb'||e.fallR)return;const es=rfSeg(e);
+function mjAllySync(){const r=M.L.roof;if(!r||(M.lift&&M.lift.on))return;const e=M.e;if(e.st==='climb'||e.fallR)return;const es=rfSeg(e);
  M.al.forEach(a=>{if(a.atk||a.tired>0||['fly','down','ko','roll','kip'].includes(a.st))return;if(rfSeg(a)!==es){a.lev=e.lev;a.x=e.x-(a.kind==='a'?20:36);if(e.lev==='roof'&&rfH(a.x)===null)a.x=e.x-4;if(e.lev!=='roof'&&es===3)a.x=Math.max(r.S+2,a.x);if(e.lev!=='roof'&&es===0)a.x=Math.min(r.A[0]-4,a.x);a.base=e.lev==='roof'?rfH(a.x):0;a.y=.01;a.vy=110;a.st='jump';a.vx=0}})}
 /* Kattorakennus piirretään kerran välimuistikankaaseen (2x) ja kopioidaan joka kehys; ikkunavalot kiinteät rakennuksen mukaan */
 const RFC={};
@@ -268,14 +269,21 @@ function mjDrawE(f,T){const isE=f===M.e,o=Object.assign(fpose(f,T,isE),{prof:1})
  const sx=f.x-M.cam,sy=112+f.z-(f.base||0),sc=f.sc||1;ell(sx,sy+1,10*sc,2.4*sc,'rgba(0,0,0,.35)');o.flip=o.flipX!==undefined?o.flipX:f.face<0;o.s=sc;{const X=sx+(o.lx||0)*sc*f.face,Y=sy-f.y+(o.dy||0)*sc;drawChar(f.sp,X,Y,o);swingTrail(f,o,X,Y,T)}
  if(f.notes>0)for(let i=0;i<3;i++){const u=((T*.8+i*.33)%1);g.save();g.globalAlpha=1-u;g.font='bold 9px monospace';g.fillStyle=['#ff6ac8','#6ae0ff','#ffe23a'][i];g.fillText('♪',sx-10+i*9+Math.sin(u*6)*3,sy-56-u*18);g.restore()}
  if(f.team==='a'&&f.tired>0)zzz(sx+8,sy-20,T)}
+/* Roskikset: malli arvotaan paikan mukaan (kiinteä): vihreä peltipönttö, harmaa kannellinen sinkkipönttö, harmaa pyörillinen jäteastia, matala tummanvihreä. Rikottu = kaatunut. */
+const BINS=[{w:10,h:15,c:'#2a6a3a',hi:'#3a8a4a',lid:'#1a4a2a'},{w:10,h:14,c:'#6a6e78',hi:'#8a8e98',lid:'#4a4e58',ribs:1},{w:12,h:18,c:'#4a4e56',hi:'#5e626a',lid:'#33363e',wheels:1},{w:12,h:11,c:'#1e4a34',hi:'#2a5e44',lid:'#143424'}];
+function binDraw(o,x,y){const b=BINS[Math.floor(hsh(o.x*.37+o.z)*BINS.length)];
+ if(o.br){g.save();g.translate(x,y-4);g.rotate(1.4);R(b.c,-b.w/2,-5,b.w,b.h-1);R(b.hi,-b.w/2,-5,2.5,b.h-1);g.restore();return}
+ const l=x-b.w/2,t=y-b.h;ell(x,y+.5,b.w*.7,1.6,'rgba(0,0,0,.35)');R(b.c,l,t,b.w,b.h);R(b.hi,l,t,b.w*.3,b.h);R('rgba(0,0,0,.25)',l+b.w-2,t,2,b.h);
+ if(b.ribs)for(let yy=t+4;yy<y-2;yy+=4)R('rgba(0,0,0,.3)',l,yy,b.w,.8);
+ if(b.wheels){R('#16181c',l+1,y-2,3,3);R('#16181c',l+b.w-4,y-2,3,3);R(b.lid,l-1,t-2,b.w+2,3);R('#9aa6c8',l,t-2.6,b.w,1)}else{R(b.lid,l-1,t-1,b.w+2,2.5);ell(x,t-1.5,b.w*.55,1.4,'#9aa6c8')}}
 function drawMJ(T){const e=M.e;g.font='bold 8px monospace';g.textBaseline='alphabetic';mjBg(T);if(M.L.roof)roofDraw(T);if(M.L.onDraw)M.L.onDraw(T);
- const L=[];M.objs.forEach(o=>L.push([o.z,()=>{const x=o.x-M.cam,y=112+o.z;if(!o.br){R('#2a6a3a',x-5,y-15,10,15);R('#3a8a4a',x-5,y-15,3,15);R('#1a4a2a',x-6,y-16,12,2.5);ell(x,y-16.5,5.5,1.4,'#eef3ff')}else{g.save();g.translate(x,y-4);g.rotate(1.4);R('#2a6a3a',-5,-5,10,14);g.restore()}}]));
+ const L=[];M.objs.forEach(o=>L.push([o.z,()=>binDraw(o,o.x-M.cam,112+o.z)]));
  M.items.forEach(it=>L.push([it.z-.1,()=>{if(it.t>11&&Math.sin(T*30)>0)return;const x=it.x-M.cam,y=112+it.z-2+Math.sin(T*4)*1-(it.base||0);if(it.type==='c')can(x-3.5,y-12);else if(it.type==='v')waterB(x-2.5,y-13);else{g.save();g.translate(x,y-6);g.rotate(.6);it.type==='p'?pipeW(-1,-8):it.type==='k'?chainW(-1,-8):wrench(-1,-6);g.restore()}}]));
  M.ents.forEach(f=>L.push([f.z+(f===e?.05:0),()=>mjDrawE(f,T)]));
  if(!M.w.gone){const w=M.w;L.push([w.z,()=>{const o=M.lock&&M.ph==='play'?{...idle(T,2),aL:2.6,aR:-2.6}:w.wk>0?walk(T,w.wk,2):idle(T,2);o.flip=w.face<0;if(M.ph==='kid'&&M.kt>1){o.aL=2.8;o.aR=-2.8}ell(w.x-M.cam,112+w.z+1,9,2.2,'rgba(0,0,0,.35)');drawChar(SP.w,w.x-M.cam,112+w.z,o)}])}
  if(M.hk){const h=M.hk;L.push([h.z,()=>{const x=h.x-M.cam,y=112+h.z;if(h.tied){R('#5a3418',x-9,y-34,18,22);R('#3a2410',x-9,y-12,2,12);R('#3a2410',x+7,y-12,2,12)}const o=h.tied?{...idle(T,3),aL:.05,aR:-.05,blink:Math.sin(T*2)>.7}:h.wk>0?walk(T,h.wk,2):{...idle(T,3),aL:2.5,aR:-2.5};o.flip=(h.face||-1)<0;drawChar(SP.w,x,y,o);if(h.tied){g.strokeStyle='#c8a060';g.lineWidth=1.2;[y-22,y-17,y-28].forEach(yy=>{g.beginPath();g.moveTo(x-8,yy);g.lineTo(x+8,yy+1);g.stroke()})}}])}
  if(M.van)L.push([M.van.z,()=>mjVan(M.van.x-M.cam-60,112+M.van.z+5,T)]);
- L.sort((a,b)=>a[0]-b[0]).forEach(x=>x[1]());
+ L.sort((a,b)=>a[0]-b[0]).forEach(x=>x[1]());if(M.L.onFg)M.L.onFg(T);
  M.proj.forEach(p=>{const pb=p.base||0;if(p.star){mjStar(p.x-M.cam,112+p.z-p.y-pb,5,p.r);g.save();g.globalCompositeOperation='lighter';ell(p.x-M.cam,112+p.z-p.y-pb,8,8,'rgba(200,220,255,.15)');g.restore()}else{g.save();g.translate(p.x-M.cam,112+p.z-p.y-pb);g.rotate(p.r);R('#8a8a94',-6,-1.6,12,3.2);R('#5a5a64',-6,-1.6,2,3.2);g.restore()}ell(p.x-M.cam,112+p.z+1,4,1.2,'rgba(0,0,0,.3)')});
  M.fx.forEach(x=>{const u=x.t/.45,r=(x.big?12:8)*(.4+u),sx=x.x-M.cam;g.strokeStyle='#fff36a';g.globalAlpha=1-u;g.lineWidth=1.1;for(let i=0;i<8;i++){const a=i*.785+.3;g.beginPath();g.moveTo(sx+Math.cos(a)*r*.4,x.y+Math.sin(a)*r*.4);g.lineTo(sx+Math.cos(a)*r,x.y+Math.sin(a)*r);g.stroke()}
   if(x.txt){g.font='bold 10px monospace';g.textAlign='center';g.fillStyle='#ffe23a';g.strokeStyle='#a01010';g.lineWidth=2;g.strokeText(x.txt,sx,x.y-10-u*8);g.fillText(x.txt,sx,x.y-10-u*8);g.font='bold 8px monospace';g.textAlign='left'}g.globalAlpha=1});
@@ -283,7 +291,7 @@ function drawMJ(T){const e=M.e;g.font='bold 8px monospace';g.textBaseline='alpha
  if(M.smoke>0){const a=Math.min(1,M.smoke)*.8;for(let i=0;i<14;i++){const cx=160+Math.sin(i*1.9+T)*120,cy=70+((i*23+T*14)%80);g.fillStyle=`rgba(40,38,44,${a*(.5+.5*Math.sin(i))})`;g.beginPath();g.arc(cx,cy,14+(i%4)*5,0,7);g.fill()}}
  if(M.ph==='title'){g.save();g.textAlign='center';g.font='bold 22px monospace';g.lineWidth=4;g.strokeStyle='#1a0820';g.strokeText('KENTTÄ '+M.lvl,160,74);g.fillStyle='#ffe23a';g.fillText('KENTTÄ '+M.lvl,160,74);g.font='bold 9px monospace';g.fillStyle='#fff';g.fillText(M.L.name.toUpperCase(),160,90);g.restore()}
  if(M.sayT>0&&M.say){const k=M.say[0],p=k==='v'?[M.van?M.van.x-M.cam:200,58]:mjSpk(k);sbub(p[0],Math.max(32,p[1]),M.say[1])}
- if(M.L.roof&&M.ph==='play'&&Math.sin(T*6)>-.3){const r=M.L.roof;let ht=null,hx=0,hy=0;if(e.lev!=='roof'&&e.st!=='climb'&&Math.abs(e.x-r.lad)<60){ht=r.lift?'↑ HISSI':'↑ KIIPEÄ';hx=r.lad-M.cam;hy=112-r.A[2]-16}else if(e.lev==='roof'&&e.x>r.A[1]-60&&e.x<r.A[1]){ht='HYPPÄÄ →';hx=r.A[1]-M.cam+6;hy=112-r.B[2]-18}if(ht){g.save();g.font='bold 9px monospace';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#1a0820';g.strokeText(ht,hx,hy);g.fillStyle='#9ff';g.fillText(ht,hx,hy);g.restore()}}
+ if(M.L.roof&&M.ph==='play'&&Math.sin(T*6)>-.3){const r=M.L.roof;let ht=null,hx=0,hy=0;if(e.lev!=='roof'&&e.st!=='climb'&&!(M.lift&&M.lift.on)&&Math.abs(e.x-r.lad)<60){ht=r.lift?'↑ HISSI':'↑ KIIPEÄ';hx=r.lad-M.cam;hy=112-r.A[2]-16}else if(e.lev==='roof'&&e.x>r.A[1]-60&&e.x<r.A[1]){ht='HYPPÄÄ →';hx=r.A[1]-M.cam+6;hy=112-r.B[2]-18}if(ht){g.save();g.font='bold 9px monospace';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#1a0820';g.strokeText(ht,hx,hy);g.fillStyle='#9ff';g.fillText(ht,hx,hy);g.restore()}}
  if(M.go>0&&M.ph==='play'&&!M.lock&&Math.sin(T*8)>-.2){g.save();g.font='bold 16px monospace';g.textAlign='right';g.lineWidth=3;g.strokeStyle='#1a0820';g.strokeText('GO →',312,72);g.fillStyle='#ffe23a';g.fillText('GO →',312,72);g.restore()}
  hpBar(8,100,e.hp,e.mhp,'ESA',false);[[M.al[0],'AAPELI',122],[M.al[1],'KERMIS',190]].forEach(([a,n,x])=>{R('#000',x-1,13,62,6);R('#1a2a1a',x,14,60,4);R(a.tired>0?'#8a8a8a':'#5fd08a',x,14,60*a.hp/a.mhp,4);g.save();g.font='bold 6px monospace';g.fillStyle='#fff';g.shadowColor='#000';g.shadowBlur=2;g.fillText(n+(a.tired>0?' (väsynyt)':''),x,26);g.restore()});
  if(M.boss&&!M.boss.dead){const b=M.boss;R('#000',195,31,120,7);R('#3a1010',196,32,118,5);R('#ff5a3a',196+118*(1-b.hp/b.mhp),32,118*b.hp/b.mhp,5);g.save();g.font='bold 7px monospace';g.textAlign='right';g.fillStyle='#ffd0c0';g.shadowColor='#000';g.shadowBlur=2;g.fillText(KT[b.kind].nm,314,46);g.restore()}

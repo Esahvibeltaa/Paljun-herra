@@ -15,8 +15,8 @@ addEventListener('keydown',e=>{if(stage!==1||state!=='title'||PAUSED||CFG.open)r
  if(TI.on&&['ArrowUp','ArrowDown','w','W','s','S'].includes(e.key)){e.preventDefault();titleMove();return}if(!TI.on&&e.key.length<=12&&!['p','P','Escape'].includes(e.key))titlePress()});
 /* Revontulet välimuistikerroksena: kolme värinauhaa (AGI) aaltoilevat vaakasuunnassa. Piirretään taivaan jälkeen ja ennen
    maastoa, jotta vuoret, metsä ja rakennukset peittävät ne. x0, w = alue; y0, dy = ylimmän nauhan korkeus ja nauhojen väli;
-   a1, f1 = pääaallon korkeus ja pituus; a2, f2 = väreilyn korkeus ja pituus; sp = aaltoilun nopeus */
-function auroraSky(id,T,x0,w,y0,dy,a1,f1,a2,f2,sp){aurora(id,T,()=>AG.forEach((q2,r)=>{for(let x=x0;x<x0+w;x+=1.5){const y=y0+r*dy+Math.sin(x/f1+T*sp+r*1.7)*a1+Math.sin(x/f2+T)*a2;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}))}
+   a1, f1 = pääaallon korkeus ja pituus; a2, f2 = väreilyn korkeus ja pituus; sp = aaltoilun nopeus; alpha = voimakkuus (0–1, oletus 1) */
+function auroraSky(id,T,x0,w,y0,dy,a1,f1,a2,f2,sp,alpha){aurora(id,T,()=>AG.forEach((q2,r)=>{for(let x=x0;x<x0+w;x+=1.5){const y=y0+r*dy+Math.sin(x/f1+T*sp+r*1.7)*a1+Math.sin(x/f2+T)*a2;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}),alpha)}
 /* Yhteiset maisema-apurit (intro ja alkunäytös): vierivä tunturiharjanne ja lumikuusirivi; off = vierityksen siirtymä */
 function ridge(off,base,amp,col,f1,f2){g.fillStyle=col;g.beginPath();g.moveTo(0,H);for(let x=0;x<=W;x+=4){const u=x+off;g.lineTo(x,base-Math.abs(Math.sin(u/f1))*amp-Math.sin(u/f2)*amp*.35)}g.lineTo(W,H);g.fill()}
 function spruceRow(off,yb,col){off%=14;for(let i=-1;i<25;i++){const x=i*14-off+((i*37)%5),h=14+((i*53)%9);g.fillStyle=col||'#0c2a2a';g.beginPath();g.moveTo(x,yb-2-h);g.lineTo(x+6,yb);g.lineTo(x-6,yb);g.fill();g.fillStyle='#dfe8ff';g.fillRect(x-1,yb-h,2,2)}}
