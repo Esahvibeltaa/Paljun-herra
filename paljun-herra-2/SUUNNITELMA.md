@@ -51,13 +51,13 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 - **Tavoite:** edetään oikealle, matkalla vapautetaan lukittuja latausasemia, lopussa välipomo.
 - **Paikat järjestyksessä:** Jätkänkynttilä-silta (pakkanen, Kemijoki alla) → Koskikatu → Lordin aukio.
 - **Viholliset (dieselsällit):** haalarimiehet ja toppahaalareissa olevat takatukkaukot.
-- **Lapin vanhus:** Lordin aukiolla taisteluun tulee hiljainen vaihe; aukiolla on kioski, josta... (tarkennetaan)
+- **Lordin aukion hiljainen vaihe:** taistelu taukoaa. Kioskista voi ostaa poroburgerin, joka palauttaa terveyden ja vie humalan. Penkillä istuu mystinen Lapin vanhus; klikkaamalla hänen luokseen mennään juttelemaan ja hän opettaa uuden taidon.
 
 ## Pelin runko (koottu päätöksistä)
 
 1. Alkunäytös (tehty): krapulainen mökki, Peran puhelu, Mersumies on palannut ja kaapannut Sam Discon palvelimen.
 2. Mökin piha (tehty, pelattava): Esaa ohjataan, kaverit odottavat Teslan luona ja jutustelevat, Teslaa klikkaamalla matkaan. Sen jälkeen näytös: Peran selostus autossa (Esa etupenkillä) ja road trip kohti Rovaniemeä satunnaisella jutustelulla.
-3. Kenttä: Rovaniemen keskusta yöllä – dieselsällit, lukitut latausasemat.
+3. Kenttä: Rovaniemen keskusta yöllä – dieselsällit, lukitut latausasemat. (Ensimmäinen pelattava versio tehty kehitysversioon.)
 4. Lapin vanhus opettaa humalanyrkin (kota Santaparkin lähellä).
 5. Kenttä: Santapark – kaapatut tontut. Pomo: Pajakylän paha joulupukki.
 6. Kenttä: lentokenttä – livahdus Mersumiehen yksityiskoneen ruumaan.
@@ -130,3 +130,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Korjattu: revontulet piirtyivät pihalla mökin päälle. Piha jaettu kerroksiin (taivas `pihaSky` → revontulet → etuala `pihaBg`). Revontulien kolme kopioitua piirtoa yhdistetty funktioksi `auroraSky` (intro, Tesla-kohtaus, piha); muiden kohtausten piirtojärjestys tarkistettu.
 - Road tripille aina Aapelin tuumaus saunan ikkunasta (`MATKA_SAUNA`) ja yksi Peran nopeusvitsi (`MATKA_NOPEIN`), lisäksi kaksi muuta sketsiä. Pihan jutusteluun nopeusvitsejä.
 - Pelaaminen lukittu julkisesta linkistä: koonti tekee kaksi versiota (`JULKINEN`). Julkinen https://claude.ai/artifact/PfPEXVXgVBtXA21taSFgks päättyy alkunäytöksen jälkeen "pelattavissa pian" -ruutuun. Kehitysversio (yksityinen) https://claude.ai/artifact/N7zy8XNzu3r6mg69NjcxTV jatkaa pihaan, road tripille ja tuleviin kenttiin.
+- Rovaniemen keskusta, ensimmäinen pelattava versio (`10b_rovaniemi.js`, kehitysversiossa road tripin jälkeen): tausta kolmessa osassa (Jätkänkynttilä-silta kynttiläpylväineen ja Kemijoen jäineen, Koskikatu neonkylttein, Lordin aukio joulukuusineen; kaukana Ounasvaara hyppyrimäkineen, revontulet), uudet viholliset haalarimies (`hm`) ja toppahaalarinen takatukka (`tk`), viisi aaltoa, kolme lukittua latausasemaa (vapautuvat aaltojen voitoista, laskuri ASEMAT n/3), kioski ja vanhus penkillä (vielä ilman toimintoa). Moottoriin koukut `onStep`, `onDraw`, `onHud`, lippu `fin` (kenttä päättyy myös tasolla 1) ja `noW`. Seuraavaksi: aukion hiljainen vaihe (kioskin poroburger, vanhuksen opetus), heittoliike ja välipomo.

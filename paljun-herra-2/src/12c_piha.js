@@ -25,7 +25,7 @@ function pzUse(h){PZ.face=1;if(h.id==='kupari'){PZ.can=false;B.h=Math.min(100,B.
  if(h.id==='tesla'){PZ.leave=1e-6;sDoor();pzSay('Esa',PZSAY.tesla);return}pzSay('Esa',PZSAY[h.id])}
 function pzHot(){return PZH.filter(h=>h.id!=='kupari'||PZ.can)}
 function stepPiha(dt){musicTick();muteAmb();cutMusic('n');
- if(PZ.leave){const n=Math.min(PZF.length,Math.floor((PZ.leave+=dt)/PZK.board));if(n>PZ.gone){PZ.gone=n;sDoor()}if(PZ.leave>=PZK.leave)startCut(MATKA_CUT,showSoon);return}
+ if(PZ.leave){const n=Math.min(PZF.length,Math.floor((PZ.leave+=dt)/PZK.board));if(n>PZ.gone){PZ.gone=n;sDoor()}if(PZ.leave>=PZK.leave)startCut(MATKA_CUT,startRova);return}
  if(PZ.kl||PZ.kr){PZ.tx=PZ.ex+(PZ.kr-PZ.kl)*20;PZ.go=null}
  PZ.tx=Math.max(PZK.xMin,Math.min(PZK.xMax,PZ.tx));const d=PZ.tx-PZ.ex;
  if(Math.abs(d)>.5){PZ.face=Math.sign(d);PZ.ex+=Math.sign(d)*Math.min(Math.abs(d),PZK.spd*dt)}else if(PZ.go){const h=PZ.go;PZ.go=null;pzUse(h)}
