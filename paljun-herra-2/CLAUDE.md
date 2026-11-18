@@ -23,13 +23,13 @@ Suunnitelma: `SUUNNITELMA.md`.
 ## Rakenne
 
 - `src/*.js` moduulit, liitetään nimijärjestyksessä (`00_tila.js` ensin, `14_peli.js` viimeisenä):
-  `00_tila` yhteinen tila · `01_kangas` piirto · `02_aani` ääni · `03_musiikki` · `04_tekstit` · `05_hahmot` spritet ja asennot · `05b_lainat` apufunktiot · `06_kunto` humala · `07_kaksinkamppailu` 1v1 ja yhteinen taistelumekaniikka · `08_elamat` · `09_tauko` · `10_mattinta` sivuttain vierivä mätkintä · `11_ohjaus` näppäimet, ohjain, kosketus, asetukset · `12_intro` · `12b_alkunaytos` välinäytökset (NES-tyyliset kuvat + kirjoituskoneteksti, `startCut`) · `13_grafiikka` retro ja pääsilmukka · `14_peli` pelin kulku
+  `00_tila` yhteinen tila · `01_kangas` piirto · `02_aani` ääni · `03_musiikki` · `04_tekstit` · `05_hahmot` spritet ja asennot · `05b_lainat` apufunktiot · `06_kunto` humala · `07_kaksinkamppailu` 1v1 ja yhteinen taistelumekaniikka · `08_elamat` · `09_tauko` · `10_mattinta` sivuttain vierivä mätkintä · `11_ohjaus` näppäimet, ohjain, kosketus, asetukset · `12_intro` · `12b_alkunaytos` välinäytökset (NES-tyyliset kuvat + kirjoituskoneteksti, `startCut`) · `12c_piha` pelattava mökin piha · `13_grafiikka` retro ja pääsilmukka · `14_peli` pelin kulku
 - `src/pohja.html`, `src/tyyli.css` sivupohja
 - `python3 koonti.py` → `dist/index.html` (yksi tiedosto: selain, artifact ja Windows-versio)
 
 ## Työtapa
 
 - Julkaisu artifactiin https://claude.ai/artifact/PfPEXVXgVBtXA21taSFgks (julkaistaan tiedostosta `dist/index.html`).
-- Koonti ja Playwright-testit jokaisen muutoksen jälkeen (koko pelikulku: alkunäytös → nimiruutu → toinen näytös (piha, selostus, road trip) → pelattavissa pian; kenttä ja pomo suoraan käynnistämällä).
+- Koonti ja Playwright-testit jokaisen muutoksen jälkeen (koko pelikulku: alkunäytös → nimiruutu → mökin piha (pelattava) → näytös (selostus, road trip) → pelattavissa pian; kenttä ja pomo suoraan käynnistämällä).
 - Commit haaraan `claude/paljun-herra-project-import-0ezkqx` ja push myös `main`-haaraan.
 - Merkintä `SUUNNITELMA.md`:hen.

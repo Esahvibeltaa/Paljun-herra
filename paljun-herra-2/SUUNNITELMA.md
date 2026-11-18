@@ -48,7 +48,7 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 ## Pelin runko (koottu päätöksistä)
 
 1. Alkunäytös (tehty): krapulainen mökki, Peran puhelu, Mersumies on palannut ja kaapannut Sam Discon palvelimen.
-2. Toinen näytös (tehty): Pera poimii porukan mökin pihasta, selostaa tilanteen autossa (Esa etupenkillä), road trip kohti Rovaniemeä satunnaisella jutustelulla.
+2. Mökin piha (tehty, pelattava): Esaa ohjataan, kaverit odottavat Teslan luona ja jutustelevat, Teslaa klikkaamalla matkaan. Sen jälkeen näytös: Peran selostus autossa (Esa etupenkillä) ja road trip kohti Rovaniemeä satunnaisella jutustelulla.
 3. Kenttä: Rovaniemen keskusta yöllä – dieselsällit, lukitut latausasemat.
 4. Lapin vanhus opettaa humalanyrkin (kota Santaparkin lähellä).
 5. Kenttä: Santapark – kaapatut tontut. Pomo: Pajakylän paha joulupukki.
@@ -118,3 +118,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Alkunäytöksen ohitus poistettu kokonaan (S, ohjaimen B ja OHITA-kohta eivät toimi, OHITA-teksti pois).
 - Kuorsaus kuuluvammaksi: keskitaajuinen rahiseva sisäänhengitys (kohinaa katkova värinä) ja tuhiseva uloshengitys (`SNR`, `noiseEnv`), alkaa heti kun ääni avautuu ensimmäisestä napautuksesta. Soittoääni hieman kovemmaksi kuin kuorsaus.
 - Toinen näytös nimiruudun jälkeen (`MATKA_CUT`): mökin piha (porukka kävelee ovelta Teslaan, ovet paukahtavat), Peran selostus auton sisällä (Esa tonttulakissa matkustajan paikalla, `esaSeat`), road trip -sivunäkymä kilometrikyltillä ja tienvarren porolla (`tripSide`). Matkajutustelu arvotaan joka kerta: kolme sketsiä 14:stä (`MATKA_JUTUT`, `matkaLines`). Välinäytösmoottori: repliikit voivat olla funktio, kohtaus saa piirtofunktioon omat asetuksensa.
+- Mökin piha muutettu pelattavaksi (`12c_piha.js`, stage 10): napautus/klikkaus kohteeseen → Esa kävelee ja käyttää (OVI, PALJU, KUPARI nostaa humalaa, TESLA vie matkaan), nuolet/A-D kävelevät ja Enter käyttää lähintä, ohjaimella osoitin. Kaverit auton luona arpovat jutusteluja puhekupliin (`PIHA_JUTUT`), Pera puhuu autosta. Yhteiset apurit `panelFrame`, `textArea`, `audioHint`, `muteAmb`. Peran selostus ja road trip jäävät näytökseksi.

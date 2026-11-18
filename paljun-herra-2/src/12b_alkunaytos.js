@@ -30,7 +30,7 @@ function cutWrap(){return wrapLines([CUT.lines[CUT.li][1]],CTX.w,CTX.font)}
 function cutLen(){return cutWrap().reduce((a,l)=>a+l.length,0)}
 function stepCut(dt){musicTick();CUT.t+=dt;
  // mökin ja kentän taustaäänet (tuuli, poreet) pois näytöksen ajaksi
- if(ambG&&!CUT.amb){CUT.amb=1;setAP(ambG.gain,0,.05);setAP(bubG.gain,0,.05)}
+ muteAmb();
  if(CUT.tt){CUT.tt+=dt;cutMusic('vt');return}
  if(CUT.fin){CUT.fin+=dt;if(CUT.fin>=CUTK.fadeOut){if(CUT.endTitle){CUT.fin=0;CUT.tt=1e-6;musicStop()}else cutFinish()}return}
  const m=CUT.sc.music;if(m!==undefined)cutMusic(typeof m==='function'?m(CUT.li):m);
@@ -44,15 +44,20 @@ function actCut(e){if(CUT.tt){if(CUT.tt>CUTK.titleWait)cutFinish();return}if(CUT
  if(!cutReady())return;
  if(CUT.li<CUT.lines.length-1){CUT.li++;CUT.ch=0;CUT.ls=CUT.t;CUT.full=-1;return}
  if(CUT.i<CUT.list.length-1)cutScene(CUT.i+1);else{CUT.fin=1e-6;if(mus)setAP(mus.g.gain,0,CUTK.fadeOut/3)}}
-function drawCut(T){if(CUT.tt){drawCutTitle(T);return}R('#000',0,0,W,H);g.save();g.beginPath();g.rect(CP.x,CP.y,CP.w,CP.h);g.clip();CUT.sc.draw(T,CUT.t,CUT.sc);g.restore();
- g.strokeStyle='#3a4270';g.lineWidth=1;g.strokeRect(CP.x-.5,CP.y-.5,CP.w+1,CP.h+1);
+/* Mökin ja kentän taustaäänet (tuuli, poreet) pois välinäytösten ja pihan ajaksi */
+function muteAmb(){if(ambG&&!CUT.amb){CUT.amb=1;setAP(ambG.gain,0,.05);setAP(bubG.gain,0,.05)}}
+/* NES-kehys: musta ruutu, kuva-alue rajattuna ja reunaviiva (välinäytökset ja piha) */
+function panelFrame(fn){R('#000',0,0,W,H);g.save();g.beginPath();g.rect(CP.x,CP.y,CP.w,CP.h);g.clip();fn();g.restore();g.strokeStyle='#3a4270';g.lineWidth=1;g.strokeRect(CP.x-.5,CP.y-.5,CP.w+1,CP.h+1)}
+/* Tekstialue: puhujan nimi värillä ja rivitetty teksti n merkkiin asti (kirjoituskone) */
+function textArea(who,txt,n){const L=wrapLines([txt],CTX.w,CTX.font);let left=n;g.save();g.textAlign='left';
+ if(who){g.font='bold 7px monospace';g.fillStyle=SPK[who]||'#fff';g.fillText(who.toUpperCase(),CTX.x,CTX.y-4)}
+ g.font=CTX.font;g.fillStyle='#f0f2ff';L.forEach((l,i)=>{if(left>0)g.fillText(l.slice(0,left),CTX.x,CTX.y+8+i*CTX.lh);left-=l.length});g.restore()}
+function audioHint(){if(AC)return;g.save();g.font='bold 5px monospace';g.textAlign='left';g.fillStyle='#8a90c0';g.fillText('♪ Napauta: äänet päälle',CTX.x,196);g.restore()}
+function drawCut(T){if(CUT.tt){drawCutTitle(T);return}panelFrame(()=>CUT.sc.draw(T,CUT.t,CUT.sc));
  const fi=1-CUT.t/CUTK.fadeIn;if(fi>0)R(`rgba(0,0,0,${fi})`,CP.x,CP.y,CP.w,CP.h);
  cutText(T);if(CUT.fin)R(`rgba(0,0,0,${Math.min(1,CUT.fin/CUTK.fadeOut)})`,0,0,W,H)}
-function cutText(T){const who=CUT.lines[CUT.li][0],L=cutWrap();let left=CUT.ch|0;g.save();g.textAlign='left';
- if(who){g.font='bold 7px monospace';g.fillStyle=SPK[who]||'#fff';g.fillText(who.toUpperCase(),CTX.x,CTX.y-4)}
- g.font=CTX.font;g.fillStyle='#f0f2ff';L.forEach((l,i)=>{if(left>0)g.fillText(l.slice(0,left),CTX.x,CTX.y+8+i*CTX.lh);left-=l.length});
- if(cutReady()&&Math.floor(T*3)%2===0){g.fillStyle='#ffe23a';g.fillText('▼',CTX.x+CTX.w-6,CTX.y+8+3*CTX.lh)}
- g.font='bold 5px monospace';if(!AC){g.fillStyle='#8a90c0';g.fillText('♪ Napauta: äänet päälle',CTX.x,196)}g.restore()}
+function cutText(T){const [who,txt]=CUT.lines[CUT.li];textArea(who,txt,CUT.ch|0);
+ if(cutReady()&&Math.floor(T*3)%2===0){g.save();g.font=CTX.font;g.fillStyle='#ffe23a';g.fillText('▼',CTX.x+CTX.w-6,CTX.y+8+3*CTX.lh);g.restore()}audioHint()}
 
 /* ---- Kohtaus 1: krapulainen mökki ja soiva puhelin ---- */
 function mokkiBg(){const X=CP.x,Y=CP.y,FY=Y+92;
@@ -201,12 +206,12 @@ const INTRO_CUT=[
  {draw:cutTie,music:'d2',lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
  {draw:cutSisa,music:'d2',lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
 
-/* ---- Toinen näytös: Pera poimii porukan mökiltä, selostaa tilanteen ja road trip kohti Rovaniemeä ---- */
-// Mökin pihan mitat: ovi, auto, kävelijöiden lähtö- ja nousukohta, nopeus (px/s) ja lähtöväli (s)
-const PIHA={door:105,car:236,y:110,end:214,spd:30,gap:1.1,start:.9};
+/* ---- Mökin piha (pelattava, 12c_piha.js) ja sen jälkeen näytös: Peran selostus ja road trip kohti Rovaniemeä ---- */
+// Mökin pihan mitat: mökin ovi ja auton paikka
+const PIHA={door:105,car:256};
 function pihaBg(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,Y+80,[[0,'#03041a'],[1,'#1e2860']]);g.fillRect(X,Y,CP.w,92);
  for(let i=0;i<50;i++)R('#c8ccf0',X+(i*61)%CP.w,Y+(i*23)%40,1,1);
- spruceRow(0,94,'#0a2226');R('#cfdcf4',X,94,CP.w,28);R('#b4c2e2',PIHA.door,104,PIHA.end-PIHA.door+10,6);
+ spruceRow(0,94,'#0a2226');R('#cfdcf4',X,94,CP.w,28);R('#b4c2e2',PIHA.door,104,PIHA.car-PIHA.door-20,6);
  // hirsimökki lumisella katolla, valaistu ikkuna ja avoin ovi
  for(let y=56;y<104;y+=6){R('#5a3a1e',24,y,108,5);R('#6e4826',24,y,108,1.2);R('#2a160a',24,y+5,108,1)}
  g.fillStyle='#2a1a10';g.beginPath();g.moveTo(16,58);g.lineTo(78,28);g.lineTo(140,58);g.closePath();g.fill();g.fillStyle='#e8f0ff';g.beginPath();g.moveTo(14,58);g.lineTo(78,26);g.lineTo(142,58);g.lineTo(136,58);g.lineTo(78,31);g.lineTo(20,58);g.closePath();g.fill();
@@ -215,20 +220,6 @@ function pihaBg(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,Y+80,[[0,'#03041a'],[1,
  R('#2a160a',94,70,22,34);R('#ffd890',97,73,16,31);R('#8a5a2a',97,73,6,31);R('#e8f0ff',90,104,30,2);
  // palju pihalla (ykkösosasta tuttu)
  for(let i=0;i<5;i++)R(i%2?'#7a4620':'#8e5428',148+i*8,94,8,12);R('#c8c8d4',148,98,40,1.5);R('#e8b06a',147,92,42,2.5);R('#60d0f0',149,92,38,1.2)}
-function cutPiha(T,t){cutLayer('piha',pihaBg);
- aurora('piha',T,()=>AG.forEach((q2,r)=>{for(let x=CP.x;x<CP.x+CP.w;x+=1.5){const y=CP.y+6+r*9+Math.sin(x/41+T*.4+r*1.7)*7+Math.sin(x/15+T)*2;g.drawImage(AGI[r],0,0,1,(24-r*3)*2,x,y,1.7,24-r*3)}}));
- glow(54,74,22,'255,190,100',.35);glow(105,88,22,'255,200,120',.3);
- for(let k=0;k<5;k++){const p=(t*.25+k/5)%1;R(`rgba(200,205,225,${.5*(1-p)})`,112+Math.sin(p*5+k)*4+p*10,28-p*22,2+p*5,2+p*5)}
- for(let k=0;k<4;k++){const p=(t*.3+k/4)%1;R(`rgba(225,232,255,${.4*(1-p)})`,152+k*9+Math.sin(p*6+k)*3,88-p*20,3+p*5,3+p*5)}
- g.save();g.translate(PIHA.car,114);teslaCar(T,t,true);g.restore();
- // porukka kävelee ovelta autolle ja nousee kyytiin
- PIHA_WALK.forEach(([sp,ph],i)=>{const u=t-PIHA.start-i*PIHA.gap;if(u<0)return;const x=PIHA.door+u*PIHA.spd*(ph?.8:1);if(x>=PIHA.end)return;
-  const o=walk(T,u*(ph?.8:1),i);o.s=.6;if(ph)o.tilt=.12+Math.sin(T*3)*.06;drawChar(sp,x,PIHA.y+i%2*2,o)});
- for(const f of flakes)R('rgba(255,255,255,.8)',CP.x+f.x*CP.w/W,CP.y+f.y*CP.h/H,1,1)}
-// Kävelijät järjestyksessä: Hempukka, Aapeli, Kermis ja viimeisenä krapulainen Esa (hitaampi, horjuu)
-const PIHA_WALK=[[SP.w,0],[SP.a,0],[SP.k,0],[SP.e[2],1]];
-/* Ovi paukahtaa, kun kävelijä nousee kyytiin */
-function pihaSound(){PIHA_WALK.forEach(([sp,ph],i)=>{const u=CUT.t-PIHA.start-i*PIHA.gap;if(!(CUT.ent>>i&1)&&PIHA.door+u*PIHA.spd*(ph?.8:1)>=PIHA.end){CUT.ent|=1<<i;sDoor()}})}
 /* Esa matkustajan paikalla takaa nähtynä: tonttulakki, jonka valkoinen tupsu roikkuu sivulla */
 function esaSeat(rim){const x=PSEAT.x,y=58,kc='#030409';ell(x,y,12.5,14.5,kc);g.fillStyle=kc;g.beginPath();g.moveTo(x-13,y-6);g.quadraticCurveTo(x-4,y-26,x+10,y-24);g.quadraticCurveTo(x+20,y-22,x+22,y-12);g.lineTo(x+13,y-6);g.closePath();g.fill();
  R('#3a4052',x-14,y-8,28,4);ell(x+22,y-10,3.4,3.4,'#5a6278');
@@ -258,7 +249,6 @@ const MATKA_N=3;
 function matkaLines(){const p=MATKA_JUTUT.slice();for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
  return[['','Road trip kohti Rovaniemeä alkaa.'],...p.slice(0,MATKA_N).flat(),['','Rovaniemi. Keskustan valot häämöttävät pakkasyössä.']]}
 const MATKA_CUT=[
- {draw:cutPiha,tick:pihaSound,music:'n',min:7,lines:[['','Hetkeä myöhemmin vihreä Tesla kurvaa mökin pihaan.'],['Pera','Hypätkää kyytiin! Selitän matkalla.'],['Kermis','Mä otan etupenkin.'],['Esa','Etupenkki on krapulaisen oikeus.']]},
  {draw:cutSisa,esa:true,music:'d2',lines:[['Pera','Tilanne on tämä: Mersumies kaappasi Sam Discon palvelimen.'],['Pera','Sen kautta hän lukitsi Lapin latausasemat. Sähköautot jäätyvät tienposkeen.'],['Esa','Entä itse kanava?'],['Pera','Nimi on nyt Diesel Disco. Kaikki on bannattu, ja joka minuutti tulee uusi Mersu-meemi.'],['Pera','Mersumiehen kätyrit vartioivat latausasemia Rovaniemen keskustassa. Sinne mennään.'],['Esa','Selvä. Mutta ensin mä tarviin Kuparin.'],['Hempukka','Sä tarviit ensin vettä.']]},
  {draw:cutTie,trip:true,music:'d2',lines:matkaLines}];
 
