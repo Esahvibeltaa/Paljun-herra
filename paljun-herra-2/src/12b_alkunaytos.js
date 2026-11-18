@@ -4,7 +4,8 @@ const CP={x:16,y:12,w:288,h:110},CTX={x:26,y:140,w:268,lh:11,font:'bold 8px mono
 // Säädettävät: kirjoitusnopeus (merkkiä/s), kohtauksen häivytys sisään ja loppuhäivytys mustaan (s), soittoäänen väli (s)
 // minTap = aika repliikin alusta, ennen kuin napautus näyttää koko tekstin; minRead = lukuaika kokonaan näkyvälle repliikille ennen siirtymistä (s);
 // readCps = lukunopeus (merkkiä/s): repliikin alusta on kuluttava vähintään pituus/readCps ennen siirtymistä
-const CUTK={minTap:.25,minRead:.6,readCps:30,cps:38,fadeIn:.35,fadeOut:2.6,ring:1.3,snore:2.6,logoIn:1.5,subIn:1.2,titleWait:2.4};
+// minScene = kunkin kuvan (kohtauksen) vähimmäiskesto ennen seuraavaan siirtymistä (s); kohtaus voi antaa oman arvon min
+const CUTK={minScene:4,minTap:.25,minRead:.6,readCps:30,cps:38,fadeIn:.35,fadeOut:2.6,ring:1.3,snore:2.6,logoIn:1.5,subIn:1.2,titleWait:4};
 // Puhujien nimien värit
 const SPK={Esa:'#ffe23a',Pera:'#7dff9a'};
 const CUT={list:null,i:0,sc:null,li:0,ch:0,t:0,fin:0,tt:0,rt:0,sn:0,sk:0,ls:0,full:-1,amb:0,endTitle:false,done:null};
@@ -36,7 +37,7 @@ function stepCut(dt){musicTick();CUT.t+=dt;
  if(CUT.sc.tick)CUT.sc.tick(dt)}
 /* Napautus: ensin koko repliikki näkyviin, sitten seuraava repliikki tai kohtaus; viimeisen jälkeen hidas häivytys mustaan.
    Nopeat peräkkäiset painallukset eivät ohita kohtauksia: häivytyksen aikana ja ennen lukuaikaa (minTap, minRead) painallus ei tee mitään */
-function cutReady(){return CUT.full>=0&&CUT.t-CUT.full>=CUTK.minRead&&CUT.t-CUT.ls>=cutLen()/CUTK.readCps}
+function cutReady(){const last=CUT.li>=CUT.sc.lines.length-1;return CUT.full>=0&&CUT.t-CUT.full>=CUTK.minRead&&CUT.t-CUT.ls>=cutLen()/CUTK.readCps&&(!last||CUT.t>=(CUT.sc.min||CUTK.minScene))}
 function actCut(e){if(CUT.tt){if(CUT.tt>CUTK.titleWait)cutFinish();return}if(CUT.fin)return;const tap=e&&e.target===cv&&e.clientX!==undefined;
  if(tap){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;if(x>240&&y>184){cutSkip();return}}
  if(CUT.t<CUTK.fadeIn)return;
