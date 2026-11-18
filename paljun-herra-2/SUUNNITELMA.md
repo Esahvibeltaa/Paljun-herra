@@ -71,3 +71,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Nimiruudun ALOITA vie toistaiseksi mustaan ruutuun: PELATTAVISSA PIAN... (`showSoon`, stage 9). Kenttä ja pomo jäävät koodiin odottamaan uusia vihollisia.
 - Sivun alateksti: alkunäytös, peli pelattavissa pian, äänet päälle (jakoa varten).
 - Sivun otsikko ja kuvaus jakoa varten (title, description, og:title). Mainoskuva 1200×630 `mainos/PaljunHerra2-mainoskuva.png` (Tesla-kohtaus, logo ja alaotsikko).
+- Alkunäytöstä ei voi enää ohittaa vahingossa nopeilla painalluksilla: häivytyksen aikana painallus ei tee mitään, repliikin voi näyttää kokonaan aikaisintaan 0,25 s alusta, seuraavaan pääsee vasta lukuajan jälkeen (vähintään 0,6 s ja pituus/30 merkkiä/s, `cutReady`), ▼ näkyy vasta kun eteneminen on mahdollista, pohjassa pidetyn Enterin toisto ei etene.

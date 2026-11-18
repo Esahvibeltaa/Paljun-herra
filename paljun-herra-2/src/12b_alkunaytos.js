@@ -2,10 +2,12 @@
 // Kuva-alue ja tekstialue (ruudun koordinaatit)
 const CP={x:16,y:12,w:288,h:110},CTX={x:26,y:140,w:268,lh:11,font:'bold 8px monospace'};
 // Säädettävät: kirjoitusnopeus (merkkiä/s), kohtauksen häivytys sisään ja loppuhäivytys mustaan (s), soittoäänen väli (s)
-const CUTK={cps:38,fadeIn:.35,fadeOut:2.6,ring:1.3,snore:2.6,logoIn:1.5,subIn:1.2,titleWait:2.4};
+// minTap = aika repliikin alusta, ennen kuin napautus näyttää koko tekstin; minRead = lukuaika kokonaan näkyvälle repliikille ennen siirtymistä (s);
+// readCps = lukunopeus (merkkiä/s): repliikin alusta on kuluttava vähintään pituus/readCps ennen siirtymistä
+const CUTK={minTap:.25,minRead:.6,readCps:30,cps:38,fadeIn:.35,fadeOut:2.6,ring:1.3,snore:2.6,logoIn:1.5,subIn:1.2,titleWait:2.4};
 // Puhujien nimien värit
 const SPK={Esa:'#ffe23a',Pera:'#7dff9a'};
-const CUT={list:null,i:0,sc:null,li:0,ch:0,t:0,fin:0,tt:0,rt:0,sn:0,sk:0,amb:0,endTitle:false,done:null};
+const CUT={list:null,i:0,sc:null,li:0,ch:0,t:0,fin:0,tt:0,rt:0,sn:0,sk:0,ls:0,full:-1,amb:0,endTitle:false,done:null};
 
 /* Staattinen kerros piirretään kerran omaan kankaaseen (2x tarkkuus) ja kopioidaan joka kehys */
 const CUTL={};
@@ -18,7 +20,7 @@ function glow(x,y,r,rgb,a){const k=r+'|'+rgb;let c=GLOW[k];if(!c){c=document.cre
 /* ---- Välinäytöksen kulku ---- */
 /* list = kohtaukset; done = jatko; endTitle = häivytyksen jälkeen pelin nimi mustalla */
 function startCut(list,done,endTitle){stage=6;state='cut';CUT.list=list;CUT.done=done;CUT.endTitle=!!endTitle;CUT.fin=0;CUT.tt=0;CUT.amb=0;showPad(false);msgL=[''];cutScene(0)}
-function cutScene(i){CUT.i=i;CUT.sc=CUT.list[i];CUT.t=0;CUT.li=0;CUT.ch=0;CUT.rt=0;CUT.sn=0}
+function cutScene(i){CUT.i=i;CUT.sc=CUT.list[i];CUT.t=0;CUT.li=0;CUT.ch=0;CUT.ls=0;CUT.full=-1;CUT.rt=0;CUT.sn=0}
 /* Kohtauksen musiikki (merkkijono tai repliikin mukaan valitseva funktio); käynnistyy myös, jos ääni avautuu vasta kesken näytöksen */
 function cutMusic(m){if(!AC)return;if(!m){if(mus)musicStop();return}if(!mus||mus.m!==m){if(mus)musicStop();musicStart(m)}}
 function cutFinish(){musicStop();CUT.fin=0;CUT.tt=0;CUT.done()}
@@ -30,13 +32,17 @@ function stepCut(dt){musicTick();CUT.t+=dt;
  if(CUT.tt){CUT.tt+=dt;cutMusic('vt');return}
  if(CUT.fin){CUT.fin+=dt;if(CUT.fin>=CUTK.fadeOut){if(CUT.endTitle){CUT.fin=0;CUT.tt=1e-6;musicStop()}else cutFinish()}return}
  const m=CUT.sc.music;if(m!==undefined)cutMusic(typeof m==='function'?m(CUT.li):m);
- const n=cutLen();if(CUT.t>CUTK.fadeIn&&CUT.ch<n){const p=CUT.ch|0;CUT.ch=Math.min(n,CUT.ch+CUTK.cps*dt);if((CUT.ch|0)!==p&&p%3===0&&AC)tn(1180,1180,.025,.022,'square')}
+ const n=cutLen();if(CUT.t>CUTK.fadeIn&&CUT.ch<n){const p=CUT.ch|0;CUT.ch=Math.min(n,CUT.ch+CUTK.cps*dt);if(CUT.ch>=n)CUT.full=CUT.t;if((CUT.ch|0)!==p&&p%3===0&&AC)tn(1180,1180,.025,.022,'square')}
  if(CUT.sc.tick)CUT.sc.tick(dt)}
-/* Napautus: ensin koko repliikki näkyviin, sitten seuraava repliikki tai kohtaus; viimeisen jälkeen hidas häivytys mustaan */
+/* Napautus: ensin koko repliikki näkyviin, sitten seuraava repliikki tai kohtaus; viimeisen jälkeen hidas häivytys mustaan.
+   Nopeat peräkkäiset painallukset eivät ohita kohtauksia: häivytyksen aikana ja ennen lukuaikaa (minTap, minRead) painallus ei tee mitään */
+function cutReady(){return CUT.full>=0&&CUT.t-CUT.full>=CUTK.minRead&&CUT.t-CUT.ls>=cutLen()/CUTK.readCps}
 function actCut(e){if(CUT.tt){if(CUT.tt>CUTK.titleWait)cutFinish();return}if(CUT.fin)return;const tap=e&&e.target===cv&&e.clientX!==undefined;
  if(tap){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;if(x>240&&y>184){cutSkip();return}}
- if(CUT.ch<cutLen()){CUT.ch=cutLen();return}
- if(CUT.li<CUT.sc.lines.length-1){CUT.li++;CUT.ch=0;return}
+ if(CUT.t<CUTK.fadeIn)return;
+ if(CUT.ch<cutLen()){if(CUT.t-CUT.ls>=CUTK.minTap){CUT.ch=cutLen();CUT.full=CUT.t}return}
+ if(!cutReady())return;
+ if(CUT.li<CUT.sc.lines.length-1){CUT.li++;CUT.ch=0;CUT.ls=CUT.t;CUT.full=-1;return}
  if(CUT.i<CUT.list.length-1)cutScene(CUT.i+1);else{CUT.fin=1e-6;if(mus)setAP(mus.g.gain,0,CUTK.fadeOut/3)}}
 function cutSkip(){if(stage===6)cutFinish()}
 addEventListener('keydown',e=>{if(stage===6&&!PAUSED&&(e.key==='s'||e.key==='S'))cutSkip()});
@@ -47,7 +53,7 @@ function drawCut(T){if(CUT.tt){drawCutTitle(T);return}R('#000',0,0,W,H);g.save()
 function cutText(T){const who=CUT.sc.lines[CUT.li][0],L=cutWrap();let left=CUT.ch|0;g.save();g.textAlign='left';
  if(who){g.font='bold 7px monospace';g.fillStyle=SPK[who]||'#fff';g.fillText(who.toUpperCase(),CTX.x,CTX.y-4)}
  g.font=CTX.font;g.fillStyle='#f0f2ff';L.forEach((l,i)=>{if(left>0)g.fillText(l.slice(0,left),CTX.x,CTX.y+8+i*CTX.lh);left-=l.length});
- if(CUT.ch>=cutLen()&&Math.floor(T*3)%2===0){g.fillStyle='#ffe23a';g.fillText('▼',CTX.x+CTX.w-6,CTX.y+8+3*CTX.lh)}
+ if(cutReady()&&Math.floor(T*3)%2===0){g.fillStyle='#ffe23a';g.fillText('▼',CTX.x+CTX.w-6,CTX.y+8+3*CTX.lh)}
  g.font='bold 5px monospace';if(!AC){g.fillStyle='#8a90c0';g.fillText('♪ Napauta: äänet päälle',CTX.x,196)}g.textAlign='right';g.fillStyle='#5a6090';g.fillText((INP==='touch'?'':INP==='gp'?gpG(1)+': ':'S: ')+'OHITA ▶▶',W-6,196);g.restore()}
 
 /* ---- Kohtaus 1: krapulainen mökki ja soiva puhelin ---- */

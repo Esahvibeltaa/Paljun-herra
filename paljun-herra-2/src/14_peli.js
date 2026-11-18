@@ -32,7 +32,7 @@ function act(e){const tap=e&&e.target===cv&&e.clientX!==undefined;
  if(state==='title'){if(TI.on&&tap){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,h=titleHit(x,y);if(h<0)return;TI.sel=h}titlePress()}}
 
 cv.addEventListener('pointerdown',act);
-addEventListener('keydown',e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDefault();act()}});
+addEventListener('keydown',e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDefault();if(!e.repeat)act()}});
 document.getElementById('m').addEventListener('click',e=>{mute=!mute;e.target.textContent='Äänet: '+(mute?'pois':'päällä');if(master)master.gain.value=mute?0:.8;audioInit()});
 ['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>audioInit(),{passive:true}));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&stage!==1&&stage!==8&&stage!==9)setPause(true)});
