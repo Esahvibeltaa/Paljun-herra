@@ -26,10 +26,10 @@ const RV={silta:760,koski:1560,len:2300,kioski:1960,penkki:2090,kuusi:1770,aukio
 // Lukitut latausasemat: maailman x ja aalto (indeksi), jonka voittaminen vapauttaa aseman
 const RV_ST=[{x:600,w:1},{x:1665,w:4},{x:1860,w:5}];
 // Yllättäen aukeavat ovet: oven paikka, Esan x joka laukaisee, vihollinen, kyltti ja repliikki
-const RV_DOOR=[{x:830,trig:790,k:'hm',sign:'RAPPU',say:'Haalarimies: Kuka koputti?'},{x:1445,trig:1405,k:'sm',sign:'KUNTOSALI',say:'Sali-Make: Kuka häiritsee mun penkkiä?'},{x:1520,trig:1480,k:'tk',sign:'PUB',say:'Takatukka: Mun tuoppi jäi kesken!'}];
+const RV_DOOR=[{x:830,trig:790,k:'hm',sign:'RAPPU',say:'Haalarimies: Kuka koputti?'},{x:1492,trig:1455,k:'sm',sign:'KUNTOSALI',say:'Sali-Make: Kuka häiritsee mun penkkiä?'},{x:1540,trig:1505,k:'tk',sign:'PUB',say:'Takatukka: Mun tuoppi jäi kesken!'}];
 // Sampokeskus: hissi (lad) vie katolle A, hyppy katolle B ja ramppi alas kadulle (S); korkeudet pikseleinä
-const RV_ROOF={lad:900,lift:1,A:[912,1110,28],B:[1134,1330,34],S:1400};
-const LR={n:1,fin:1,noW:1,name:'Rovaniemen keskusta',hud:'ROVANIEMI',theme:'rova',len:RV.len,roof:RV_ROOF,
+const RV_ROOF={lad:900,lift:1,A:[912,1110,80],B:[1134,1330,64],S:1450};
+const LR={n:1,fin:1,noW:1,name:'Rovaniemen keskusta',hud:'ROVANIEMI',theme:'rova',len:RV.len,roof:RV_ROOF,camY:{off:10,max:72},
  waves:[{x:240,list:['hm','hm']},{x:540,list:['hm','tk','hm']},{x:1000,roof:1,list:['hm','tk']},{x:1200,roof:1,list:['tk','hm','hm']},{x:1490,list:['hm','tk','hm']},{x:1740,list:['tk','hm','tk','hm','tk']}],
  bins:[[180,30,'c'],[460,10,'v'],[820,28,'w'],[1520,30,'c'],[1600,12,'v'],[1700,26,'p']],
  msg:['Kenttä 1: Rovaniemen keskusta','Vapauta lukitut latausasemat!'],say:['a','Aapeli: Jätkänkynttilä! Täältä se alkaa.'],
@@ -85,12 +85,14 @@ function rovaStep(dt){const st=rovaSt();rovaDoors(dt);for(const s of st){if(s.fr
 function rovaHud(){const st=M.rv||RV_ST,n=st.filter(s=>s.free).length;g.save();g.font='bold 7px monospace';g.textAlign='right';g.fillStyle=n===st.length?'#7dff9a':'#bfe8ff';g.shadowColor='#000';g.shadowBlur=2;g.fillText('ASEMAT '+n+'/'+st.length,314,29);g.restore()}
 
 // ---- Tausta ----
-function rovaSky(){g.fillStyle=mkLg(10,110,[[0,'#03041a'],[1,'#1e2456']]);g.fillRect(0,10,W,100);for(let i=0;i<60;i++)R(i%6?'#c8ccf0':'#fff',(i*53)%W,12+(i*29)%60,1,1)}
+function rovaSky(){g.fillStyle=mkLg(10,110,[[0,'#03041a'],[1,'#1e2456']]);g.fillRect(0,10,W,H-10);for(let i=0;i<60;i++)R(i%6?'#c8ccf0':'#fff',(i*53)%W,12+(i*29)%60,1,1)}
 /* Katu ja jalkakäytävä (staattinen kerros) */
 function rovaGround(){R('#3a3a4a',0,104,W,8);R('#5a5a6a',0,104,W,1);R('#8a8a98',0,111,W,1.5);g.fillStyle=mkLg(112,160,[[0,'#2c2c36'],[1,'#1a1a22']]);g.fillRect(0,112,W,48)}
 /* Osion kaistale ruudulla: piirtää fn:n vain sille alueelle, jossa kameran mukaan näkyy maailman väli [a,b).
    clip=false: ei leikkausta, fn saa rajat ruudulla ja piirtää vain kokonaiset talot (ei terävästi katkeavia julkisivuja) */
-function rovaStrip(c,a,b,fn,clip){const x0=Math.max(0,a-c),x1=Math.min(W,b-c);if(x1<=x0)return;if(clip===false){fn(a-c,b-c);return}g.save();g.beginPath();g.rect(x0,10,x1-x0,100);g.clip();fn(a-c,b-c);g.restore()}
+function rovaStrip(c,a,b,fn,clip){const x0=Math.max(0,a-c),x1=Math.min(W,b-c);if(x1<=x0)return;if(clip===false){fn(a-c,b-c);return}g.save();g.beginPath();g.rect(x0,-200,x1-x0,400);g.clip();fn(a-c,b-c);g.restore()}
+/* Pystyparallaksi: kerros p (0 = taivas paikallaan, 1 = kulkee maailman mukana) kumoaa osan pystykameran siirrosta */
+function vpar(p,fn){const d=-Math.round(M.camY||0)*(1-p);if(!d){fn();return}g.save();g.translate(0,d);fn();g.restore()}
 function kynttila(x,T){R('#7a7e8a',x-3,32,6,72);R('#9a9eaa',x-3,32,2,72);R('#5a5e6a',x-5,30,10,3);
  const f=Math.sin(T*9+x)*.6;g.fillStyle='#ff9a2a';g.beginPath();g.moveTo(x-3,30);g.quadraticCurveTo(x-2,22+f,x,18+f);g.quadraticCurveTo(x+2,22-f,x+3,30);g.fill();g.fillStyle='#ffe28a';g.beginPath();g.moveTo(x-1.4,30);g.quadraticCurveTo(x,24,x,22+f);g.quadraticCurveTo(x+.5,25,x+1.4,30);g.fill();
  glow(x,24,16,'255,170,70',.45+.1*Math.sin(T*7+x));g.strokeStyle='rgba(200,205,220,.5)';g.lineWidth=.5;for(const s of[-1,1])for(const d of[30,60]){g.beginPath();g.moveTo(x,34);g.lineTo(x+s*d,100);g.stroke()}}
@@ -125,21 +127,23 @@ function twinkle(T,a){for(let i=0;i<34;i++){const x=(i*97+13)%W,y=14+(i*41)%62,s
 /* Lumisade vain osassa kenttää: alueet maailman x:nä, reunoilla sade hiipuu (fade px). Hiutaleet sijoittuvat ajan ja kameran mukaan. */
 const SNOWF={areas:[[260,720],[1150,1520],[1880,2300]],fade:120,n:90,spd:[16,34],par:[.5,1]};
 function snowAmt(wx){let a=0;for(const [x0,x1] of SNOWF.areas){const v=Math.min(wx-x0,x1-wx)/SNOWF.fade;a=Math.max(a,Math.min(1,v))}return Math.max(0,a)}
-function rovaFg(T){liftFront(T);const c=M.cam,a=snowAmt(c+W/2);if(a<=0)return;const n=Math.floor(SNOWF.n*a);
+function rovaFg(T){liftFront(T);const c=M.cam,a=snowAmt(c+W/2);if(a<=0)return;const n=Math.floor(SNOWF.n*a);vpar(0,()=>{
  for(let i=0;i<n;i++){const p=SNOWF.par[0]+hsh(i+300)*(SNOWF.par[1]-SNOWF.par[0]),v=SNOWF.spd[0]+hsh(i+500)*(SNOWF.spd[1]-SNOWF.spd[0]),y=((hsh(i+700)*150+T*v)%150)+10,x=((hsh(i+900)*W*1.4-c*p+Math.sin(T*.8+i)*6)%W+W)%W,s=p>.8?1.4:1;
-  R(`rgba(235,240,255,${.45+.4*p})`,x,y,s,s)}}
-function rovaBg(T){const c=M.cam;cutLayer('rovaSky',rovaSky);const al=auroraLevel(T);if(al<1)twinkle(T,1-al);auroraSky('rova',T,0,W,16,9,7,41,2,15,.4,al);ell(272-c*.02,30,8,8,'#f2ecc8');
+  R(`rgba(235,240,255,${.45+.4*p})`,x,y,s,s)}})}
+function rovaBg(T){const c=M.cam;
+ // taivas pysyy paikallaan pystykameran noustessa (kattaa koko ruudun, ettei mikään jää piirtämättä)
+ vpar(0,()=>{cutLayer('rovaSky',rovaSky);const al=auroraLevel(T);if(al<1)twinkle(T,1-al);auroraSky('rova',T,0,W,16,9,7,41,2,15,.4,al);ell(272-c*.02,30,8,8,'#f2ecc8')});
  // Ounasvaara ja hyppyrimäki kaukana
- ridge(c*.06,98,22,'#1a2050',61,27);{const hx=230-c*.06;if(hx>-40&&hx<W+40){g.fillStyle='#141a44';g.beginPath();g.moveTo(hx,60);g.lineTo(hx+4,60);g.lineTo(hx+34,92);g.lineTo(hx+28,92);g.closePath();g.fill();R('#141a44',hx,56,4,6)}}
+ vpar(.25,()=>{ridge(c*.06,98,22,'#1a2050',61,27);{const hx=230-c*.06;if(hx>-40&&hx<W+40){g.fillStyle='#141a44';g.beginPath();g.moveTo(hx,60);g.lineTo(hx+4,60);g.lineTo(hx+34,92);g.lineTo(hx+28,92);g.closePath();g.fill();R('#141a44',hx,56,4,6)}}});
  // Jätkänkynttilä-silta: Kemijoen jää, vastaranta ja sillan kynttiläpylväät
- rovaStrip(c,-400,RV.silta,()=>{R('#1c2648',0,84,W,20);for(let i=0;i<8;i++)R('#2e3a64',((i*67-c*.5)%W+W)%W,88+(i*5)%12,30,1);
-  for(let i=Math.floor(c*.3/30)-1;i<Math.floor(c*.3/30)+13;i++){const bx=i*30-c*.3,h=10+hsh(i+7)*16;R('#10142e',bx,84-h,28,h);for(let wy=84-h+3;wy<82;wy+=5)for(let wx=3;wx<26;wx+=5)if(hsh(i*13+wy+wx)>.6)R('rgba(255,220,140,.6)',bx+wx,wy,2,2)}
+ rovaStrip(c,-400,RV.silta,()=>{vpar(.45,()=>{R('#1c2648',0,84,W,40);for(let i=0;i<8;i++)R('#2e3a64',((i*67-c*.5)%W+W)%W,88+(i*5)%12,30,1);
+  for(let i=Math.floor(c*.3/30)-1;i<Math.floor(c*.3/30)+13;i++){const bx=i*30-c*.3,h=10+hsh(i+7)*16;R('#10142e',bx,84-h,28,h);for(let wy=84-h+3;wy<82;wy+=5)for(let wx=3;wx<26;wx+=5)if(hsh(i*13+wy+wx)>.6)R('rgba(255,220,140,.6)',bx+wx,wy,2,2)}});
   for(let i=0;i<4;i++){const x=120+i*230-c;if(x>-80&&x<W+80)kynttila(x,T)}
   for(let x=-((c)%12);x<W;x+=12)R('#4a4e5a',x,96,1.2,8);R('#6a6e7a',0,96,W,1.5);R('#4a4e5a',0,100,W,1)});
  // Koskikatu: kaupat, neonkyltit ja lumiset katot (talo kerrallaan välimuistista)
- rovaStrip(c,RV.silta,RV.koski,(xa,xb)=>{for(let i=Math.floor(c*.6/96)-1;i<Math.floor(c*.6/96)+5;i++){const bx=i*96-c*.6;if(bx<xa+14||bx+96>xb)continue;const on=Math.sin(T*(3+i)+i)>-.92,k=koskiBld(i,on);g.drawImage(k.cv,bx-2,k.top-6,k.cv.width/2,k.cv.height/2)}},false);
+ rovaStrip(c,RV.silta,RV.koski,(xa,xb)=>{for(let i=Math.floor(c*.6/96)-1;i<Math.floor(c*.6/96)+5;i++){const bx=i*96-c*.6;if(bx<xa+14||bx+96>xb)continue;const on=Math.sin(T*(3+i)+i)>-.92,k=koskiBld(i,on);vpar(.7,()=>g.drawImage(k.cv,bx-2,k.top-6,k.cv.width/2,k.cv.height/2))}},false);
  // Lordin aukio: kaukaiset talot utuisina (syvyys), kyltti portilla omilla tolpillaan, kuusi vapaana kivialtaassaan
- rovaStrip(c,RV.koski,RV.len+400,(xa)=>{for(let i=Math.floor(c*.4/80)-1;i<Math.floor(c*.4/80)+6;i++){const bx=i*80-c*.4,h=36+hsh(i+11)*18;if(bx<xa+20)continue;const k=aukioBld(i);g.drawImage(k.cv,bx-2,k.top-4,k.cv.width/2,k.cv.height/2)}
+ rovaStrip(c,RV.koski,RV.len+400,(xa)=>{for(let i=Math.floor(c*.4/80)-1;i<Math.floor(c*.4/80)+6;i++){const bx=i*80-c*.4,h=36+hsh(i+11)*18;if(bx<xa+20)continue;const k=aukioBld(i);vpar(.55,()=>g.drawImage(k.cv,bx-2,k.top-4,k.cv.width/2,k.cv.height/2))}
   const sx=RV.aukioK-c;if(sx>-80&&sx<W+20){R('#2a2a34',sx+3,66,3,38);R('#2a2a34',sx+64,66,3,38);R('#3a3a46',sx,58,70,16);R('#14141c',sx+1,59,68,13);R('#4a4a56',sx,73,70,1.5);
    g.save();g.font='bold 8px monospace';g.textAlign='center';g.shadowBlur=6;g.shadowColor='#ff3a3a';g.fillStyle='#ff6a5a';g.fillText('LORDIN AUKIO',sx+35,69);g.restore()}
   kuusiDraw(RV.kuusi-c,T)},false);
