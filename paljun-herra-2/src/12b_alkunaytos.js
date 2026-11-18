@@ -27,7 +27,7 @@ function cutLen(){return cutWrap().reduce((a,l)=>a+l.length,0)}
 function stepCut(dt){musicTick();CUT.t+=dt;
  // mökin ja kentän taustaäänet (tuuli, poreet) pois näytöksen ajaksi
  if(ambG&&!CUT.amb){CUT.amb=1;setAP(ambG.gain,0,.05);setAP(bubG.gain,0,.05)}
- if(CUT.tt){CUT.tt+=dt;cutMusic('t');return}
+ if(CUT.tt){CUT.tt+=dt;cutMusic(titleMode());return}
  if(CUT.fin){CUT.fin+=dt;if(CUT.fin>=CUTK.fadeOut){if(CUT.endTitle){CUT.fin=0;CUT.tt=1e-6;musicStop()}else cutFinish()}return}
  const m=CUT.sc.music;if(m!==undefined)cutMusic(typeof m==='function'?m(CUT.li):m);
  const n=cutLen();if(CUT.t>CUTK.fadeIn&&CUT.ch<n){const p=CUT.ch|0;CUT.ch=Math.min(n,CUT.ch+CUTK.cps*dt);if((CUT.ch|0)!==p&&p%3===0&&AC)tn(1180,1180,.025,.022,'square')}
@@ -191,8 +191,8 @@ function cutSisa(T,t){g.save();g.translate(0,Math.sin(T*27)*.3);cutLayer('sisa',
 /* Alkunäytös: krapula → puhelu → Tesla Lapin yössä → auton sisällä → häivytys mustaan */
 const INTRO_CUT=[
  {draw:cutMokki,tick:mokkiSound,music:li=>li>=2?'n':null,lines:[['','Lappi. Mökki. Bileiden jälkeinen aamuyö. Sankarit potevat ankaraa krapulaa.'],['','PIRRR... PIRRR...'],['Esa','Nnngh... Esa. Kuka soittaa tähän aikaan?']]},
- {draw:cutTie,music:driveMode,lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
- {draw:cutSisa,music:driveMode,lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
+ {draw:cutTie,music:'d2',lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
+ {draw:cutSisa,music:'d2',lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
 
 /* Loppu: pelin nimi esiin mustalla, tunnari soi; napautus aloittaa pelin */
 function drawCutTitle(T){const t=CUT.tt;R('#000',0,0,W,H);
