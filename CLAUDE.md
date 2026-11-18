@@ -26,3 +26,4 @@ Selainpeli yhdessä tiedostossa (`index.html`). Suunnitelma ja muutoshistoria: `
 - `desktop/build.sh <neutralino-win_x64.exe> [kohde]` rakentaa `PaljunHerra-Windows.zip`:n (Neutralinojs 5.6.0, WebView2).
 - Sisältö paketoidaan omalla `desktop/pack_neu.py`-skriptillä (asar-muoto), ei npm-riippuvuuksia.
 - Rakennetaan uudelleen aina, kun `index.html` muuttuu ja Windows-versio halutaan päivittää.
+- Jaettava lataus: `lataa/PaljunHerra-Windows.zip` (linkki README.md:ssä). Päivitä tiedosto aina, kun Windows-versio rakennetaan uudelleen.
