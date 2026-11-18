@@ -27,7 +27,7 @@ function cutLen(){return cutWrap().reduce((a,l)=>a+l.length,0)}
 function stepCut(dt){musicTick();CUT.t+=dt;
  // mökin ja kentän taustaäänet (tuuli, poreet) pois näytöksen ajaksi
  if(ambG&&!CUT.amb){CUT.amb=1;setAP(ambG.gain,0,.05);setAP(bubG.gain,0,.05)}
- if(CUT.tt){CUT.tt+=dt;cutMusic(titleMode());return}
+ if(CUT.tt){CUT.tt+=dt;cutMusic('vt');return}
  if(CUT.fin){CUT.fin+=dt;if(CUT.fin>=CUTK.fadeOut){if(CUT.endTitle){CUT.fin=0;CUT.tt=1e-6;musicStop()}else cutFinish()}return}
  const m=CUT.sc.music;if(m!==undefined)cutMusic(typeof m==='function'?m(CUT.li):m);
  const n=cutLen();if(CUT.t>CUTK.fadeIn&&CUT.ch<n){const p=CUT.ch|0;CUT.ch=Math.min(n,CUT.ch+CUTK.cps*dt);if((CUT.ch|0)!==p&&p%3===0&&AC)tn(1180,1180,.025,.022,'square')}
@@ -194,9 +194,10 @@ const INTRO_CUT=[
  {draw:cutTie,music:'d2',lines:[['Pera','Hei Esa, Pera tässä. Meillä on ongelma.'],['Esa','Mitä on tapahtunut?']]},
  {draw:cutSisa,music:'d2',lines:[['Pera','Mersumies on palannut.'],['Pera','Sam Discon palvelin on kaapattu...']]}];
 
-/* Loppu: pelin nimi esiin mustalla, tunnari soi; napautus aloittaa pelin */
+/* Loppu: pelin nimi esiin mustalla, Viimeinen tuoppi soi, alareunassa Paljusoft; napautus aloittaa pelin */
 function drawCutTitle(T){const t=CUT.tt;R('#000',0,0,W,H);
  TI.stars.forEach(s=>{const a=.5+.5*Math.sin(T*3+s.p);g.fillStyle=`rgba(255,250,230,${(.15+a*.35)*Math.min(1,t)})`;g.fillRect(s.x|0,s.y|0,s.s,s.s)});
  if(!TI.logo)TI.logo=titleLogo();const sm=g.imageSmoothingEnabled;g.globalAlpha=Math.min(1,t/CUTK.logoIn);g.imageSmoothingEnabled=false;g.drawImage(TI.logo,10,40,300,96);g.imageSmoothingEnabled=sm;g.globalAlpha=1;
  g.save();g.textAlign='center';if(t>CUTK.subIn){g.globalAlpha=Math.min(1,(t-CUTK.subIn)/.8);g.font='bold 8px monospace';g.fillStyle='#bfe8ff';g.fillText('– PALUU OF DRUNKEN MASTER –',W/2,150);g.globalAlpha=1}
- if(t>CUTK.titleWait&&Math.floor(T*2.2)%2===0){g.font='bold 8px monospace';g.fillStyle='#ffe23a';g.fillText(INP==='touch'?'NAPAUTA: ALOITA':INP==='gp'?'PAINA '+gpG(GB.sel)+': ALOITA':'ENTER: ALOITA',W/2,178)}g.restore()}
+ if(t>CUTK.titleWait&&Math.floor(T*2.2)%2===0){g.font='bold 8px monospace';g.fillStyle='#ffe23a';g.fillText(INP==='touch'?'NAPAUTA: ALOITA':INP==='gp'?'PAINA '+gpG(GB.sel)+': ALOITA':'ENTER: ALOITA',W/2,178)}
+ if(t>CUTK.subIn){g.globalAlpha=Math.min(1,(t-CUTK.subIn)/.8);g.font='bold 5px monospace';g.fillStyle='#4a5694';g.fillText('© 2026 PALJUSOFT  ·  ESA & KUPARIBÄNDI',W/2,195);g.globalAlpha=1}g.restore()}

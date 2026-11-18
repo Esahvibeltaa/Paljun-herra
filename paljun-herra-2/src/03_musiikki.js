@@ -64,25 +64,7 @@ function darkStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,r=VJR[b
 
 /* Melodiarivin sävel askeleella s: soi seuraavaan säveleen asti (-1 = jatkuu), echo = kaiun viive askelina (0 = ei kaikua) */
 function leadNote(row,s,t0,L,v,w,echo){const m=row[s];if(!(m>0))return;let k=0;while(k<7&&row[s+1+k]===-1)k++;const d=L*(1+k)*.95;tv(t0,mf(m),d,v,w);if(echo)tv(t0+L*echo,mf(m)*1.004,d*.7,v*.33,w)}
-/* Nimiruudun teemat (alkuperäisiä, 8-bittisten ninjapelien hengessä; 8 tahdin kierto) */
-// Mestarin paluu: E-molli 140 bpm, sankarillinen; Em C D B
-const MPR=[40,36,38,35],MPC=[[0,3,7,12],[0,4,7,12],[0,4,7,12],[0,4,7,10]];
-const MPM=[[76,-1,-1,-1,79,-1,-1,-1,83,-1,81,-1,79,-1,78,-1],[76,-1,-1,-1,72,-1,-1,-1,76,-1,79,-1,84,-1,-1,-1],[83,-1,-1,-1,81,-1,79,-1,78,-1,-1,-1,74,-1,-1,-1],[75,-1,-1,-1,78,-1,-1,-1,81,-1,-1,-1,83,-1,-1,-1]];
-function mpStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,r=MPR[bar];
- if(st===0)mn(t0,1.2,'highpass',3000,.2);
- if(s%2===0)tv(t0,mf(bar===3&&s>=12?r+(s-12)/2+1:s%4===2?r+12:r),L*1.8,.34,'triangle');
- if(s===0||s===8||s===11)mt(t0,130,38,.12,.85,'sine');if(s===4||s===12)mn(t0,.15,'bandpass',2000,.34);if(s%2===0)mn(t0,.02,'highpass',9000,.05);
- tv(t0,mf(r+36+MPC[bar][s%4]),L*.7,.026,.125);
- if(b8>=2)leadNote(MPM[bar],s,t0,L,.095,.25,.75);
- if(s>=12&&b8===7)mn(t0,.08,'bandpass',2400,.2)}
-// Lumimyrsky: H-molli 170 bpm, nopea; Hm G A F#
-const LMR=[35,31,33,30],LMC=[[0,3,7,12],[0,4,7,12],[0,4,7,12],[0,4,7,10]];
-const LMM=[[71,-1,74,-1,78,-1,74,-1,71,-1,74,-1,78,-1,83,-1],[79,-1,78,-1,74,-1,71,-1,74,-1,78,-1,79,-1,-1,-1],[81,-1,78,-1,76,-1,73,-1,76,-1,78,-1,81,-1,-1,-1],[82,-1,-1,-1,78,-1,-1,-1,73,-1,-1,-1,70,-1,-1,-1]];
-function lmStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,r=LMR[bar];
- tv(t0,mf(s%2?r+12:r),L*.9,.3,'triangle');
- if(s%4===0)mt(t0,140,40,.1,.8,'sine');if(s===4||s===12||(b8%2&&s===14))mn(t0,.12,'bandpass',2300,.32);mn(t0,.015,'highpass',9500,s%2?.03:.05);
- tv(t0,mf(r+36+LMC[bar][(s*3)%4]),L*.6,.026,.125);
- if(b8>=2)leadNote(LMM[bar],s,t0,L,.085,.25,.5)}
+/* Nimiruudun teema (alkuperäinen, 8-bittisten ninjapelien hengessä; 8 tahdin kierto) */
 // Viimeinen tuoppi: A-molli 96 bpm, eeppinen ja hidas; Am F G E
 const VTR=[33,29,31,28],VTC=[[0,3,7],[0,4,7],[0,4,7],[0,4,7]];
 const VTM=[[69,-1,-1,-1,-1,-1,-1,-1,72,-1,-1,-1,71,-1,69,-1],[65,-1,-1,-1,-1,-1,-1,-1,69,-1,-1,-1,72,-1,-1,-1],[74,-1,-1,-1,-1,-1,72,-1,71,-1,-1,-1,67,-1,-1,-1],[68,-1,-1,-1,71,-1,-1,-1,74,-1,-1,-1,76,-1,-1,-1]];
@@ -93,11 +75,4 @@ function vtStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,r=VTR[bar
  tv(t0,mf(r+36+VTC[bar][s%3]),L*.5,.018,.125);
  leadNote(VTM[bar],s,t0,L,.1,.5,1)}
 /* Musiikkitilat taulukkona: tempo (bpm) ja askelfunktio */
-const MST={n:[132,cutStep],d2:[160,darkStep],mp:[140,mpStep],lm:[170,lmStep],vt:[96,vtStep]};
-/* Nimiruudun musiikkivaihtoehdot vertailuun (väliaikainen valinta; tallennetaan selaimeen, vaihto napista tai M-näppäimellä) */
-const TTV=[{m:'mp',name:'Mestarin paluu'},{m:'lm',name:'Lumimyrsky'},{m:'vt',name:'Viimeinen tuoppi'},{m:'t',name:'Tunnari'}];let ttSel=0;try{ttSel=Math.min(TTV.length-1,+(localStorage.getItem('ph2_title')||0)||0)}catch(x){}
-function titleMode(){return TTV[ttSel].m}
-function ttCycle(){ttSel=(ttSel+1)%TTV.length;try{localStorage.setItem('ph2_title',ttSel)}catch(x){}ttLabel()}
-function ttLabel(){const b=document.getElementById('mv');if(b)b.textContent='Nimiruudun musiikki: '+(ttSel+1)+'/'+TTV.length+' '+TTV[ttSel].name+' (M)'}
-{const b=document.createElement('button');b.id='mv';b.addEventListener('click',ttCycle);document.getElementById('side').appendChild(b);ttLabel()}
-addEventListener('keydown',e=>{if(e.key==='m'||e.key==='M')ttCycle()});
+const MST={n:[132,cutStep],d2:[160,darkStep],vt:[96,vtStep]};

@@ -67,3 +67,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Sisänäkymään katto ja taustapeili, viistot A-pilarit (`CABIN`) sekä tyhjä matkustajan penkki niskatukineen (`PSEAT`).
 - Autokohtausten musiikille kolme vaihtoehtoa vertailuun (`DRV`, nappi Automusiikki tai M): 1 Ajobiitti, 2 Varjojahti (D-molli 160 bpm, 8-bittisten ninjapelien henkeen), 3 Kohtalon yö (C-molli 112 bpm, hidas ja uhkaava). Musiikkitilat taulukossa `MST`.
 - Autokohtausten musiikiksi valittu Varjojahti (`darkStep`), muut vaihtoehdot ja valintanappi poistettu. Nimiruudulle neljä vaihtoehtoa vertailuun (`TTV`, nappi Nimiruudun musiikki tai M): Mestarin paluu (E-molli 140), Lumimyrsky (H-molli 170), Viimeinen tuoppi (A-molli 96) ja vanha tunnari. Yhteinen melodiasoitin `leadNote`.
+- Nimiruudun musiikiksi valittu Viimeinen tuoppi (`vtStep`), muut vaihtoehdot ja valintanappi poistettu. Nimiruudun alareunaan © 2026 PALJUSOFT · ESA & KUPARIBÄNDI.
