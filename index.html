@@ -24,6 +24,7 @@ button:active{filter:brightness(.85)}
 button:disabled{opacity:.4}
 #m,#mm,#pz{background:transparent;color:var(--fg);border:2px solid var(--line);font-size:14px;padding:8px;margin-top:8px}
 #fs{width:100%;margin-top:6px}
+#fxov{position:absolute;pointer-events:none;z-index:1;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 58%,rgba(0,0,0,.32) 100%),repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) calc(var(--row,4px) - 1px),rgba(0,0,0,.07) calc(var(--row,4px) - 1px),rgba(0,0,0,.07) var(--row,4px))}
 @media (orientation:landscape) and (max-height:540px){body.padon:not(.paused) #fs,body.padon:not(.paused) #m,body.padon:not(.paused) #mm{display:none!important}body.padon.paused #pad{display:none!important}}:fullscreen body,:-webkit-full-screen body{overflow:auto}
 .r2 button{flex:1;white-space:nowrap;font-size:clamp(11px,3.3vw,14px)!important;padding:8px 2px!important}
 button,canvas,#pad,#side{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -42,7 +43,9 @@ p{max-width:var(--gw);font-size:14px;opacity:.75;text-align:center;margin:10px 0
 <p>Napauta tölkkejä pöydällä juodaksesi (välilyönti). Mökin ovi vie vessaan (W), saunamökki saunaan (S) ja Hauki-pullo antaa kulauksen (H). Kun seura on koossa, napauta BAARIIN-kylttiä (B). Olut lämmittää ja lisää vessahätää, mutta liian tiuhaan juotuna pää painuu pinnan alle.</p>
 <script>
 const cv=document.getElementById('c'),main=cv.getContext('2d'),W=320,H=200,wl=114;
-let g=main,SC=2;function fitCanvas(){const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1,k=Math.min(5,Math.max(2,Math.round((r.width||640)*dpr/320)));if(k!==SC||cv.width!==320*k){SC=k;cv.width=320*k;cv.height=200*k}main.setTransform(SC,0,0,SC,0,0)}
+/* Kankaan enimmäisskaala: pikselimaailma on 320x200, joten suurempi kangas vain kuormittaa (puhelimissa lämpenemistä) */
+const MAX_SC=4;
+let g=main,SC=2;function fitCanvas(){const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1,k=Math.min(MAX_SC,Math.max(2,Math.round((r.width||640)*dpr/320)));if(k!==SC||cv.width!==320*k){SC=k;cv.width=320*k;cv.height=200*k}main.setTransform(SC,0,0,SC,0,0);placeFx()}
 {const sd=document.createElement('div');sd.id='side';['b','go'].forEach(i=>sd.appendChild(document.getElementById(i)));sd.appendChild(document.querySelector('.row'));sd.appendChild(document.getElementById('m'));cv.after(sd)}
 fitCanvas();['resize','orientationchange'].forEach(ev=>addEventListener(ev,()=>{clearTimeout(fitCanvas.t);fitCanvas.t=setTimeout(fitCanvas,120)}));
 const tc=document.createElement('canvas').getContext('2d'),pats={};
@@ -1803,7 +1806,7 @@ function drawTitle(T){const t=TI.t;
 try{localStorage.removeItem('ph_retro')}catch(x){}
 const loCv=document.createElement('canvas');loCv.width=W;loCv.height=H;const lo=loCv.getContext('2d');window.__lo=lo;
 const glCv=document.createElement('canvas');glCv.width=W;glCv.height=H;const glc=glCv.getContext('2d');
-const gl2=[160,80,40].map(w=>{const c=document.createElement('canvas');c.width=w;c.height=w*H/W;return c});
+const gl2=[160,80].map(w=>{const c=document.createElement('canvas');c.width=w;c.height=w*H/W;return c});
 const RTX={seg:0,dirty:false,lut:null,gd:null,fx:null,fxK:0};
 {const Bm=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5],Lv=10;RTX.lut=Bm.map(b=>{const t=(b/16-.5)*.55,a=new Uint8ClampedArray(256);for(let v=0;v<256;v++)a[v]=Math.round(Math.min(1,Math.max(0,Math.floor(v/255*(Lv-1)+.5+t)/(Lv-1)))*255);return a})}
 RTX.bb=[1e9,1e9,-1e9,-1e9];RTX.full=false;
@@ -1822,14 +1825,19 @@ function rtFlush(){if(!RTX.dirty)return;RTX.dirty=false;const m=main,first=RTX.s
  if(!first&&!RTX.full){const b=RTX.bb;bx=Math.max(0,Math.floor(b[0]));by=Math.max(0,Math.floor(b[1]));bw=Math.min(W,Math.ceil(b[2]))-bx;bh=Math.min(H,Math.ceil(b[3]))-by}
  if(bw>0&&bh>0){const k=cv.width/W;m.drawImage(loCv,bx,by,bw,bh,bx*k,by*k,bw*k,bh*k)}
  if(first){let src=glCv;for(const c of gl2){const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.imageSmoothingEnabled=true;x.drawImage(src,0,0,c.width,c.height);src=c}
-  m.imageSmoothingEnabled=true;m.globalCompositeOperation='lighter';m.globalAlpha=.42;m.drawImage(gl2[1],0,0,cv.width,cv.height);m.globalAlpha=.3;m.drawImage(gl2[2],0,0,cv.width,cv.height)}
+  m.imageSmoothingEnabled=true;m.globalCompositeOperation='lighter';m.globalAlpha=.6;m.drawImage(gl2[1],0,0,cv.width,cv.height)}
  m.restore();RTX.seg++;lo.save();lo.setTransform(1,0,0,1,0,0);if(bw>0&&bh>0)lo.clearRect(bx,by,bw,bh);lo.restore();RTX.bb=[1e9,1e9,-1e9,-1e9];RTX.full=false}
-function rtFx(){if(RTX.fxK!==cv.width){RTX.fxK=cv.width;const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;const x=c.getContext('2d'),q=x.createRadialGradient(c.width/2,c.height/2,c.height*.35,c.width/2,c.height/2,c.width*.62);q.addColorStop(0,'rgba(0,0,0,0)');q.addColorStop(1,'rgba(0,0,0,.32)');x.fillStyle=q;x.fillRect(0,0,c.width,c.height);x.fillStyle='rgba(0,0,0,.07)';for(let y=SC-1;y<c.height;y+=SC)x.fillRect(0,y,c.width,1);RTX.fx=c}
- main.save();main.setTransform(1,0,0,1,0,0);main.globalAlpha=1;main.globalCompositeOperation='source-over';main.drawImage(RTX.fx,0,0);main.restore()}
-function frameBegin(){g=lo;lo.setTransform(1,0,0,1,0,0);lo.imageSmoothingEnabled=false;lo.clearRect(0,0,W,H);RTX.seg=0;RTX.dirty=false;RTX.full=false;RTX.bb=[1e9,1e9,-1e9,-1e9];main.setTransform(1,0,0,1,0,0);main.clearRect(0,0,cv.width,cv.height)}
-function frameEnd(){rtFlush();rtFx()}
+/* Vinjetti ja pikselirivien varjo: CSS-kerros kankaan päällä, selain yhdistää sen näytönohjaimella */
+function placeFx(){let el=placeFx.el;if(!el){el=placeFx.el=document.createElement('div');el.id='fxov';el.setAttribute('aria-hidden','true');document.body.appendChild(el)}
+ const r=cv.getBoundingClientRect(),bl=cv.clientLeft,bt=cv.clientTop,w=cv.clientWidth,h=cv.clientHeight;
+ Object.assign(el.style,{left:(r.left+bl+scrollX)+'px',top:(r.top+bt+scrollY)+'px',width:w+'px',height:h+'px'});el.style.setProperty('--row',(h/H)+'px')}
+function frameBegin(){g=lo;lo.setTransform(1,0,0,1,0,0);lo.imageSmoothingEnabled=false;lo.clearRect(0,0,W,H);RTX.seg=0;RTX.dirty=false;RTX.full=false;RTX.bb=[1e9,1e9,-1e9,-1e9];main.setTransform(1,0,0,1,0,0)}
+function frameEnd(){rtFlush()}
 let last=performance.now();
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;gpPoll(dt);if((HT+=dt)>.5){HT=0;updHints()}if(!PAUSED)step(dt);frameBegin();draw(now/1000);drawLives();overlayFx(dt);gpDraw();frameEnd();requestAnimationFrame(loop)}
+/* Introruutu piirretään 30 fps:llä: hidas animaatio, ja laite pysyy viileämpänä kun valikko on pitkään auki */
+let FRN=0;
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;gpPoll(dt);if((HT+=dt)>.5){HT=0;updHints()}if(!PAUSED)step(dt);
+ if(!(stage===1&&state==='title'&&!PAUSED&&(FRN++&1))){frameBegin();draw(now/1000);drawLives();overlayFx(dt);gpDraw();frameEnd()}requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 </script>
 </body>
