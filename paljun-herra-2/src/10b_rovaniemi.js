@@ -86,11 +86,13 @@ function rovaBg(T){const c=M.cam;cutLayer('rovaSky',rovaSky);auroraSky('rova',T,
  for(let i=Math.floor(c/24)-1;i<Math.floor(c/24)+15;i++){const x=i*24-c;if(i*24<RV.silta-10)continue;ell(x,111,8+hsh(i)*6,2.5,'#eef3ff')}
  for(let i=Math.floor(c/40)-1;i<Math.floor(c/40)+10;i++)R('rgba(230,230,200,.5)',i*40-c,135,18,1.6)}
 
+/* Pieni nimikyltti tummalla taululla, jotta taustan ikkunat ja valot eivät sekoitu tekstiin */
+function labelBoard(txt,x,y,col){g.save();g.font='bold 5px monospace';const w=g.measureText(txt).width+4;R('rgba(10,10,18,.85)',x-w/2,y-5,w,6.5);g.textAlign='center';g.fillStyle=col;g.fillText(txt,x,y);g.restore()}
 // ---- Maailman esineet taustalla: latausasemat, kioski ja vanhus penkillä ----
 function chargerDraw(x,s,T){const y=108,fr=s&&s.free;R('#2a2e38',x-5,y-26,10,26);R('#3a3e4a',x-5,y-26,3,26);R(fr?'#1a6a3a':'#5a1a1a',x-3,y-23,6,6);R('#0a0c12',x+5,y-16,4,2);g.strokeStyle='#1a1a1a';g.lineWidth=1.2;g.beginPath();g.moveTo(x+7,y-15);g.quadraticCurveTo(x+12,y-6,x+8,y);g.stroke();
  glow(x,y-20,10,fr?'80,255,140':'255,60,60',.5+.2*Math.sin(T*(fr?3:8)));
  if(!fr){R('#c8a040',x-3,y-12,6,5);g.strokeStyle='#c8a040';g.lineWidth=1;g.beginPath();g.arc(x,y-12,2.2,Math.PI,0);g.stroke()}
- g.save();g.font='bold 5px monospace';g.textAlign='center';g.fillStyle=fr?'#7dff9a':'#ff8a8a';g.fillText(fr?'VAPAA':'LUKITTU',x,y-29);g.restore();
+ labelBoard(fr?'VAPAA':'LUKITTU',x,y-29,fr?'#7dff9a':'#ff8a8a');
  if(fr&&s.t<1.2)for(let k=0;k<6;k++){const a=k*1.05+s.t*4,r=s.t*22;R('#bfffd0',x+Math.cos(a)*r,y-18+Math.sin(a)*r*.6,1.5,1.5)}}
 function kioskiDraw(x,T){const y=108;R('#6a2420',x-24,y-40,48,40);R('#8a3430',x-24,y-40,48,3);R('#ffd890',x-18,y-32,36,14);R('#3a1a10',x-20,y-18,40,3);R('#e8f0ff',x-26,y-43,52,3);
  g.save();g.font='bold 6px monospace';g.textAlign='center';const on=Math.sin(T*4)>-.9;g.shadowBlur=on?5:0;g.shadowColor='#ffe23a';g.fillStyle=on?'#ffe23a':'#6a5a2a';g.fillText('KIOSKI',x,y-45);g.shadowBlur=0;g.font='bold 4px monospace';g.fillStyle='#3a1a10';g.fillText('POROBURGER',x,y-26);g.restore();glow(x,y-26,22,'255,210,120',.25)}
@@ -104,7 +106,9 @@ function doorDraw(x,d,T){const y=104,op=d?d.op:0;R('#4a3a34',x-14,y-38,28,38);R(
 function liftDraw(T){const r=M.L.roof,x=r.lad-M.cam;if(x<-30||x>W+30)return;const top=112-r.A[2]-22,e=M.e,py=112-(e.st==='climb'?e.base:e.lev==='roof'&&e.x<r.A[1]+40?r.A[2]:0);
  R('#1e2230',x-14,top,28,112-top);R('rgba(120,190,255,.16)',x-12,top+2,24,110-top);for(let y=top+10;y<112;y+=12)R('#2a3040',x-12,y,24,1);R('#3a3e4a',x-15,top-4,30,5);R('#5a5e6a',x-15,top-4,30,1);
  R('rgba(255,240,200,.18)',x-11,py-30,22,30);R('#8a909a',x-11,py-1,22,2.5);R('#c8ccd8',x-11,py-1,22,.7);R('#8a909a',x-11,py-31,22,1.5);glow(x,py-28,10,'255,230,180',.3);
- g.save();g.font='bold 5px monospace';g.textAlign='center';g.fillStyle='#7dd8ff';g.fillText('HISSI',x,top-6);g.restore();
- const sx=(r.A[0]+r.A[1])/2-M.cam;if(sx>-80&&sx<W+80){g.save();g.font='bold 8px monospace';g.textAlign='center';const on=Math.sin(T*3)>-.95;g.shadowBlur=on?7:0;g.shadowColor='#ff6a3a';g.fillStyle=on?'#ffb07a':'#5a3a2a';g.fillText('SAMPOKESKUS',sx,112-r.A[2]-22);g.restore()}}
+ labelBoard('HISSI',x,top-6,'#7dd8ff');
+ // Kyltti omalla tummalla taululla katon päällä, jotta taustatalojen ikkunat eivät sekoitu tekstiin
+ const sx=(r.A[0]+r.A[1])/2-M.cam,sy=112-r.A[2]-22;if(sx>-80&&sx<W+80){R('#3a3e48',sx-30,sy+3,2,14);R('#3a3e48',sx+28,sy+3,2,14);R('#5a5e68',sx-40,sy-10,80,15);R('#0e0c14',sx-39,sy-9,78,13);
+  g.save();g.font='bold 8px monospace';g.textAlign='center';const on=Math.sin(T*3)>-.95;g.shadowBlur=on?7:0;g.shadowColor='#ff6a3a';g.fillStyle=on?'#ffb07a':'#5a3a2a';g.fillText('SAMPOKESKUS',sx,sy);g.restore()}}
 function rovaDraw(T){const c=M.cam,st=M.rv||RV_ST;for(const d of (M.rvD||RV_DOOR)){const x=d.x-c;if(x>-30&&x<W+30)doorDraw(x,M.rvD?d:null,T)}liftDraw(T);for(const s of st){const x=s.x-c;if(x>-20&&x<W+20)chargerDraw(x,M.rv?s:null,T)}
  const kx=RV.kioski-c;if(kx>-40&&kx<W+40)kioskiDraw(kx,T);const px=RV.penkki-c;if(px>-30&&px<W+30)penkkiDraw(px,T)}
