@@ -37,6 +37,26 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 - **Pomot:** mietitään myöhemmin; ainakin **Pajakylän paha joulupukki**.
 - **Hempukka:** mukana välillä tekoälynä kuten muut kaverit.
 
+## Päätökset (kysymyskierros 3)
+
+- **Pajakylän paha joulupukki:** Mersumiehen nukke (oikea pukki kaapattu, tilalla palkattu huijari). Erikoisliike lahjapakettisade, väistetään syvyyssuunnassa. Kestävyyden hupenessa pukki menettää parran ja nutun alta putoaa tyynyjä; lopussa paljastuu tuttu naama.
+- **Suomen kentät:** Santapark (maanalainen joulupuisto: pajat, lahjaliukuhihnat, jääveistokset), Rovaniemen keskusta yöllä (Lordin aukio, Jätkänkynttilä, kauppakatu, lukitut latausasemat), lentokenttä (matkatavarahihnat, kiitorata, livahdus koneen ruumaan).
+- **Humala:** juomat kentältä (Kupari, Hauki, vesi; Thaimaassa paikalliset juomat), liika humala sammuttaa Esan hetkeksi.
+- **Uusi liike heti alusta: heitto.** Napakka, perille menevä lyönti mahdollistaa vihollisesta kiinnioton (esim. hiuksista) ja heiton olan yli.
+- **Thaimaan kentät:** Pattaya yöllä (Walking Street, neonit, tuk-tukit, katuruokakojut), viidakko (liaanit, joki, temppelin rauniot, juomia varastavat apinat), Mersumiehen huvila (allas, vartijat, kellarin palvelinsali, jossa Sam Disco pyörii). Loppupomo Mersumies.
+
+## Pelin runko (koottu päätöksistä)
+
+1. Alkunäytös (tehty): krapulainen mökki, Peran puhelu, Mersumies on palannut ja kaapannut Sam Discon palvelimen.
+2. Road trip Teslalla Rovaniemelle (Pera kuskina).
+3. Kenttä: Rovaniemen keskusta yöllä – dieselsällit, lukitut latausasemat.
+4. Lapin vanhus opettaa humalanyrkin (kota Santaparkin lähellä).
+5. Kenttä: Santapark – kaapatut tontut. Pomo: Pajakylän paha joulupukki.
+6. Kenttä: lentokenttä – livahdus Mersumiehen yksityiskoneen ruumaan.
+7. Kenttä: Pattaya yöllä.
+8. Kenttä: viidakko.
+9. Kenttä: Mersumiehen huvila ja palvelinsali. Loppupomo: Mersumies. Latausasemat vapautuvat, Sam Disco palaa sähköautomiehille.
+
 - Alla oleva vanha tarinaluonnos (Kloori-Kalle, palju) on korvautunut näillä; siitä voi poimia ideoita.
 
 ## Tarinapolku (karkea luonnos, kommentoitavana)
