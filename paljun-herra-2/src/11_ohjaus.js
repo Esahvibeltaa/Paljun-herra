@@ -45,7 +45,7 @@ function gpPoll(dt){let gp=null;try{const a=navigator.getGamepads?navigator.getG
   if(vx||vy)GPC.on=1;GPC.x=Math.max(2,Math.min(W-2,GPC.x+vx*160*dt));GPC.y=Math.max(2,Math.min(H-2,GPC.y+vy*160*dt));
   if(pr(GB.sel)){GPC.on=1;if(PAUSED)setPause(false);else gpClick()}
   
-  else if(!PAUSED&&pr(1)){if(stage===6)cutSkip();else{const b=vis('b');if(b)b.click()}}}
+  else if(!PAUSED&&pr(1)){const b=vis('b');if(b)b.click()}}
  gpPrev=bt}
 function gpDraw(){if(gpMsg>0){gpMsg-=1/60;g.save();g.globalAlpha=Math.min(1,gpMsg);R('rgba(10,14,40,.85)',60,13,200,13);g.font='bold 7px monospace';g.textAlign='center';g.fillStyle='#bfffd0';g.fillText('Ohjain yhdistetty! Select = asetukset',160,22);g.restore()}
  if(!GPC.on||fightMode()||CFG.open)return;g.save();g.translate(GPC.x,GPC.y);g.fillStyle='#fff';g.strokeStyle='#111';g.lineWidth=.8;g.beginPath();g.moveTo(0,0);g.lineTo(0,10);g.lineTo(2.6,7.6);g.lineTo(4.6,11.6);g.lineTo(6.2,10.8);g.lineTo(4.3,7);g.lineTo(7.4,7);g.closePath();g.fill();g.stroke();g.restore()}

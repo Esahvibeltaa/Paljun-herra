@@ -38,15 +38,11 @@ function stepCut(dt){musicTick();CUT.t+=dt;
 /* Napautus: ensin koko repliikki näkyviin, sitten seuraava repliikki tai kohtaus; viimeisen jälkeen hidas häivytys mustaan.
    Nopeat peräkkäiset painallukset eivät ohita kohtauksia: häivytyksen aikana ja ennen lukuaikaa (minTap, minRead) painallus ei tee mitään */
 function cutReady(){const last=CUT.li>=CUT.sc.lines.length-1;return CUT.full>=0&&CUT.t-CUT.full>=CUTK.minRead&&CUT.t-CUT.ls>=cutLen()/CUTK.readCps&&(!last||CUT.t>=(CUT.sc.min||CUTK.minScene))}
-function actCut(e){if(CUT.tt){if(CUT.tt>CUTK.titleWait)cutFinish();return}if(CUT.fin)return;const tap=e&&e.target===cv&&e.clientX!==undefined;
- if(tap){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;if(x>240&&y>184){cutSkip();return}}
- if(CUT.t<CUTK.fadeIn)return;
+function actCut(e){if(CUT.tt){if(CUT.tt>CUTK.titleWait)cutFinish();return}if(CUT.fin)return; if(CUT.t<CUTK.fadeIn)return;
  if(CUT.ch<cutLen()){if(CUT.t-CUT.ls>=CUTK.minTap){CUT.ch=cutLen();CUT.full=CUT.t}return}
  if(!cutReady())return;
  if(CUT.li<CUT.sc.lines.length-1){CUT.li++;CUT.ch=0;CUT.ls=CUT.t;CUT.full=-1;return}
  if(CUT.i<CUT.list.length-1)cutScene(CUT.i+1);else{CUT.fin=1e-6;if(mus)setAP(mus.g.gain,0,CUTK.fadeOut/3)}}
-function cutSkip(){if(stage===6)cutFinish()}
-addEventListener('keydown',e=>{if(stage===6&&!PAUSED&&(e.key==='s'||e.key==='S'))cutSkip()});
 function drawCut(T){if(CUT.tt){drawCutTitle(T);return}R('#000',0,0,W,H);g.save();g.beginPath();g.rect(CP.x,CP.y,CP.w,CP.h);g.clip();CUT.sc.draw(T,CUT.t);g.restore();
  g.strokeStyle='#3a4270';g.lineWidth=1;g.strokeRect(CP.x-.5,CP.y-.5,CP.w+1,CP.h+1);
  const fi=1-CUT.t/CUTK.fadeIn;if(fi>0)R(`rgba(0,0,0,${fi})`,CP.x,CP.y,CP.w,CP.h);
@@ -55,7 +51,7 @@ function cutText(T){const who=CUT.sc.lines[CUT.li][0],L=cutWrap();let left=CUT.c
  if(who){g.font='bold 7px monospace';g.fillStyle=SPK[who]||'#fff';g.fillText(who.toUpperCase(),CTX.x,CTX.y-4)}
  g.font=CTX.font;g.fillStyle='#f0f2ff';L.forEach((l,i)=>{if(left>0)g.fillText(l.slice(0,left),CTX.x,CTX.y+8+i*CTX.lh);left-=l.length});
  if(cutReady()&&Math.floor(T*3)%2===0){g.fillStyle='#ffe23a';g.fillText('▼',CTX.x+CTX.w-6,CTX.y+8+3*CTX.lh)}
- g.font='bold 5px monospace';if(!AC){g.fillStyle='#8a90c0';g.fillText('♪ Napauta: äänet päälle',CTX.x,196)}g.textAlign='right';g.fillStyle='#5a6090';g.fillText((INP==='touch'?'':INP==='gp'?gpG(1)+': ':'S: ')+'OHITA ▶▶',W-6,196);g.restore()}
+ g.font='bold 5px monospace';if(!AC){g.fillStyle='#8a90c0';g.fillText('♪ Napauta: äänet päälle',CTX.x,196)}g.restore()}
 
 /* ---- Kohtaus 1: krapulainen mökki ja soiva puhelin ---- */
 function mokkiBg(){const X=CP.x,Y=CP.y,FY=Y+92;
