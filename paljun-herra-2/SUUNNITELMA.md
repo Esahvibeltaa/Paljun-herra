@@ -46,6 +46,13 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 - **Uusi liike heti alusta: heitto.** Napakka, perille menevä lyönti mahdollistaa vihollisesta kiinnioton (esim. hiuksista) ja heiton olan yli.
 - **Thaimaan kentät:** Pattaya yöllä (Walking Street, neonit, tuk-tukit, katuruokakojut), viidakko (liaanit, joki, temppelin rauniot, juomia varastavat apinat), Mersumiehen huvila (allas, vartijat, kellarin palvelinsali, jossa Sam Disco pyörii). Loppupomo Mersumies.
 
+## Rovaniemen keskusta (kenttä 1) – päätökset
+
+- **Tavoite:** edetään oikealle, matkalla vapautetaan lukittuja latausasemia, lopussa välipomo.
+- **Paikat järjestyksessä:** Jätkänkynttilä-silta (pakkanen, Kemijoki alla) → Koskikatu → Lordin aukio.
+- **Viholliset (dieselsällit):** haalarimiehet ja toppahaalareissa olevat takatukkaukot.
+- **Lapin vanhus:** Lordin aukiolla taisteluun tulee hiljainen vaihe; aukiolla on kioski, josta... (tarkennetaan)
+
 ## Pelin runko (koottu päätöksistä)
 
 1. Alkunäytös (tehty): krapulainen mökki, Peran puhelu, Mersumies on palannut ja kaapannut Sam Discon palvelimen.
