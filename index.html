@@ -23,7 +23,8 @@ button:active{filter:brightness(.85)}
 #h{background:#2f8f55;margin-top:8px}
 button:disabled{opacity:.4}
 #m,#mm,#pz{background:transparent;color:var(--fg);border:2px solid var(--line);font-size:14px;padding:8px;margin-top:8px}
-#fs{width:100%;margin-top:6px}:fullscreen body,:-webkit-full-screen body{overflow:auto}
+#fs{width:100%;margin-top:6px}
+@media (orientation:landscape) and (max-height:540px){body.padon:not(.paused) #fs,body.padon:not(.paused) #m,body.padon:not(.paused) #mm{display:none!important}body.padon.paused #pad{display:none!important}}:fullscreen body,:-webkit-full-screen body{overflow:auto}
 .r2 button{flex:1;white-space:nowrap;font-size:clamp(11px,3.3vw,14px)!important;padding:8px 2px!important}
 button,canvas,#pad,#side{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
@@ -950,7 +951,7 @@ cv.after(pad);
 const KM={ArrowLeft:'l',a:'l',A:'l',ArrowRight:'r',d:'r',D:'r',ArrowUp:'u',w:'u',W:'u',ArrowDown:'d',s:'d',S:'d'};
 addEventListener('keydown',e=>{if(stage!==5&&stage!==7)return;if(KM[e.key]){K.keys[KM[e.key]]=1;e.preventDefault()}if(!e.repeat){const a={j:'P',J:'P',k:'K',K:'K',l:'H',L:'H'}[e.key];if(a)fPress(a)}});
 addEventListener('keyup',e=>{if((stage===5||stage===7)&&KM[e.key])K.keys[KM[e.key]]=0});
-function showPad(v){pad.style.display=v?'flex':'none'}
+function showPad(v){pad.style.display=v?'flex':'none';document.body.classList.toggle('padon',!!v)}
 function fPress(a){if(PAUSED){setPause(false);return}if(stage===5&&K.ph==='guide'){K.ph='intro';K.t=0;markGuide();return}if(stage===7){mjPress(a);return}if(stage===5&&K.ph==='fight')K.q.push([K.ck+dly(B.h),a])}
 function startFight(){stage=5;state='s5';PHB=[16,304];document.getElementById('bj').style.display='none';document.getElementById('bh').style.gridColumn='';K.h0=B.h;K.hs0=B.hs;K.bc=0;PTS.bar=B.cans*5+Math.round(B.fi)+B.hs*10;Object.assign(K,{foe:0,hpE:100,fx:[],q:[],hist:[],ck:0,say:null,sayT:0});setupBout();showPad(true);if(!guideSeen()){K.ph='guide';K.t=0}
  document.querySelector('p').textContent='Ristiohjain liikuttaa (ylös = hyppy, alas = kyykky, taaksepäin = torjunta). LYÖNTI ja POTKU yhdessä suunnan kanssa antavat eri liikkeitä. Näppäimistö: nuolet tai WASD, J = lyönti, K = potku, L = Hauki.';
@@ -1319,7 +1320,7 @@ function draw6(T){const s=E6;g.font='bold 8px monospace';g.textBaseline='alphabe
 let PAUSED=false,FADE=0,lastKey='',RIP=[];const DESK=matchMedia('(hover:hover) and (pointer:fine)').matches;
 function vib(p){try{if(p&&navigator.vibrate)navigator.vibrate(p)}catch(x){}}
 function sceneKey(){return stage+(stage===1&&(state==='sauna'||(state==='over'&&(reason==='x'||reason==='y')))?'s':'')}
-function setPause(v){PAUSED=v;const b=document.getElementById('pz');if(b)b.textContent=v?'▶ Jatka':'⏸ Tauko'+(typeof hk==='function'?hk('pause'):'');if(AC){v?AC.suspend():AC.resume()}}
+function setPause(v){PAUSED=v;document.body.classList.toggle('paused',!!v);const b=document.getElementById('pz');if(b)b.textContent=v?'▶ Jatka':'⏸ Tauko'+(typeof hk==='function'?hk('pause'):'');if(AC){v?AC.suspend():AC.resume()}}
 function ptsSum(){let n=PTS.pool+PTS.sauna+PTS.mokki+PTS.flight+PTS.bar+PTS.fight+PTS.mj;if(stage===1)n+=cans*10+Math.floor(t)+PTS.loyly*20;return n}
 function guideSeen(){try{return localStorage.getItem('ph_guide')==='1'}catch(x){return!!guideSeen.v}}
 function markGuide(){guideSeen.v=1;try{localStorage.setItem('ph_guide','1')}catch(x){}}
