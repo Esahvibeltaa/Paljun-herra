@@ -21,6 +21,7 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 
 - **Sam Disco** = SAM-ryhmän (Sähköautomiehet) suosittu Discord-kanava. Mersumies on kaapannut sen palvelimen.
 - **Pera** soittaa Esalle vihreästä takasiipisestä Tesla Model 3:sta (pipo, pyöreä tupsu).
+- **Pera on Euroopan nopein Tesla-kuski.** Toistuva vitsi: huomioidaan jutteluissa ja pelin aikana aina välillä (road tripillä joka kerta yksi nopeusvitsi, pihalla jutustelussa, jatkossa kentissä ja välinäytöksissä).
 
 ## Päätökset (kysymyskierros 1)
 
@@ -120,3 +121,4 @@ Liika humala sammuttaa, liian vähäinen ei avaa tyylejä: humala on resurssi, j
 - Toinen näytös nimiruudun jälkeen (`MATKA_CUT`): mökin piha (porukka kävelee ovelta Teslaan, ovet paukahtavat), Peran selostus auton sisällä (Esa tonttulakissa matkustajan paikalla, `esaSeat`), road trip -sivunäkymä kilometrikyltillä ja tienvarren porolla (`tripSide`). Matkajutustelu arvotaan joka kerta: kolme sketsiä 14:stä (`MATKA_JUTUT`, `matkaLines`). Välinäytösmoottori: repliikit voivat olla funktio, kohtaus saa piirtofunktioon omat asetuksensa.
 - Mökin piha muutettu pelattavaksi (`12c_piha.js`, stage 10): napautus/klikkaus kohteeseen → Esa kävelee ja käyttää (OVI, PALJU, KUPARI nostaa humalaa, TESLA vie matkaan), nuolet/A-D kävelevät ja Enter käyttää lähintä, ohjaimella osoitin. Kaverit auton luona arpovat jutusteluja puhekupliin (`PIHA_JUTUT`), Pera puhuu autosta. Yhteiset apurit `panelFrame`, `textArea`, `audioHint`, `muteAmb`. Peran selostus ja road trip jäävät näytökseksi.
 - Korjattu: revontulet piirtyivät pihalla mökin päälle. Piha jaettu kerroksiin (taivas `pihaSky` → revontulet → etuala `pihaBg`). Revontulien kolme kopioitua piirtoa yhdistetty funktioksi `auroraSky` (intro, Tesla-kohtaus, piha); muiden kohtausten piirtojärjestys tarkistettu.
+- Road tripille aina Aapelin tuumaus saunan ikkunasta (`MATKA_SAUNA`) ja yksi Peran nopeusvitsi (`MATKA_NOPEIN`), lisäksi kaksi muuta sketsiä. Pihan jutusteluun nopeusvitsejä.

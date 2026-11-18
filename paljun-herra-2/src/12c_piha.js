@@ -14,7 +14,7 @@ const PZF=[[SP.w,198,0],[SP.a,211,1],[SP.k,224,2]];
 const PZN=['Hempukka','Aapeli','Kermis','Pera'];
 const PIHA_JUTUT=[[0,'Esa! Ota kaulahuivi.'],[1,'Latausasemat ei vapauta itseään!'],[2,'Mä jäädyn tähän kiinni.'],[1,'Pera, onks tässä istuinlämmitys?'],
  [2,'Joku sanoi, että Rovaniemellä on yökebab.'],[0,'Esa kävelee kuin pingviini.'],[3,'Tesla ei odota! ...Siis odottaa, se on parkissa. Mutta silti!'],
- [3,'Takasiipi ei ole teipattu. Se on aerodynaamisesti kiinnitetty.'],[2,'Esa, sun tonttulakki on väärinpäin.'],[0,'Mä otan ikkunapaikan.'],[1,'Kuka muisti sammuttaa paljun?']];
+ [3,'Takasiipi ei ole teipattu. Se on aerodynaamisesti kiinnitetty.'],[3,'Euroopan nopein Tesla-kuski odottaa! Se on hänelle vaikeinta.'],[1,'Pera on Euroopan nopein Tesla-kuski. Hän kertoi sen itse.'],[2,'Esa, sun tonttulakki on väärinpäin.'],[0,'Mä otan ikkunapaikan.'],[1,'Kuka muisti sammuttaa paljun?']];
 // Kohteiden käyttö: Esan kommentti (kupari ja tesla käsitellään erikseen)
 const PZSAY={ovi:'Kaikki on mukana. Paitsi järki.',palju:'Palju odottaa. Ensin pelastetaan Sam Disco.',kupari:'Aamiainen.',tesla:'Etupenkki on krapulaisen oikeus.'};
 const PZ={ex:60,tx:60,face:1,go:null,msg:null,mt:0,talk:0,bub:null,bt:0,can:true,leave:0,gone:0,kl:0,kr:0};

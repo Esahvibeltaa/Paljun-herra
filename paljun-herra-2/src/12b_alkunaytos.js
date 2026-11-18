@@ -243,13 +243,24 @@ const MATKA_JUTUT=[
  [['Aapeli','PORO TIELLÄ!'],['Pera','Väistän!'],['Aapeli','...Se väisti meidät. Ja näytti keskisormea.']],
  [['Hempukka','Kuka söi mun eväät?'],['Kermis','Ne oli lattialla. Lattia on yhteistä.']],
  [['Esa','Mulla on vähän huono olo.'],['Pera','Et oksenna Teslaan.'],['Esa','Mä oksennan vain Mersuihin.']],
- [['Kermis','Onks tää nopeempi kuin mun Cessna?'],['Pera','Sun Cessnasta puuttui moottori.'],['Kermis','Ihan tahallaan.']],
  [['Esa','Montako jäsentä Sam Discossa oli?'],['Pera','Neljätuhatta.'],['Esa','Entä nyt?'],['Pera','Yksi. Mersumies. Ja hän bannasi vahingossa itsensäkin.']],
  [['Aapeli','Pera, miks sulla on pipo autossa?'],['Pera','Penkinlämmitin on Mersumiehen hallussa.']],
  [['Hempukka','Ollaanko kohta perillä?'],['Pera','Navigaattori sanoo: kaksi tuntia ja yksi Esan vessatauko.'],['Esa','Kaksi vessataukoa.']]];
-const MATKA_N=3;
-function matkaLines(){const p=MATKA_JUTUT.slice();for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
- return[['','Road trip kohti Rovaniemeä alkaa.'],...p.slice(0,MATKA_N).flat(),['','Rovaniemi. Keskustan valot häämöttävät pakkasyössä.']]}
+/* Pera on Euroopan nopein Tesla-kuski: toistuva vitsi, joka kuullaan joka matkalla (yksi arvotaan) */
+const MATKA_NOPEIN=[
+ [['Kermis','Pera, eiks tässä oo nopeusrajoitus?'],['Pera','Euroopan nopein Tesla-kuski ei näe nopeusrajoituksia. Ne vilahtaa ohi.']],
+ [['Aapeli','Kuka on Euroopan nopein Tesla-kuski?'],['Pera','Minä.'],['Aapeli','Kuka sen on mitannut?'],['Pera','Minä. Nopeasti.']],
+ [['Hempukka','Pera, hiljennä vähän.'],['Pera','Euroopan nopein Tesla-kuski ei hiljennä. Hän odottaa, että tie loppuu.']],
+ [['Esa','Miks maisema on pelkkiä viiruja?'],['Pera','Euroopan nopein Tesla-kuski. Totu.']],
+ [['Aapeli','Ohitettiinko me just poliisiauto?'],['Pera','Ohitettiin. Kahdesti.']],
+ [['Kermis','Mun Cessna lensi hitaammin kuin tää ajaa.'],['Pera','Sun Cessnasta puuttui moottori. Ja Euroopan nopein Tesla-kuski.'],['Kermis','Ihan tahallaan.']]];
+// Saunan ikkuna: Aapelin tuumaus kuullaan joka matkalla
+const MATKA_SAUNA=[['Aapeli','Hmm... taisi saunan ikkuna jäädä auki.'],['Hempukka','Taisi jäädä.'],['Kermis','No, ainakin siellä on nyt tuuletettu.'],['Pera','Liian myöhäistä. Euroopan nopein Tesla-kuski on jo Sodankylässä.']];
+const MATKA_N=2;
+/* Matkan repliikit: saunan ikkuna, yksi Peran nopeusvitsi ja MATKA_N muuta sketsiä satunnaisessa järjestyksessä */
+function matkaLines(){const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+ const set=shuffle([MATKA_SAUNA,pick(MATKA_NOPEIN),...shuffle(MATKA_JUTUT).slice(0,MATKA_N)]);
+ return[['','Road trip kohti Rovaniemeä alkaa.'],...set.flat(),['','Rovaniemi. Keskustan valot häämöttävät pakkasyössä.']]}
 const MATKA_CUT=[
  {draw:cutSisa,esa:true,music:'d2',lines:[['Pera','Tilanne on tämä: Mersumies kaappasi Sam Discon palvelimen.'],['Pera','Sen kautta hän lukitsi Lapin latausasemat. Sähköautot jäätyvät tienposkeen.'],['Esa','Entä itse kanava?'],['Pera','Nimi on nyt Diesel Disco. Kaikki on bannattu, ja joka minuutti tulee uusi Mersu-meemi.'],['Pera','Mersumiehen kätyrit vartioivat latausasemia Rovaniemen keskustassa. Sinne mennään.'],['Esa','Selvä. Mutta ensin mä tarviin Kuparin.'],['Hempukka','Sä tarviit ensin vettä.']]},
  {draw:cutTie,trip:true,music:'d2',lines:matkaLines}];
