@@ -139,6 +139,10 @@ function cutTie(T,t){cutLayer('tie',tieSky);
 /* ---- Kohtaus 3: auton sisältä pelkääjän paikalta; kuski näkyy vain hämäränä ääriviivana ---- */
 const VP={x:150,y:50};
 // Pera takaa: pään keskipiste ja säteet, pipon tupsu (täysin pyöreä: säde pr, keskikohta py), penkin selkänojan yläreuna sy ja väri
+// Sisänäkymän mitat: katon reuna sivuilla (roofE) ja keskellä (roofC), A-pilarin leveys ylhäällä ja alhaalla, kojelaudan korkeus
+const CABIN={roof:'#0a0c14',pillar:'#05060b',roofE:34,roofC:22,aTop:46,aBot:12,dash:96};
+// Tyhjä matkustajan penkki: keskikohta, selkänojan yläreuna, niskatuen yläreuna ja puolileveydet
+const PSEAT={x:220,sy:70,hy:44,hw:12,w:30};
 const PERA={x:74,y:58,rx:15,ry:16.5,pr:5.5,py:34,sy:70,seat:'#07090f'};
 function sisaBg(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,VP.y,[[0,'#02030c'],[1,'#141c42']]);g.fillRect(X,Y,CP.w,VP.y-Y);
  for(let i=0;i<40;i++)R('#b8c0e8',X+(i*67)%CP.w,Y+(i*31)%30,1,1);
@@ -151,10 +155,14 @@ function cutSisa(T,t){g.save();g.translate(0,Math.sin(T*27)*.3);cutLayer('sisa',
  for(let k=0;k<5;k++){const u=(t*1.2+k/5)%1,d=u*u,y=VP.y+d*58;for(const s of[-1,1]){const x=VP.x+s*(6+d*190);R('#e0e0e8',x,y-1-d*12,.5+d*2,1+d*12);R('#ff9a2a',x,y-1-d*12,.5+d*2,.6+d*2)}}
  for(let k=0;k<7;k++){const u=(t*.9+k/7)%1,d=u*u,y=VP.y+d*40;for(const s of[-1,1]){const x=VP.x+s*(18+d*300),h=3+d*70;g.fillStyle='#08162a';g.beginPath();g.moveTo(x,y-h);g.lineTo(x+h*.28,y);g.lineTo(x-h*.28,y);g.fill()}}
  for(let k=0;k<26;k++){const a=k*2.4,u=(t*.8+k*.618)%1,r=u*u*170,x=VP.x+Math.cos(a)*r,y=VP.y+Math.sin(a)*r*.55;g.globalAlpha=u;lim(x,y,x+Math.cos(a)*r*.06,y+Math.sin(a)*r*.033,.6,'#ffffff','rgba(255,255,255,.3)')}g.globalAlpha=1;
- // ikkunakehys ja kojelauta
- g.fillStyle='#04050a';g.fillRect(CP.x,CP.y,CP.w,6);g.beginPath();g.moveTo(CP.x,CP.y);g.lineTo(CP.x+30,CP.y);g.lineTo(CP.x+8,CP.y+CP.h);g.lineTo(CP.x,CP.y+CP.h);g.fill();
- g.beginPath();g.moveTo(CP.x+CP.w,CP.y);g.lineTo(CP.x+CP.w-24,CP.y);g.lineTo(CP.x+CP.w-4,CP.y+CP.h);g.lineTo(CP.x+CP.w,CP.y+CP.h);g.fill();
- g.beginPath();g.moveTo(CP.x,96);g.quadraticCurveTo(150,84,CP.x+CP.w,94);g.lineTo(CP.x+CP.w,CP.y+CP.h);g.lineTo(CP.x,CP.y+CP.h);g.fill();
+ // katto, peili, viistot A-pilarit ja kojelauta
+ const Y0=CP.y,X0=CP.x,X1=CP.x+CP.w,AP=CABIN;
+ g.fillStyle=AP.roof;g.beginPath();g.moveTo(X0,Y0);g.lineTo(X1,Y0);g.lineTo(X1,AP.roofE);g.quadraticCurveTo(150,AP.roofC,X0,AP.roofE);g.closePath();g.fill();
+ g.strokeStyle='rgba(110,200,255,.1)';g.lineWidth=.6;g.beginPath();g.moveTo(X0+AP.aTop,AP.roofE-3);g.quadraticCurveTo(150,AP.roofC+1,X1-AP.aTop,AP.roofE-3);g.stroke();
+ R(AP.pillar,149,Y0,2,9);g.fillStyle=AP.pillar;g.beginPath();g.roundRect(138,Y0+8,24,7,2);g.fill();R('#1a2436',140,Y0+9.5,20,1);
+ g.fillStyle=AP.pillar;for(const s2 of[-1,1]){const xe=s2<0?X0:X1;g.beginPath();g.moveTo(xe,Y0);g.lineTo(xe-s2*AP.aTop,Y0);g.lineTo(xe-s2*AP.aBot,AP.dash);g.lineTo(xe,AP.dash);g.fill()}
+ g.strokeStyle='rgba(110,200,255,.14)';for(const s2 of[-1,1]){const xe=s2<0?X0:X1;g.beginPath();g.moveTo(xe-s2*AP.aTop,AP.roofE-2);g.lineTo(xe-s2*AP.aBot,AP.dash);g.stroke()}
+ g.fillStyle=AP.pillar;g.beginPath();g.moveTo(X0,96);g.quadraticCurveTo(150,84,X1,94);g.lineTo(X1,CP.y+CP.h);g.lineTo(X0,CP.y+CP.h);g.fill();
  // keskinäyttö: kartta ja reitti
  const sx=124,sy=88;R('#0a0c12',sx-1,sy-1,42,25);R('#0b2232',sx,sy,40,23);for(let i=0;i<5;i++)R('#123448',sx+((i*9+t*6)%40),sy,1,23);
  g.strokeStyle='#3aa8ff';g.lineWidth=1.2;g.beginPath();g.moveTo(sx+20,sy+22);g.lineTo(sx+20,sy+12);g.lineTo(sx+28+Math.sin(t)*2,sy+2);g.stroke();
@@ -170,6 +178,12 @@ function cutSisa(T,t){g.save();g.translate(0,Math.sin(T*27)*.3);cutLayer('sisa',
  g.strokeStyle=`rgba(110,200,255,${rim})`;g.lineWidth=.8;g.beginPath();g.arc(P.x,P.y,P.rx+.5,-.6,.75);g.stroke();
  g.beginPath();g.ellipse(P.x,P.y-6,P.rx+1.4,P.ry-2.6,0,-1.25,-.1);g.stroke();g.beginPath();g.arc(P.x,P.py,P.pr+.3,-1.3,.9);g.stroke();
  g.strokeStyle=`rgba(110,200,255,${rim*.6})`;g.beginPath();g.moveTo(92,P.sy);g.quadraticCurveTo(103,P.sy,104,P.sy+8);g.stroke();
+ // tyhjä matkustajan penkki: selkänoja ja siihen yhtenäinen niskatuki; näytön puoleista reunaa valaisee heikosti
+ {const Q=PSEAT,x=Q.x,b=CP.y+CP.h;g.fillStyle=PERA.seat;g.beginPath();g.moveTo(x-Q.w,b);g.lineTo(x-Q.w+1,Q.sy+8);g.quadraticCurveTo(x-Q.w+2,Q.sy,x-Q.w+10,Q.sy);g.lineTo(x-Q.hw,Q.sy);g.lineTo(x-Q.hw,Q.hy+8);
+  g.quadraticCurveTo(x-Q.hw,Q.hy,x,Q.hy);g.quadraticCurveTo(x+Q.hw,Q.hy,x+Q.hw,Q.hy+8);g.lineTo(x+Q.hw,Q.sy);g.lineTo(x+Q.w-10,Q.sy);g.quadraticCurveTo(x+Q.w-2,Q.sy,x+Q.w-1,Q.sy+8);g.lineTo(x+Q.w,b);g.fill();
+  R('#0c0f18',x-Q.hw+2,Q.sy-4,Q.hw*2-4,.8);
+  g.strokeStyle=`rgba(110,200,255,${rim*.7})`;g.lineWidth=.8;g.beginPath();g.moveTo(x-Q.hw,Q.sy);g.lineTo(x-Q.hw,Q.hy+8);g.quadraticCurveTo(x-Q.hw,Q.hy,x-2,Q.hy);g.stroke();
+  g.beginPath();g.moveTo(x-Q.w+1,Q.sy+10);g.quadraticCurveTo(x-Q.w+2,Q.sy,x-Q.w+10,Q.sy);g.stroke()}
  // ratti
  g.strokeStyle='#06070c';g.lineWidth=3.2;g.beginPath();g.ellipse(80,104,18,8,-.15,0,7);g.stroke();g.strokeStyle=`rgba(110,200,255,${rim*.5})`;g.lineWidth=.6;g.beginPath();g.ellipse(80,104,19.4,9.2,-.15,-1.2,.2);g.stroke();
  g.restore();R('rgba(10,30,60,.12)',CP.x,CP.y,CP.w,CP.h)}
