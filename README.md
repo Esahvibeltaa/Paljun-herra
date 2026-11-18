@@ -14,3 +14,7 @@ Retrohenkinen suomalainen selainpeli: poreallas, mökki, Cessna, yökerho Falcon
 3. Jos Windows näyttää ilmoituksen "Windows suojasi tietokonettasi", valitse **Lisätietoja → Suorita silti** (ohjelmaa ei ole allekirjoitettu kaupallisella varmenteella).
 
 Peli ei asenna mitään. Poistoon riittää kansion poistaminen. Tarvitsee Microsoft Edge WebView2:n, joka on valmiina Windows 11:ssä ja päivitetyissä Windows 10 -koneissa.
+
+## Jatko-osa
+
+**Paljun Herra 2 – the paluu of drunken master** on työn alla kansiossa [`paljun-herra-2/`](paljun-herra-2/).
