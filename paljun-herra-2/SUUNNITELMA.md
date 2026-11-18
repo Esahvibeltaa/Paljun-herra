@@ -17,6 +17,11 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 - Viholliset ja pomot ovat ykkösosan **paikkamerkkejä** (Diesel-jengi, Pena, Tapsa).
 - Ykkösosan tarinakentät ovat vielä mukana tietona (`L1`, `LG`, `LS`, `L2`, `LB`), mutta eivät käytössä.
 
+## Taustatieto
+
+- **Sam Disco** = SAM-ryhmän (Sähköautomiehet) suosittu Discord-kanava. Mersumies on kaapannut sen palvelimen.
+- **Pera** soittaa Esalle vihreästä takasiipisestä Tesla Model 3:sta (pipo, pyöreä tupsu).
+
 ## Tarinapolku (karkea luonnos, kommentoitavana)
 
 Perusidea (tarkentuu alkunäytöksen mukaan: Mersumies on palannut ja kaapannut Sam Discon palvelimen): **Esalta viedään palju.** Ilman paljua ei ole paljun herraa. Esa saa ensin turpaansa, oppii humalanyrkin vanhalta mestarilta ja hakee valtaistuimensa takaisin. Klassinen drunken master -kaari: nöyryytys → harjoitus → paluu.
