@@ -28,13 +28,13 @@ const RV_ST=[{x:600,w:1},{x:1665,w:4},{x:1860,w:5}];
 // Yllättäen aukeavat ovet: oven paikka, Esan x joka laukaisee, vihollinen, kyltti ja repliikki
 const RV_DOOR=[{x:830,trig:790,k:'hm',sign:'RAPPU',say:'Haalarimies: Kuka koputti?'},{x:1492,trig:1455,k:'sm',sign:'KUNTOSALI',say:'Sali-Make: Kuka häiritsee mun penkkiä?'},{x:1540,trig:1505,k:'tk',sign:'PUB',say:'Takatukka: Mun tuoppi jäi kesken!'}];
 // Sampokeskus: hissi (lad) vie katolle A, hyppy katolle B ja ramppi alas kadulle (S); korkeudet pikseleinä
-const RV_ROOF={lad:900,lift:1,A:[912,1110,80],B:[1134,1330,64],S:1450};
+const RV_ROOF={lad:940,lift:1,A:[912,1110,80],B:[1134,1330,64],S:1450};
 const LR={n:1,fin:1,noW:1,name:'Rovaniemen keskusta',hud:'ROVANIEMI',theme:'rova',len:RV.len,roof:RV_ROOF,camY:{off:10,max:72},
  waves:[{x:240,list:['hm','hm']},{x:540,list:['hm','tk','hm']},{x:1000,roof:1,list:['hm','tk']},{x:1200,roof:1,list:['tk','hm','hm']},{x:1490,list:['hm','tk','hm']},{x:1740,list:['tk','hm','tk','hm','tk']}],
  bins:[[180,30,'c'],[460,10,'v'],[820,28,'w'],[1520,30,'c'],[1600,12,'v'],[1700,26,'p']],
  msg:['Kenttä 1: Rovaniemen keskusta','Vapauta lukitut latausasemat!'],say:['a','Aapeli: Jätkänkynttilä! Täältä se alkaa.'],
  done:['Latausasemat vapautettu!','Lordin aukio on hiljainen... liian hiljainen.','Napauta: jatka.'],
- onStep:rovaStep,onDraw:rovaDraw,onHud:rovaHud,onFg:rovaFg};
+ onStep:rovaStep,onDraw:rovaDraw,onHud:rovaHud,onFg:rovaFg,onSort:liftSort};
 const RV_QUIP=[['a','Aapeli: Latausasema vapaa! ID.3 kiittää.'],['k','Kermis: Virta kulkee taas. Rock!'],['p','Esa: Seuraava!']];
 function startRova(){LV.length=1;LV.push(LR);startMJ()}
 
@@ -43,43 +43,49 @@ function rovaSt(){if(!M.rv||M.ck<M.rvCk){M.rv=RV_ST.map(s=>({...s,free:0,t:0}));
 /* Vihollinen ilmestyy maailman kohtaan (ovesta), ei ruudun reunalta kuten aalloissa */
 function spawnAt(k,x,z){const t=KT[k],f=mjE(SP[t.sp],x,z,'e',k,t.hp*(DIFF?1.3:1));f.face=M.e.x<x?-1:1;f.slot=(t.sc?21:15)+Math.random()*6;f.cd=1.2;M.ents.push(f);return f}
 function rovaDoors(dt){for(const d of M.rvD){if(d.op){d.op=Math.min(1,d.op+dt*3);continue}if(M.e.lev!=='roof'&&M.e.x>=d.trig){d.op=.01;tn(160,90,.25,.25,'square');nz(.25,'lowpass',600,.3);const f=spawnAt(d.k,d.x,2);M.say=[f,d.say];M.sayT=2.6;sTalk(1);msgL=['Ovi paukahtaa auki!']}}}
-/* ---- Sampokeskuksen hissi ----
-   Kulku: (kori alas, jos se on ylhäällä) → ovet aukeavat → Esa ja kaverit kävelevät koriin → ovet sulkeutuvat →
-   kori nousee lasitornissa → kilahdus, ovet aukeavat → porukka kävelee katolle → ovet sulkeutuvat. Esa ei ohjaa kulun aikana. */
-// catchUp = kauempana olevat kaverit siirretään tämän matkan päähän ennen kävelyä koriin
-const LIFT={w:32,h:54,tw:46,door:.55,rise:2.2,walk:42,slots:[0,-8,8],catchUp:70};
+/* ---- Sampokeskuksen hissi (rakennuksen sisällä) ----
+   Katutasolla ovi on julkisivussa, kori näkyy noustessaan julkisivun lasikaistaleesta, ja ylhäällä hissi tulee katon läpi
+   konehuoneeseen katon takaosaan. Porukka astuu ulos konehuoneen ovista kattotasolle (katto heidän edessään).
+   Kulku: (kori alas) → ovet aukeavat → porukka kävelee koriin → ovet kiinni → nousu → ovet auki ylhäällä → ulos katolle → ovet kiinni. */
+// w,h = oviaukko; sz = katuoven syvyys (z), hz = konehuoneen oven syvyys katolla; houseH/houseW = konehuoneen koko
+const LIFT={w:28,h:44,door:.55,rise:2.4,walk:42,slots:[0,-7,7],catchUp:70,sz:40,hz:1,houseH:60,houseW:42};
 function liftStart(){const r=M.L.roof,L0=M.lift||{y:0};M.lift={on:1,ph:L0.y>0?'down':'open',t:0,d:0,y:L0.y,who:[M.e,...M.al.filter(a=>!a.tired&&!['fly','down','ko','roll','kip'].includes(a.st)&&a.lev!=='roof')]};
- M.lift.who.forEach(f=>{if(f!==M.e&&Math.abs(f.x-r.lad)>LIFT.catchUp)f.x=r.lad-LIFT.catchUp;f.atk=null});
- M.lift.who.forEach(f=>{f.inLift=1;f.vx=f.vz=0});tn(880,880,.08,.05,'sine');tn(660,660,.12,.05,'sine',.1);msgL=['Hissi tulee...']}
-/* Siirtää hahmoa kohti x:ää kävellen; palauttaa true, kun perillä */
+ M.lift.who.forEach(f=>{if(f!==M.e&&Math.abs(f.x-r.lad)>LIFT.catchUp)f.x=r.lad-LIFT.catchUp;f.atk=null;f.inLift=1;f.vx=f.vz=0});tn(880,880,.08,.05,'sine');tn(660,660,.12,.05,'sine',.1);msgL=['Hissi tulee...']}
+/* Siirtää hahmoa kohti (x,z) kävellen; palauttaa true, kun perillä */
 function liftWalk(f,x,z,dt){const dx=x-f.x,dz=z-f.z,d=Math.hypot(dx,dz),s=LIFT.walk*dt;if(d<=s){f.x=x;f.z=z;f.st='idle';return true}f.x+=dx/d*s;f.z+=dz/d*s;f.face=Math.abs(dx)>.5?Math.sign(dx):f.face;f.st='walk';f.wk=(f.wk||0)+dt;return false}
 function liftDoorSound(){nz(.35,'bandpass',1800,.06,900)}
 function liftRide(e,dt){const r=M.L.roof,L=M.lift,top=r.A[2],ease=u=>u*u*(3-2*u);L.t+=dt;e.vx=e.vz=0;
- const rideAll=()=>L.who.forEach(f=>{f.base=L.y;f.y=0;f.vy=0});
  if(L.ph==='down'){L.y=top*(1-ease(Math.min(1,L.t/LIFT.rise)));if(L.t>=LIFT.rise){L.y=0;L.ph='open';L.t=0}}
  else if(L.ph==='open'){if(L.t<dt*1.5){tn(1319,1319,.3,.05,'sine');liftDoorSound()}L.d=Math.min(1,L.t/LIFT.door);if(L.d>=1){L.ph='enter';L.t=0}}
- else if(L.ph==='enter'){let ok=true;L.who.forEach((f,i)=>{if(!liftWalk(f,r.lad+LIFT.slots[i],2,dt))ok=false});if(ok){L.who.forEach(f=>f.face=1);L.ph='close';L.t=0;liftDoorSound();msgL=['Ovet sulkeutuvat...']}}
- else if(L.ph==='close'){L.d=1-Math.min(1,L.t/LIFT.door);if(L.d<=0){L.ph='rise';L.t=0;msgL=['Hissi nousee...']}}
- else if(L.ph==='rise'){const u=Math.min(1,L.t/LIFT.rise);L.y=top*ease(u);rideAll();if(Math.floor(L.t/.25)!==Math.floor((L.t-dt)/.25))tn(70,70,.22,.05,'sawtooth');if(u>=1){L.ph='open2';L.t=0;tn(1319,1319,.5,.06,'sine');tn(1047,1047,.6,.05,'sine',.18);liftDoorSound();msgL=['Kling! Sampokeskuksen katto.']}}
- else if(L.ph==='open2'){rideAll();L.d=Math.min(1,L.t/LIFT.door);if(L.d>=1){L.ph='exit';L.t=0}}
- else if(L.ph==='exit'){let ok=true;L.who.forEach((f,i)=>{const tx=r.A[0]+14+i*12;if(!liftWalk(f,tx,6+i*8,dt))ok=false;f.base=top;if(f.x>=r.A[0]-3)f.lev='roof'});if(ok){L.ph='close2';L.t=0;liftDoorSound()}}
- else if(L.ph==='close2'){L.d=1-Math.min(1,L.t/LIFT.door);if(L.d<=0){L.on=0;L.who.forEach(f=>{f.inLift=0;f.st='idle'});msgL=['Katolla!','Potki viholliset reunan yli.']}}}
-/* Hissin kori: lattian korkeus ruudulla (kori lepää ylhäällä, kun se on viety sinne) */
-function liftCab(){const L=M.lift;return 114-(L?L.y:0)}
-/* Tausta (ennen hahmoja): teräs- ja lasitorni, korin takaseinä valoineen */
-function liftBack(T){const r=M.L.roof,x=r.lad-M.cam;if(x<-40||x>W+40)return;const top=112-r.A[2]-LIFT.h-12,tw=LIFT.tw/2,fy=liftCab(),cw=LIFT.w/2;
- R('#141824',x-tw,top,LIFT.tw,116-top);R('rgba(110,170,230,.14)',x-tw+3,top+3,LIFT.tw-6,113-top);for(let y=top+14;y<114;y+=14)R('#262c3c',x-tw,y,LIFT.tw,1.5);
- g.strokeStyle='#262c3c';g.lineWidth=.8;for(let y=top+14;y<100;y+=28){g.beginPath();g.moveTo(x-tw,y);g.lineTo(x+tw,y+14);g.moveTo(x+tw,y);g.lineTo(x-tw,y+14);g.stroke()}
- R('#2e3444',x-1,top,2,fy-LIFT.h-top);
- R('#3a3226',x-cw,fy-LIFT.h,LIFT.w,LIFT.h);R('#4a4030',x-cw,fy-LIFT.h,LIFT.w,3);R('#c8a060',x-cw+2,fy-LIFT.h+1,LIFT.w-4,1);R('#5a4c38',x-cw,fy-14,LIFT.w,1.2);R('#2a241c',x-cw,fy-3,LIFT.w,3);glow(x,fy-LIFT.h+4,14,'255,220,160',.25)}
-/* Etuala (hahmojen päälle): korin kehys, liukuovet ikkunakaistaleineen, kerrosnäyttö, lasipinta ja tornin katto kyltteineen */
-function liftFront(T){const r=M.L.roof,x=r.lad-M.cam;if(x<-40||x>W+40)return;const L=M.lift,d=L?L.d:0,top=112-r.A[2]-LIFT.h-12,tw=LIFT.tw/2,fy=liftCab(),cw=LIFT.w/2,ch=LIFT.h,pw=cw-1;
- g.save();g.beginPath();g.rect(x-cw+1,fy-ch,LIFT.w-2,ch);g.clip();for(const s of[-1,1]){const px=s<0?x-pw-d*pw:x+d*pw;R('#8a909c',px,fy-ch+3,pw,ch-3);R('#a8aeb8',px,fy-ch+3,1,ch-3);R('rgba(255,230,180,.35)',px+2,fy-ch+6,pw-4,5);R('#5a606a',px+(s<0?pw-1:0),fy-ch+3,1,ch-3)}g.restore();
- R('#4a505c',x-cw-2,fy-ch-3,LIFT.w+4,4);R('#4a505c',x-cw-2,fy-ch,2,ch);R('#4a505c',x+cw,fy-ch,2,ch);R('#2a2e38',x-cw-2,fy,LIFT.w+4,2);
- const fl=!L||L.y<1?'1':L.y>=r.A[2]-1?'K':'↑';R('#0a0c12',x-6,fy-ch-11,12,7);g.save();g.font='bold 5px monospace';g.textAlign='center';g.fillStyle='#ff6a3a';g.fillText(fl,x,fy-ch-5.5);g.restore();
- R('rgba(170,210,255,.08)',x-tw+3,top+3,LIFT.tw-6,113-top);R('#3a3e4a',x-tw-2,top-5,LIFT.tw+4,5);R('#5a5e6a',x-tw-2,top-5,LIFT.tw+4,1);R('#9aa6c8',x-tw-2,top-6.5,LIFT.tw+4,1.5);labelBoard('HISSI',x,top-9,'#7dd8ff');
- const sx=(r.A[0]+r.A[1])/2-M.cam,sy=112-r.A[2]-22;if(sx>-80&&sx<W+80){R('#3a3e48',sx-30,sy+3,2,14);R('#3a3e48',sx+28,sy+3,2,14);R('#5a5e68',sx-40,sy-10,80,15);R('#0e0c14',sx-39,sy-9,78,13);
-  g.save();g.font='bold 8px monospace';g.textAlign='center';const on=Math.sin(T*3)>-.95;g.shadowBlur=on?7:0;g.shadowColor='#ff6a3a';g.fillStyle=on?'#ffb07a':'#5a3a2a';g.fillText('SAMPOKESKUS',sx,sy);g.restore()}}
+ else if(L.ph==='enter'){let ok=true;L.who.forEach((f,i)=>{if(!liftWalk(f,r.lad+LIFT.slots[i],LIFT.sz,dt))ok=false});if(ok){L.who.forEach(f=>f.face=1);L.ph='close';L.t=0;liftDoorSound();msgL=['Ovet sulkeutuvat...']}}
+ else if(L.ph==='close'){L.d=1-Math.min(1,L.t/LIFT.door);if(L.d<=0){L.ph='rise';L.t=0;L.who.forEach(f=>f.hidden=1);msgL=['Hissi nousee...']}}
+ else if(L.ph==='rise'){const u=ease(Math.min(1,L.t/LIFT.rise));L.y=top*u;L.who.forEach(f=>{f.base=L.y;f.z=LIFT.sz+(LIFT.hz-LIFT.sz)*u;f.y=0;f.vy=0});if(Math.floor(L.t/.25)!==Math.floor((L.t-dt)/.25))tn(70,70,.22,.05,'sawtooth');
+  if(L.t>=LIFT.rise){L.ph='open2';L.t=0;L.who.forEach((f,i)=>{f.hidden=0;f.base=top;f.z=LIFT.hz;f.x=r.lad+LIFT.slots[i];f.face=1});tn(1319,1319,.5,.06,'sine');tn(1047,1047,.6,.05,'sine',.18);liftDoorSound();msgL=['Kling! Sampokeskuksen katto.']}}
+ else if(L.ph==='open2'){L.d=Math.min(1,L.t/LIFT.door);if(L.d>=1){L.ph='exit';L.t=0;L.who.forEach(f=>f.lev='roof')}}
+ else if(L.ph==='exit'){let ok=true;L.who.forEach((f,i)=>{if(!liftWalk(f,r.lad+10+i*14,12+i*9,dt))ok=false;f.base=top});if(ok){L.ph='close2';L.t=0;liftDoorSound()}}
+ else if(L.ph==='close2'){L.d=1-Math.min(1,L.t/LIFT.door);if(L.d<=0){L.on=0;L.who.forEach(f=>{f.inLift=0;f.hidden=0;f.st='idle'});msgL=['Katolla!','Potki viholliset reunan yli.']}}}
+/* Korin lattian korkeus (maailman y): katuovella 112+sz, konehuoneessa katolla 112-katto+hz */
+function liftFloorY(){const r=M.L.roof,L=M.lift,u=L?L.y/r.A[2]:0;return 112+LIFT.sz+((112-r.A[2]+LIFT.hz)-(112+LIFT.sz))*u}
+function cabInside(x,fy){const cw=LIFT.w/2;R('#3a3226',x-cw,fy-LIFT.h,LIFT.w,LIFT.h);R('#4a4030',x-cw,fy-LIFT.h,LIFT.w,3);R('#c8a060',x-cw+2,fy-LIFT.h+1,LIFT.w-4,1);R('#5a4c38',x-cw,fy-15,LIFT.w,1.2);R('#2a241c',x-cw,fy-3,LIFT.w,3);glow(x,fy-LIFT.h+4,12,'255,220,160',.22)}
+/* Liukuovet ja kehys aukolle (pohja y0, d = avautuneisuus 0–1) */
+function liftDoors(x,y0,d){const cw=LIFT.w/2,pw=cw-1,h=LIFT.h;g.save();g.beginPath();g.rect(x-cw+1,y0-h,LIFT.w-2,h);g.clip();
+ for(const s of[-1,1]){const px=s<0?x-pw-d*pw:x+d*pw;R('#8a909c',px,y0-h+2,pw,h-2);R('#a8aeb8',px,y0-h+2,1,h-2);R('rgba(255,230,180,.3)',px+2,y0-h+5,pw-4,4);R('#5a606a',px+(s<0?pw-1:0),y0-h+2,1,h-2)}g.restore();
+ R('#4a505c',x-cw-3,y0-h-3,LIFT.w+6,4);R('#4a505c',x-cw-3,y0-h,3,h);R('#4a505c',x+cw,y0-h,3,h)}
+/* Taka-ala (ennen hahmoja): katuovi aukkoineen, julkisivun lasikaistale korin kanssa, konehuone katolla sisuksineen, Sampokeskus-kyltti */
+function liftBack(T){const r=M.L.roof,x=r.lad-M.cam;if(x<-60||x>W+60)return;const L=M.lift,fy=liftFloorY(),cw=LIFT.w/2,sy=112+LIFT.sz,hy=112-r.A[2]+LIFT.hz,top=r.A[2],atBot=!L||L.y<.5,atTop=L&&L.y>=top-.5;
+ // katuovi julkisivussa
+ R('#0c0e14',x-cw,sy-LIFT.h,LIFT.w,LIFT.h);if(atBot)cabInside(x,sy);
+ // lasikaistale julkisivussa: kori näkyy rakennuksen sisällä noustessaan
+ const wy0=152-top+6,wy1=sy-LIFT.h-6;R('#1a2232',x-cw-2,wy0,LIFT.w+4,wy1-wy0);g.save();g.beginPath();g.rect(x-cw,wy0+1,LIFT.w,wy1-wy0-2);g.clip();for(let y=wy0;y<wy1;y+=10)R('#24304a',x-cw,y,LIFT.w,1);if(!atBot&&!atTop)cabInside(x,fy);R('rgba(150,200,255,.12)',x-cw,wy0,LIFT.w,wy1-wy0);g.restore();R('#4a505c',x-cw-2,wy0,2,wy1-wy0);R('#4a505c',x+cw,wy0,2,wy1-wy0);
+ // konehuone katon takaosassa
+ const hw=LIFT.houseW/2,ht=hy-LIFT.houseH;R('#3a3e4a',x-hw,ht,LIFT.houseW,LIFT.houseH);R('#4a4e5a',x-hw,ht,LIFT.houseW,2);R('#9aa6c8',x-hw-1,ht-2,LIFT.houseW+2,2.5);R('rgba(0,0,0,.3)',x+hw-4,ht,4,LIFT.houseH);
+ R('#0c0e14',x-cw,hy-LIFT.h,LIFT.w,LIFT.h);if(atTop)cabInside(x,hy);labelBoard('HISSI',x,ht+8,'#7dd8ff');
+ const fl=atBot?'1':atTop?'K':'↑';for(const yy of[sy-LIFT.h-11,hy-LIFT.h-11]){R('#0a0c12',x-6,yy,12,7);g.save();g.font='bold 5px monospace';g.textAlign='center';g.fillStyle='#ff6a3a';g.fillText(fl,x,yy+5.5);g.restore()}
+ const sx=(r.A[0]+r.A[1])/2+30-M.cam,sgy=112-r.A[2]-22;if(sx>-80&&sx<W+80){R('#3a3e48',sx-30,sgy+3,2,14);R('#3a3e48',sx+28,sgy+3,2,14);R('#5a5e68',sx-40,sgy-10,80,15);R('#0e0c14',sx-39,sgy-9,78,13);
+  g.save();g.font='bold 8px monospace';g.textAlign='center';const on=Math.sin(T*3)>-.95;g.shadowBlur=on?7:0;g.shadowColor='#ff6a3a';g.fillStyle=on?'#ffb07a':'#5a3a2a';g.fillText('SAMPOKESKUS',sx,sgy);g.restore()}}
+/* Ovet syvyysjärjestyksessä hahmojen kanssa: katuovi (z = sz+.5) ja konehuoneen ovi (z = hz+.5); sisällä olevat jäävät ovien taakse */
+function liftSort(Ls){const r=M.L.roof,x=r.lad-M.cam;if(x<-60||x>W+60)return;const L=M.lift,top=r.A[2],atBot=!L||L.y<.5,atTop=L&&L.y>=top-.5,d=L?L.d:0;
+ Ls.push([LIFT.sz+.5,()=>liftDoors(x,112+LIFT.sz,atBot?d:0)]);Ls.push([LIFT.hz+.5,()=>liftDoors(x,112-top+LIFT.hz,atTop?d:0)])}
 function rovaStep(dt){const st=rovaSt();rovaDoors(dt);for(const s of st){if(s.free){s.t+=dt;continue}if(M.wi>s.w){s.free=1;s.t=0;const n=st.filter(x=>x.free).length;
  msgL=['Latausasema vapautettu! ('+n+'/'+st.length+')'];[784,988,1175,1568].forEach((f,i)=>tn(f,f,.12,.06,'square',i*.07));const q=RV_QUIP[(n-1)%RV_QUIP.length];mjSay(q[0],q[1])}}}
 function rovaHud(){const st=M.rv||RV_ST,n=st.filter(s=>s.free).length;g.save();g.font='bold 7px monospace';g.textAlign='right';g.fillStyle=n===st.length?'#7dff9a':'#bfe8ff';g.shadowColor='#000';g.shadowBlur=2;g.fillText('ASEMAT '+n+'/'+st.length,314,29);g.restore()}
@@ -127,7 +133,7 @@ function twinkle(T,a){for(let i=0;i<34;i++){const x=(i*97+13)%W,y=14+(i*41)%62,s
 /* Lumisade vain osassa kenttää: alueet maailman x:nä, reunoilla sade hiipuu (fade px). Hiutaleet sijoittuvat ajan ja kameran mukaan. */
 const SNOWF={areas:[[260,720],[1150,1520],[1880,2300]],fade:120,n:90,spd:[16,34],par:[.5,1]};
 function snowAmt(wx){let a=0;for(const [x0,x1] of SNOWF.areas){const v=Math.min(wx-x0,x1-wx)/SNOWF.fade;a=Math.max(a,Math.min(1,v))}return Math.max(0,a)}
-function rovaFg(T){liftFront(T);const c=M.cam,a=snowAmt(c+W/2);if(a<=0)return;const n=Math.floor(SNOWF.n*a);vpar(0,()=>{
+function rovaFg(T){const c=M.cam,a=snowAmt(c+W/2);if(a<=0)return;const n=Math.floor(SNOWF.n*a);vpar(0,()=>{
  for(let i=0;i<n;i++){const p=SNOWF.par[0]+hsh(i+300)*(SNOWF.par[1]-SNOWF.par[0]),v=SNOWF.spd[0]+hsh(i+500)*(SNOWF.spd[1]-SNOWF.spd[0]),y=((hsh(i+700)*150+T*v)%150)+10,x=((hsh(i+900)*W*1.4-c*p+Math.sin(T*.8+i)*6)%W+W)%W,s=p>.8?1.4:1;
   R(`rgba(235,240,255,${.45+.4*p})`,x,y,s,s)}})}
 function rovaBg(T){const c=M.cam;
