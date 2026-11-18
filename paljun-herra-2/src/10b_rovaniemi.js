@@ -61,10 +61,12 @@ function kynttila(x,T){R('#7a7e8a',x-3,32,6,72);R('#9a9eaa',x-3,32,2,72);R('#5a5
  const f=Math.sin(T*9+x)*.6;g.fillStyle='#ff9a2a';g.beginPath();g.moveTo(x-3,30);g.quadraticCurveTo(x-2,22+f,x,18+f);g.quadraticCurveTo(x+2,22-f,x+3,30);g.fill();g.fillStyle='#ffe28a';g.beginPath();g.moveTo(x-1.4,30);g.quadraticCurveTo(x,24,x,22+f);g.quadraticCurveTo(x+.5,25,x+1.4,30);g.fill();
  glow(x,24,16,'255,170,70',.45+.1*Math.sin(T*7+x));g.strokeStyle='rgba(200,205,220,.5)';g.lineWidth=.5;for(const s of[-1,1])for(const d of[30,60]){g.beginPath();g.moveTo(x,34);g.lineTo(x+s*d,100);g.stroke()}}
 /* Koskikadun talo i välimuistikankaaseen (2x): ikkunat, kauppa, ovi ja neonkyltti hehkuineen; on = kyltti palaa (välkkyy harvoin) */
-const KOSKI={signs:['KOSKIKATU','KAUPPAHALLI','POROKEBAB','APTEEKKI','REVONTULI','PUB','SAUNA-BAARI','KIRJASTO'],col:['#3ad8ff','#ffb03a','#ff5a4a','#7aff6a','#c08aff','#ff3aa8'],wall:['#3a2a3a','#2a3242','#3a3028','#2e2e3e']},KOSKIC={};
+const KOSKI={signs:['KOSKIKATU','KAUPPAHALLI','POROKEBAB','APTEEKKI','REVONTULI','PUB','SAUNA-BAARI','KIRJASTO'],col:['#3ad8ff','#ffb03a','#ff5a4a','#7aff6a','#c08aff','#ff3aa8'],wall:['#3a2a3a','#2a3242','#3a3028','#2e2e3e'],awn:['#5a2a2a','#2a4a3a','#3a3a5a','#5a4a2a']},KOSKIC={};
 function koskiBld(i,on){const key=i+(on?'+':'-');let k=KOSKIC[key];if(k)return k;const h=58+hsh(i+3)*24,top=104-h,cv=document.createElement('canvas');cv.width=100*2;cv.height=(h+8)*2;const x=cv.getContext('2d');x.scale(2,2);x.translate(2,6-top);
  const gs=g;g=x;try{const m=n=>((i%n)+n)%n;R(KOSKI.wall[m(4)],0,top,94,h);R('#e8f0ff',-1,top-2,96,3);R('rgba(0,0,0,.25)',90,top,4,h);
-  for(let wy=top+6;wy<84;wy+=12)for(let wx=8;wx<88;wx+=16)R(hsh(i*17+wy+wx)>.5?'#ffd890':'#1a1a28',wx,wy,8,7);R('#ffe8a8',10,88,40,14);R('#1a1418',62,86,14,18);
+  for(let wy=top+6;wy<84;wy+=12)for(let wx=8;wx<88;wx+=16)R(hsh(i*17+wy+wx)>.5?'#ffd890':'#1a1a28',wx,wy,8,7);// näyteikkuna himmeänä ja jäsenneltynä (ei hehkua): kehys, ruudut, tuotteet ja markiisi
+  R('#1a1418',8,86,44,18);R('#7a6040',10,88,40,14);R('#94744c',10,88,40,3);for(let wx=12;wx<48;wx+=9)R('#4a3a2a',wx,93,6,9);R('#1a1418',29,88,1.5,14);R(KOSKI.awn[m(KOSKI.awn.length)],7,84,46,3);R('rgba(0,0,0,.3)',7,87,46,1);
+  R('#1a1418',62,86,14,18);R('#3a2e28',64,88,10,16);
   const col=KOSKI.col[m(KOSKI.col.length)];g.font='bold 8px monospace';g.textAlign='center';g.shadowBlur=on?6:0;g.shadowColor=col;g.fillStyle=on?col:'#3a2a3a';g.fillText(KOSKI.signs[m(KOSKI.signs.length)],47,82)}finally{g=gs}
  return KOSKIC[key]={cv,top}}
 function rovaBg(T){const c=M.cam;cutLayer('rovaSky',rovaSky);auroraSky('rova',T,0,W,16,9,7,41,2,15,.4);ell(272-c*.02,30,8,8,'#f2ecc8');
@@ -83,7 +85,8 @@ function rovaBg(T){const c=M.cam;cutLayer('rovaSky',rovaSky);auroraSky('rova',T,
    for(let j=0;j<14;j++){const a=hsh(j+3),y=40+a*50,x=kx+(hsh(j+9)-.5)*(8+(y-34)*.55);R(Math.sin(T*3+j)>0?'#ffe23a':'#ff5a8a',x,y,1.5,1.5)}g.fillStyle='#ffe23a';g.beginPath();g.arc(kx,33,3,0,7);g.fill();glow(kx,60,30,'255,220,120',.15)}
   const sx=RV.koski+60-c;if(sx>-80&&sx<W+20){R('#1a1a24',sx,62,70,14);g.save();g.font='bold 8px monospace';g.textAlign='center';g.shadowBlur=6;g.shadowColor='#ff3a3a';g.fillStyle='#ff6a5a';g.fillText('LORDIN AUKIO',sx+35,72);g.restore();R('#3a3a44',sx+33,76,3,28)}});
  cutLayer('rovaGround',rovaGround);
- for(let i=Math.floor(c/24)-1;i<Math.floor(c/24)+15;i++){const x=i*24-c;if(i*24<RV.silta-10)continue;ell(x,111,8+hsh(i)*6,2.5,'#eef3ff')}
+ // lumipenkat jalkakäytävän reunassa: himmeät ja varjostetut, jotta ne istuvat yöhön
+ for(let i=Math.floor(c/24)-1;i<Math.floor(c/24)+15;i++){const x=i*24-c;if(i*24<RV.silta-10)continue;const w=8+hsh(i)*6;ell(x,111.5,w,2.4,'#5e6888');ell(x,110.8,w*.8,1.6,'#7c88aa')}
  for(let i=Math.floor(c/40)-1;i<Math.floor(c/40)+10;i++)R('rgba(230,230,200,.5)',i*40-c,135,18,1.6)}
 
 /* Pieni nimikyltti tummalla taululla, jotta taustan ikkunat ja valot eivät sekoitu tekstiin */
@@ -94,13 +97,13 @@ function chargerDraw(x,s,T){const y=108,fr=s&&s.free;R('#2a2e38',x-5,y-26,10,26)
  if(!fr){R('#c8a040',x-3,y-12,6,5);g.strokeStyle='#c8a040';g.lineWidth=1;g.beginPath();g.arc(x,y-12,2.2,Math.PI,0);g.stroke()}
  labelBoard(fr?'VAPAA':'LUKITTU',x,y-29,fr?'#7dff9a':'#ff8a8a');
  if(fr&&s.t<1.2)for(let k=0;k<6;k++){const a=k*1.05+s.t*4,r=s.t*22;R('#bfffd0',x+Math.cos(a)*r,y-18+Math.sin(a)*r*.6,1.5,1.5)}}
-function kioskiDraw(x,T){const y=108;R('#6a2420',x-24,y-40,48,40);R('#8a3430',x-24,y-40,48,3);R('#ffd890',x-18,y-32,36,14);R('#3a1a10',x-20,y-18,40,3);R('#e8f0ff',x-26,y-43,52,3);
- g.save();g.font='bold 6px monospace';g.textAlign='center';const on=Math.sin(T*4)>-.9;g.shadowBlur=on?5:0;g.shadowColor='#ffe23a';g.fillStyle=on?'#ffe23a':'#6a5a2a';g.fillText('KIOSKI',x,y-45);g.shadowBlur=0;g.font='bold 4px monospace';g.fillStyle='#3a1a10';g.fillText('POROBURGER',x,y-26);g.restore();glow(x,y-26,22,'255,210,120',.25)}
+function kioskiDraw(x,T){const y=108;R('#6a2420',x-24,y-40,48,40);R('#8a3430',x-24,y-40,48,3);R('#8a6a40',x-18,y-32,36,14);R('#a8844e',x-18,y-32,36,3);for(let wx=x-15;wx<x+15;wx+=8)R('#5a4430',wx,y-27,5,9);R('#3a1a10',x-20,y-18,40,3);R('#e8f0ff',x-26,y-43,52,3);
+ g.save();g.font='bold 6px monospace';g.textAlign='center';const on=Math.sin(T*4)>-.9;g.shadowBlur=on?5:0;g.shadowColor='#ffe23a';g.fillStyle=on?'#ffe23a':'#6a5a2a';g.fillText('KIOSKI',x,y-45);g.shadowBlur=0;g.font='bold 4px monospace';g.fillStyle='#3a1a10';g.fillText('POROBURGER',x,y-26);g.restore();glow(x,y-26,20,'255,200,120',.12)}
 function penkkiDraw(x,T){const y=108;R('#4a3420',x-16,y-14,32,3);R('#2a1e14',x-14,y-11,2,11);R('#2a1e14',x+12,y-11,2,11);
  const o=idle(T,4);o.s=.62;o.qL=.45;o.qR=.45;o.blink=Math.sin(T*.7)>.6;o.tilt=.06+Math.sin(T*.5)*.05;o.item='h';o.aR=-.9;o.eR=-1;drawChar(SP.vh,x,y-4,o);
  R('#5a3e26',x-16,y-8,32,3);g.font='bold 6px monospace';zzz(x+6,y-40,T)}
 function doorDraw(x,d,T){const y=104,op=d?d.op:0;R('#4a3a34',x-14,y-38,28,38);R('#5a4a44',x-14,y-38,28,2);R('#e8f0ff',x-15,y-40,30,2);
- if(op>0){R('#ffd890',x-9,y-30,18,30);glow(x,y-12,18,'255,200,120',.35*op)}R('#6a3a22',x-9,y-30,18*(1-op*.85),30);R('#c8a040',x-9+18*(1-op*.85)-4,y-16,2,2);
+ if(op>0){R('#a8844e',x-9,y-30,18,30);R('#c49a5a',x-9,y-30,18,4);glow(x,y-12,16,'255,190,110',.18*op)}R('#6a3a22',x-9,y-30,18*(1-op*.85),30);R('#c8a040',x-9+18*(1-op*.85)-4,y-16,2,2);
  g.save();g.font='bold 5px monospace';g.textAlign='center';g.fillStyle='#ffe8a8';g.fillText(d?d.sign:'',x,y-32);g.restore()}
 /* Sampokeskuksen lasinen hissitorni: korin lattia seuraa Esaa (ylhäällä, kun Esa on katolla) */
 function liftDraw(T){const r=M.L.roof,x=r.lad-M.cam;if(x<-30||x>W+30)return;const top=112-r.A[2]-22,e=M.e,py=112-(e.st==='climb'?e.base:e.lev==='roof'&&e.x<r.A[1]+40?r.A[2]:0);
