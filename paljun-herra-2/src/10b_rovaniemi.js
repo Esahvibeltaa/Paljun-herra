@@ -69,6 +69,10 @@ function koskiBld(i,on){const key=i+(on?'+':'-');let k=KOSKIC[key];if(k)return k
   R('#1a1418',62,86,14,18);R('#3a2e28',64,88,10,16);
   const col=KOSKI.col[m(KOSKI.col.length)];g.font='bold 8px monospace';g.textAlign='center';g.shadowBlur=on?6:0;g.shadowColor=col;g.fillStyle=on?col:'#3a2a3a';g.fillText(KOSKI.signs[m(KOSKI.signs.length)],47,82)}finally{g=gs}
  return KOSKIC[key]={cv,top}}
+/* Lumipenkka i: satunnainen määrä kumpareita, joiden leveys, korkeus ja paikka vaihtelevat (hsh = kiinteä satunnaisluku); välillä aukko */
+const SNOWB={gap:.18,maxLumps:3,base:'#5e6888',top:'#7c88aa',hi:'#94a0c0'};
+function snowBank(i,x){if(hsh(i+40)<SNOWB.gap)return;const n=1+Math.floor(hsh(i+5)*SNOWB.maxLumps);
+ for(let k=0;k<n;k++){const w=3.5+hsh(i*7+k)*7,h=1.2+hsh(i*3+k)*2.6,dx=(hsh(i*11+k)-.5)*12;ell(x+dx,111.6,w,h,SNOWB.base);ell(x+dx-w*.15,111.3-h*.35,w*.7,h*.55,SNOWB.top);if(h>2.6)R(SNOWB.hi,x+dx-w*.3,110.6-h*.6,w*.35,.8)}}
 function rovaBg(T){const c=M.cam;cutLayer('rovaSky',rovaSky);auroraSky('rova',T,0,W,16,9,7,41,2,15,.4);ell(272-c*.02,30,8,8,'#f2ecc8');
  // Ounasvaara ja hyppyrimäki kaukana
  ridge(c*.06,98,22,'#1a2050',61,27);{const hx=230-c*.06;if(hx>-40&&hx<W+40){g.fillStyle='#141a44';g.beginPath();g.moveTo(hx,60);g.lineTo(hx+4,60);g.lineTo(hx+34,92);g.lineTo(hx+28,92);g.closePath();g.fill();R('#141a44',hx,56,4,6)}}
@@ -86,7 +90,7 @@ function rovaBg(T){const c=M.cam;cutLayer('rovaSky',rovaSky);auroraSky('rova',T,
   const sx=RV.koski+60-c;if(sx>-80&&sx<W+20){R('#1a1a24',sx,62,70,14);g.save();g.font='bold 8px monospace';g.textAlign='center';g.shadowBlur=6;g.shadowColor='#ff3a3a';g.fillStyle='#ff6a5a';g.fillText('LORDIN AUKIO',sx+35,72);g.restore();R('#3a3a44',sx+33,76,3,28)}});
  cutLayer('rovaGround',rovaGround);
  // lumipenkat jalkakäytävän reunassa: himmeät ja varjostetut, jotta ne istuvat yöhön
- for(let i=Math.floor(c/24)-1;i<Math.floor(c/24)+15;i++){const x=i*24-c;if(i*24<RV.silta-10)continue;const w=8+hsh(i)*6;ell(x,111.5,w,2.4,'#5e6888');ell(x,110.8,w*.8,1.6,'#7c88aa')}
+ for(let i=Math.floor(c/24)-1;i<Math.floor(c/24)+15;i++){if(i*24<RV.silta-10)continue;snowBank(i,i*24-c+(hsh(i+77)-.5)*10)}
  for(let i=Math.floor(c/40)-1;i<Math.floor(c/40)+10;i++)R('rgba(230,230,200,.5)',i*40-c,135,18,1.6)}
 
 /* Pieni nimikyltti tummalla taululla, jotta taustan ikkunat ja valot eivät sekoitu tekstiin */
