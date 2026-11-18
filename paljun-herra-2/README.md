@@ -2,6 +2,8 @@
 
 Jatko-osa [Paljun herralle](../README.md). Retrohenkinen mätkintäpeli: Esa, Aapeli, Kermis ja Hempukka palaavat.
 
+Pelaa prototyyppiä: https://claude.ai/artifact/PfPEXVXgVBtXA21taSFgks
+
 Tila: **prototyyppi** (harjoituskenttä ja pomotaistelu, viholliset vielä paikkamerkkejä).
 
 ## Kehitys
