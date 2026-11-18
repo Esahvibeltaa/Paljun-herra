@@ -22,6 +22,14 @@ Jatko-osa, jossa ykkösosan parhaat osat ovat pohjana:
 - **Sam Disco** = SAM-ryhmän (Sähköautomiehet) suosittu Discord-kanava. Mersumies on kaapannut sen palvelimen.
 - **Pera** soittaa Esalle vihreästä takasiipisestä Tesla Model 3:sta (pipo, pyöreä tupsu).
 
+## Päätökset (kysymyskierros 1)
+
+- **Mersumiehen juoni:** palvelimen kautta hän ohjaa latausverkkoa ja pitää latausasemia panttina. Sähköautot uhkaavat jäädä tienposkeen.
+- **Rakenne:** alkuun road trip Rovaniemelle; kentät Santapark ja Rovaniemen keskusta. Sattuman kautta tie vie Rovaniemen lentokentältä Thaimaahan: viidakko ja Mersumiehen salainen huvila Pattayan lähellä.
+- **Drunken master:** humala on resurssi. Sopiva humala avaa horjuvan väistön ja erikoisliikkeet, liian vähällä tyylit eivät toimi, liialla Esa sammuu.
+- **Pelattavat:** Esa menee yksin; kaverit (Aapeli, Kermis, Hempukka) ovat välillä mukana yksittäin tai porukalla. Pera on vierailijatähti siellä täällä, esimerkiksi kuskina.
+- Alla oleva vanha tarinaluonnos (Kloori-Kalle, palju) on korvautunut näillä; siitä voi poimia ideoita.
+
 ## Tarinapolku (karkea luonnos, kommentoitavana)
 
 Perusidea (tarkentuu alkunäytöksen mukaan: Mersumies on palannut ja kaapannut Sam Discon palvelimen): **Esalta viedään palju.** Ilman paljua ei ole paljun herraa. Esa saa ensin turpaansa, oppii humalanyrkin vanhalta mestarilta ja hakee valtaistuimensa takaisin. Klassinen drunken master -kaari: nöyryytys → harjoitus → paluu.
