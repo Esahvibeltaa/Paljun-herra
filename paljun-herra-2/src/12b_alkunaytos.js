@@ -138,8 +138,8 @@ function cutTie(T,t){cutLayer('tie',tieSky);
 
 /* ---- Kohtaus 3: auton sisältä pelkääjän paikalta; kuski näkyy vain hämäränä ääriviivana ---- */
 const VP={x:150,y:50};
-// Peran pipon tupsun säde (täysin pyöreä)
-const PIPO={r:4.2,y:41.2};
+// Pera takaa: pään keskipiste ja säteet, pipon tupsu (täysin pyöreä: säde pr, keskikohta py), penkin selkänojan yläreuna sy ja väri
+const PERA={x:74,y:58,rx:15,ry:16.5,pr:5.5,py:34,sy:70,seat:'#07090f'};
 function sisaBg(){const X=CP.x,Y=CP.y;g.fillStyle=mkLg(Y,VP.y,[[0,'#02030c'],[1,'#141c42']]);g.fillRect(X,Y,CP.w,VP.y-Y);
  for(let i=0;i<40;i++)R('#b8c0e8',X+(i*67)%CP.w,Y+(i*31)%30,1,1);
  g.fillStyle='#10163a';g.beginPath();g.moveTo(X,VP.y);for(let x=X;x<=X+CP.w;x+=6)g.lineTo(x,VP.y-3-Math.abs(Math.sin(x/37))*7);g.lineTo(X+CP.w,VP.y);g.fill();
@@ -160,12 +160,16 @@ function cutSisa(T,t){g.save();g.translate(0,Math.sin(T*27)*.3);cutLayer('sisa',
  g.strokeStyle='#3aa8ff';g.lineWidth=1.2;g.beginPath();g.moveTo(sx+20,sy+22);g.lineTo(sx+20,sy+12);g.lineTo(sx+28+Math.sin(t)*2,sy+2);g.stroke();
  R('#ffffff',sx+19,sy+14,2,3);g.font='bold 4px monospace';tx('142',sx+3,sy+6,'#bfefff');
  glow(sx+20,sy+11,30,'60,170,255',.22);
- // kuski: tumma hahmo, jonka reunaa näytön valo juuri ja juuri hipaisee
- const kc='#030409',rim=.25+.2*Math.sin(T*2.3)+(Math.sin(T*.9)>.97?.4:0);
- g.fillStyle=kc;ell(70,60,9,10.5,kc);g.beginPath();g.ellipse(70,55,10.5,10,0,Math.PI,0);g.fill();R(kc,58.5,53,23,4.5);g.beginPath();g.arc(70,PIPO.y,PIPO.r,0,Math.PI*2);g.fill();g.fillRect(65,68,10,8);g.beginPath();g.moveTo(44,CP.y+CP.h);g.lineTo(46,82);g.quadraticCurveTo(52,74,70,74);g.quadraticCurveTo(90,74,96,84);g.lineTo(100,CP.y+CP.h);g.fill();
- lim(92,86,104,98,4,kc,kc);
- g.strokeStyle=`rgba(110,200,255,${rim})`;g.lineWidth=.8;g.beginPath();g.arc(70,60,9.5,-1.1,.7);g.stroke();g.beginPath();g.moveTo(80,75);g.quadraticCurveTo(91,76,96,84);g.stroke();
- if(Math.sin(T*.7)>.92)R('#bfefff',76,58,1.5,.8);g.beginPath();g.arc(70,PIPO.y,PIPO.r+.3,-1.2,.9);g.stroke();g.beginPath();g.ellipse(70,55,10.8,10.3,0,-1.2,-.1);g.stroke();
+ // kuski takaa nähtynä: iso musta pää pipoineen ja pyöreine tupsuineen; penkin selkänoja peittää kaulan.
+ // Näytön valo hipaisee juuri ja juuri pään, pipon ja selkänojan reunaa.
+ const P=PERA,kc='#030409',rim=.25+.2*Math.sin(T*2.3)+(Math.sin(T*.9)>.97?.4:0);
+ ell(P.x,P.y,P.rx,P.ry,kc);g.fillStyle=kc;g.beginPath();g.ellipse(P.x,P.y-6,P.rx+1,P.ry-3,0,Math.PI,0);g.fill();R(kc,P.x-P.rx-2,P.y-9,P.rx*2+4,6);
+ g.beginPath();g.arc(P.x,P.py,P.pr,0,Math.PI*2);g.fill();
+ lim(98,88,106,99,4,kc,kc);
+ g.fillStyle=P.seat;g.beginPath();g.moveTo(42,CP.y+CP.h);g.lineTo(44,P.sy+8);g.quadraticCurveTo(45,P.sy,56,P.sy);g.lineTo(92,P.sy);g.quadraticCurveTo(103,P.sy,104,P.sy+8);g.lineTo(106,CP.y+CP.h);g.fill();
+ g.strokeStyle=`rgba(110,200,255,${rim})`;g.lineWidth=.8;g.beginPath();g.arc(P.x,P.y,P.rx+.5,-.6,.75);g.stroke();
+ g.beginPath();g.ellipse(P.x,P.y-6,P.rx+1.4,P.ry-2.6,0,-1.25,-.1);g.stroke();g.beginPath();g.arc(P.x,P.py,P.pr+.3,-1.3,.9);g.stroke();
+ g.strokeStyle=`rgba(110,200,255,${rim*.6})`;g.beginPath();g.moveTo(92,P.sy);g.quadraticCurveTo(103,P.sy,104,P.sy+8);g.stroke();
  // ratti
  g.strokeStyle='#06070c';g.lineWidth=3.2;g.beginPath();g.ellipse(80,104,18,8,-.15,0,7);g.stroke();g.strokeStyle=`rgba(110,200,255,${rim*.5})`;g.lineWidth=.6;g.beginPath();g.ellipse(80,104,19.4,9.2,-.15,-1.2,.2);g.stroke();
  g.restore();R('rgba(10,30,60,.12)',CP.x,CP.y,CP.w,CP.h)}
