@@ -25,7 +25,7 @@ const hsh=i=>((Math.sin(i*127.1+11)*43758.5453)%1+1)%1;
 function mjE(sp,x,z,team,kind,hp){const k=KT[kind]||{};return{sp,x,z,y:0,vx:0,vz:0,vy:0,face:1,hp,mhp:hp,st:'idle',atk:null,wk:0,ht:0,dt:0,rw:0,rwv:0,team,kind,th:Math.random(),cd:2+Math.random()*3,cmb:0,ct:9,wpn:0,tired:0,sw:1,spd:k.spd||30,dm:k.dm||1,sc:k.sc||1,fd:null}}
 function startMJ(retry){stage=7;state='s7';PHB=[16,304];if(retry){B.h=M.h0;B.hs=M.hs0}else{M.h0=B.h;M.hs0=B.hs;M.kills=0;M.bonus=0;M.lvl=1;M.hp=100}
  showPad(true);document.getElementById('bj').style.display='block';document.getElementById('bh').style.gridColumn='auto';
- document.querySelector('p').textContent='Ristiohjain liikuttaa (ylös/alas = kadun syvyys). LYÖNTI (sarja 1-2-3), POTKU, HYPPY ja HAUKI. Näppäimistö: nuolet tai WASD, J = lyönti, K = potku, välilyönti = hyppy, L = Hauki.';
+ document.querySelector('p').textContent='Ristiohjain liikuttaa (ylös/alas = kadun syvyys). LYÖNTI (sarja 1-2-3), POTKU, HYPPY ja HAUKI. Heitto: osu, pidä LYÖNTI heti pohjassa (kiinni), valitse suunta ja päästä irti. Näppäimistö: nuolet tai WASD, J = lyönti, K = potku, välilyönti = hyppy, L = Hauki.';
  if(ambG){setAP(ambG.gain,.5,.4);setAP(bubG.gain,0,.2)}mjLevel(M.lvl,retry)}
 function mjLevel(n,retry){const L=LV[n];M.lvl=n;M.L=L;M.camY=0;const hp=retry?100:Math.min(100,(M.hp||100)+(n>1?30:0));
  M.e=mjE(SP.e[S2.outfit],70,22,'p','p',100);M.e.hp=hp;M.al=[mjE(SP.a,44,32,'a','a',80),mjE(SP.k,28,12,'a','k',90)];M.al[1].cd=4;
@@ -57,7 +57,7 @@ function mjDamage(a,d,m){if(d===M.e&&a.team==='e'&&tryDodge(a,d))return;let dmg=
  d.hp=Math.max(0,d.hp-dmg);const ad=d.x>a.x?1:-1;sImpact(KICKS.includes(m.n)?'k':'p',dmg>=10);M.stop=dmg>=10?.08:.04;M.fx.push({x:(a.x+d.x)/2,y:112+d.z-30-d.y-(d.base||0),t:0,big:dmg>=10,txt:dmg>=14?'POW!':dmg>=10?'BAM!':null});
  if(d.team==='p')vib(dmg>=10?50:20);else if(dmg>=10)vib(25);
  const big=d.kind==='ms'?(dmg>=14||d.hp<=0):(m.kd||dmg>=12||d.hp<=0||(a.team==='p'&&a.cmb>=3&&m.n==='upper'));
- if(m.n==='upper'&&d.kind!=='ms'&&d.st!=='climb'){d.ko=d.hp<=0?1:0;launchUp(d,ad,d.kind==='tt'?170:205);crowd('ooh')}else if(big){d.ko=d.hp<=0?1:0;launch(d,ad,Math.max(8,dmg+(d.hp<=0?4:0)));if(dmg>=10)crowd('ooh')}else{d.st='hit';d.ht=d.kind==='ms'?.18:.38;d.atk=null;d.vx=ad*60;d.rwv+=ad*(5+dmg*.5);if(Math.random()<.4)voice(mjVo(d),mjVo(d)*.65,.2,'u',.5)}
+ if(m.n==='upper'&&d.kind!=='ms'&&d.st!=='climb'){d.ko=d.hp<=0?1:0;launchUp(d,ad,d.kind==='tt'?170:205);crowd('ooh')}else if(big){d.ko=d.hp<=0?1:0;launch(d,ad,Math.max(8,dmg+(d.hp<=0?4:0)));if(dmg>=10)crowd('ooh')}else{d.st='hit';d.ht=d.kind==='ms'?.18:.38;d.atk=null;d.vx=ad*60;d.stag=GRAB.stag;d.rwv+=ad*(5+dmg*.5);if(Math.random()<.4)voice(mjVo(d),mjVo(d)*.65,.2,'u',.5)}
  if(d.hp<=0){if(d.team==='e'){d.dead=1;M.kills++;if(d.kind==='tt'){M.boss=null;crowd('cheer');bell(2);if(LIVES<3){LIVES++;lifeLoss=-9;msgL=['Trukki-Taisto tyrmätty!','Esa saa yhden sydämen takaisin! +1 ♥'];[659,880,1175].forEach((f,i)=>tn(f,f,.18,.08,'triangle',i*.1))}else{M.bonus=(M.bonus||0)+150;msgL=['Trukki-Taisto tyrmätty!','Sydämet täynnä: +150 pistettä.']}}if(d.kind==='ms'){M.ents.forEach(x=>{if(x.team==='e'&&!x.dead&&x!==d){x.dead=1;x.ko=1;launch(x,x.x>d.x?1:-1,10)}});M.proj=[];M.ph='rescue';M.kt=0;M.ii=0;M.say=[d,'Mersumies: Mun... Mersu...'];M.sayT=2;bell(3);crowd('cheer');msgL=['Mersumies on tyrmätty!','Hempukka ja moottori ovat turvassa!'];[784,988,1175,1568].forEach((f,i)=>tn(f,f,.25,.07,'triangle',.5+i*.1))}if(!d.fallR){const it=t=>M.items.push({x:d.x+(M.items.length%2?6:-6),z:d.z,base:d.base||0,type:t,t:0});if(Math.random()<(DIFF?.15:.3))it('c');else if(Math.random()<(d.kind==='pasi'?.6:.25))it(d.kind==='pasi'?'p':pick(['v','w','p','k']))}}else if(d.team==='a'){d.tired=6;msgL=[(d.kind==='a'?'Aapeli':'Kermis')+' on väsynyt!','Hän palaa pian taisteluun.']}else{M.ph='lose';M.t=0;loseLife();bell(3);crowd('gasp');msgL=['Esa kaatui!']}}}
 function mjHitCheck(a){const m=a.atk.m;
  if(a.team==='p')M.objs.forEach(o=>{if(o.br||a.atk.hits.has(o)||a.lev==='roof')return;const dx=o.x-a.x;if((m.both||Math.sign(dx)===a.face)&&Math.abs(dx)<=reachOf(m,a.sc||1,1)+3&&Math.abs(o.z-a.z)<9){a.atk.hits.add(o);o.br=1;o.bt=0;tn(500,300,.15,.25,'square');nz(.3,'bandpass',1200,.3,400);M.items.push({x:o.x+a.face*10,z:o.z,type:o.drop,t:0});M.fx.push({x:o.x,y:112+o.z-8,t:0})}});
@@ -84,6 +84,7 @@ function mjUpd(f,dt){phys(f,dt);
  f.cd-=dt;f.ct+=dt;if(f.notes>0)f.notes-=dt}
 function mjCtrl(dt){const e=M.e,dl=dlyM(B.h);M.hist.push([M.ck,keysNow()]);while(M.hist.length>1&&M.hist[1][0]<=M.ck-dl)M.hist.shift();const d=M.hist[0][1];const RR=M.L.roof;
  if(M.lift&&M.lift.on){liftRide(e,dt);return}
+ if(e.st==='held'||e.st==='grab'||e.pg){e.vx=e.vz=0;M.q.length=0;return}
  if(RR&&e.st==='climb'){e.vx=e.vz=0;if(RR.lift){liftRide(e,dt);return}if(d.u){e.base+=18*dt;e.cl=(e.cl||0)+dt;if(Math.floor(e.cl/.28)!==Math.floor((e.cl-dt)/.28))tn(1300,1200,.03,.05,'square')}else if(d.d){e.base-=22*dt;e.cl=(e.cl||0)+dt}if(e.base>=RR.A[2]){e.base=RR.A[2];e.lev='roof';e.x=RR.A[0]+10;e.z=6;e.st='idle';msgL=['Katolla!','Potki viholliset reunan yli.']}if(e.base<=0){e.base=0;e.st='idle'}return}
  if(RR&&e.lev!=='roof'&&!e.atk&&e.y===0&&['idle','walk'].includes(e.st)&&(RR.lift?Math.abs(e.x-(RR.A[0]-12))<22:Math.abs(e.x-RR.lad)<12&&e.z<=8)&&d.u){if(RR.lift){liftStart();return}e.st='climb';e.x=RR.lad;e.z=1;e.cl=0;msgL=['Esa kiipeää tikkaita...'];return}
  if(M.stg>0){M.stg-=dt;e.vx=M.sgd*(30+Math.sin(M.stg*18)*14);e.vz=Math.sin(M.stg*11)*10;e.st='walk';e.wk+=dt*.6;return}
@@ -97,8 +98,9 @@ function mjCtrl(dt){const e=M.e,dl=dlyM(B.h);M.hist.push([M.ck,keysNow()]);while
   if(e.y>0){mStart(e,a==='P'?'jpunch':'fkick');continue}
   const foes=M.ents.filter(x=>x.team==='e'&&!x.dead&&Math.abs(x.z-e.z)<7),front=foes.filter(x=>Math.sign(x.x-e.x)===e.face&&Math.abs(x.x-e.x)<32),back=foes.filter(x=>Math.sign(x.x-e.x)!==e.face&&Math.abs(x.x-e.x)<28);
   if(a==='K'){if(!front.length&&back.length){e.face*=-1;mStart(e,'bkick')}else mStart(e,'kick');if(Math.random()<.3)kiai(e);continue}
+  if(a==='P'){const gt=grabTarget(e);if(gt){e.pg={tgt:gt,t:0};e.vx=e.vz=0;continue}}
   const daze=front.find(x=>x.st==='hit'&&Math.abs(x.x-e.x)<20);
-  if(daze&&e.cmb>=2&&e.ct<.6){e.cmb=0;e.ct=9;mStart(e,'upper');e.atk.hits.add(daze);daze.x=e.x+e.face*4;daze.hp=Math.max(0,daze.hp-12);daze.ko=daze.hp<=0?1:0;launch(daze,-e.face,18);daze.vx=-e.face*150;if(daze.hp<=0){daze.dead=1;M.kills++}sImpact('k',true);crowd('ooh');msgL=['HEITTO!'];kiai(e);continue}
+  if(daze&&e.cmb>=2&&e.ct<.6){e.cmb=0;e.ct=9;mStart(e,'upper');e.atk.hits.add(daze);daze.x=e.x+e.face*4;daze.hp=Math.max(0,daze.hp-12);daze.ko=daze.hp<=0?1:0;launch(daze,-e.face,18);daze.vx=-e.face*150;if(daze.hp<=0){daze.dead=1;M.kills++}sImpact('k',true);crowd('ooh');msgL=['YLÄKOUKKU!'];kiai(e);continue}
   e.cmb=e.ct<.55&&e.cmb<3?e.cmb+1:1;e.ct=0;mStart(e,e.cmb===3?'upper':'punch');if(e.cmb===3&&Math.random()<.5)kiai(e)}}
 function mjAlly(f,dt){if(f.inLift){f.vx=f.vz=0;return}if(f.tired>0||f.atk||f.y>0||!['idle','walk'].includes(f.st))return;
  let t=null,best=1e9;M.ents.forEach(x=>{if(x.team!=='e'||x.dead||x.st==='ko')return;const dd=Math.abs(x.x-f.x)+Math.abs(x.z-f.z)*2;if(dd<best){best=dd;t=x}});f.tgt=t;
@@ -136,7 +138,7 @@ function stepMJ(dt){M.t+=dt;mjCamY(dt);musicTick();M.sayT-=dt;M.fx.forEach(x=>x.
   M.ents.forEach(f=>{if(f.team!=='e'&&!f.atk&&['idle','walk'].includes(f.st)){f.vx=f.vz=0;f.st='idle'}mjUpd(f,dt)});M.ents=M.ents.filter(f=>!f.gone);
   if(M.kt>=9.5){M.ph='done';M.t=0;[523,659,784,1047].forEach((f,i)=>tn(f,f,.4,.07,'triangle',i*.13));msgL=['Moottorijahti suoritettu!']}}
  if(M.ph==='play'||M.ph==='lose'){if(M.ph==='play'){M.ck+=dt;mjCtrl(dt);if(M.L.onStep)M.L.onStep(dt)}M.al.forEach(a=>mjAlly(a,dt));M.ents.forEach(f=>{if(f.team==='e')mjEnemy(f,dt)});
-  M.ents.forEach(f=>mjUpd(f,dt));if(M.L.roof){M.ents.forEach(f=>mjRoof(f,dt));mjAllySync()}
+  M.ents.forEach(f=>mjUpd(f,dt));M.ents.forEach(f=>grabStep(f,dt));if(M.L.roof){M.ents.forEach(f=>mjRoof(f,dt));mjAllySync()}
   const en=M.ents.filter(f=>f.team==='e'&&!f.dead);for(let i=0;i<en.length;i++)for(let j=i+1;j<en.length;j++){const a=en[i],b=en[j];if(Math.abs(a.x-b.x)<10&&Math.abs(a.z-b.z)<5){const s=a.z<b.z?-1:1;a.z=Math.max(0,a.z+s*12*dt);b.z=Math.min(40,b.z-s*12*dt)}}
   M.ents=M.ents.filter(f=>!f.gone);
   const L0=M.cam+16,H0=M.cam+304,edge=(f,lo,hi)=>{if(f.x<lo){f.x=lo;if(f.vx<0)f.vx=f.st==='fly'?-f.vx*.45:0}else if(f.x>hi){f.x=hi;if(f.vx>0)f.vx=f.st==='fly'?-f.vx*.45:0}};edge(e,L0,M.lock?H0:M.L.len-12);M.al.forEach(f=>edge(f,L0,Math.min(H0,M.L.len-12)));M.ents.forEach(f=>{if(f.team!=='e')return;if(!f.inS&&f.x>=L0&&f.x<=H0)f.inS=1;if(f.inS&&!f.fallR)edge(f,L0,H0);else f.x=Math.max(M.cam-40,Math.min(M.cam+360,f.x))});
@@ -296,7 +298,7 @@ function mjBg(T){if(M.L&&M.L.theme==='rova'){rovaBg(T);return}if(M.L&&M.L.theme=
  for(let i=Math.floor(c/200)-1;i<Math.floor(c/200)+3;i++){const x=i*200+120-c;g.fillStyle='#2a2a34';g.fillRect(x-1,40,2.4,66);g.fillRect(x-1,40,10,2);g.save();g.globalCompositeOperation='lighter';q=g.createLinearGradient(0,44,0,140);q.addColorStop(0,'rgba(255,220,150,.28)');q.addColorStop(1,'rgba(255,220,150,0)');g.fillStyle=q;g.beginPath();g.moveTo(x+6,43);g.lineTo(x+12,43);g.lineTo(x+32,140);g.lineTo(x-14,140);g.fill();g.restore();ell(x+9,43,3,1.4,'#fff2c0')}}
 function mjDrawE(f,T){if(f.hidden)return;const isE=f===M.e,o=Object.assign(fpose(f,T,isE),{prof:1}),pp=['fly','down','ko','roll','kip'].includes(f.st);o.rot=pp?f.rw:(o.rot||0)*f.face+f.rw;if(!pp&&Math.abs(f.rw)>.02&&!o.cy)o.cy=4;
  if(f.atk&&f.atk.m.n==='solo'){o.aL=-1.35;o.eL=.15;o.aR=-.45+Math.sin(T*30)*.22;o.eR=-1.25;o.tilt=Math.sin(T*14)*.2}
- if(isE&&f.wpn>0&&!o.item)o.item=f.wt||'w';
+ if(isE&&f.wpn>0&&!o.item)o.item=f.wt||'w';grabPose(f,o,T);
  if(f.team==='e'&&f.st==='ko'&&f.kt>1&&Math.sin(T*40)>0)return;
  if(f.st==='climb'&&!(M.L.roof&&M.L.roof.lift))Object.assign(o,climbPose(f.base||0))
  const sx=f.x-M.cam,sy=112+f.z-(f.base||0),sc=f.sc||1;ell(sx,sy+1,10*sc,2.4*sc,'rgba(0,0,0,.35)');o.flip=o.flipX!==undefined?o.flipX:f.face<0;o.s=sc;{const X=sx+(o.lx||0)*sc*f.face,Y=sy-f.y+(o.dy||0)*sc;drawChar(f===M.e&&f.st==='climb'&&!(M.L.roof&&M.L.roof.lift)?esaBack(S2.outfit):f.sp,X,Y,o);swingTrail(f,o,X,Y,T)}
