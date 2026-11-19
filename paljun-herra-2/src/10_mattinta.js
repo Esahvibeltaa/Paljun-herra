@@ -74,6 +74,7 @@ function mjSpecial(f){const fx=f.atk.m.fx;
   M.ents.forEach(d=>{if(d.team==='e'&&!d.dead&&['idle','walk','atk'].includes(d.st)&&Math.abs(d.x-f.x)<60&&Math.abs(d.z-f.z)<16){d.st='hit';d.ht=1.8;d.atk=null;d.rwv+=(d.x>f.x?1:-1)*8}});f.notes=1.4}}
 function mjUpd(f,dt){phys(f,dt);
  if(f.st!=='fly'&&f.st!=='kip'&&(f.y>0||f.vy>0)){f.vy-=440*dt;f.y=Math.max(0,f.y+f.vy*dt);if(f.y===0){f.vy=0;if(f.st==='jump'||(f.atk&&f.atk.m.air)){f.atk=null;f.st='idle';nz(.06,'lowpass',500,.12)}}}
+ if(f.st==='jump'&&f.y===0&&f.vy<=0&&!(f.jk>0)){f.st='idle';f.atk=null}
  if(f.st==='jump'&&f.jk>0&&!f.atk){f.jk-=dt;if(f.jk<=0)mStart(f,'fkick')}
  if(f.atk){const a=f.atk,m=a.m;a.t+=dt;{const lv=m.dash?230:m.lunge;if(lv)f.vx=a.t>=m.st&&a.t<m.st+m.ac?f.face*lv:0}if(a.t>=m.st&&a.t<=m.st+m.ac){if(m.fx){if(!a.fxd){a.fxd=1;mjSpecial(f)}}else mjHitCheck(f)}if(f.atk&&!m.air&&a.t>=m.st+m.ac+m.rc){f.atk=null;f.st='idle'}}
  f.x+=f.vx*dt;f.z=Math.max(0,Math.min(40,f.z+f.vz*dt));
@@ -105,7 +106,7 @@ function mjCtrl(dt){const e=M.e,dl=dlyM(B.h);M.hist.push([M.ck,keysNow()]);while
   e.cmb=e.ct<.55&&e.cmb<3?e.cmb+1:1;e.ct=0;mStart(e,e.cmb===3?'upper':'punch');if(e.cmb===3&&Math.random()<.5)kiai(e)}}
 function mjAlly(f,dt){if(f.inLift){f.vx=f.vz=0;return}if(f.tired>0||f.atk||f.y>0||!['idle','walk'].includes(f.st))return;
  let t=null,best=1e9;M.ents.forEach(x=>{if(x.team!=='e'||x.dead||x.st==='ko')return;const dd=Math.abs(x.x-f.x)+Math.abs(x.z-f.z)*2;if(dd<best){best=dd;t=x}});f.tgt=t;
- if(!t||best>220){const tx=M.e.x+(f.kind==='a'?-28:-48),tz=Math.max(0,Math.min(40,M.e.z+(f.kind==='a'?9:-9))),dx=tx-f.x,dz=tz-f.z;if(Math.abs(dx)>6||Math.abs(dz)>4){f.vx=Math.abs(dx)>6?Math.sign(dx)*Math.min(70,Math.abs(dx)*2):0;f.vz=Math.abs(dz)>4?Math.sign(dz)*28:0;f.st='walk';f.wk+=dt;if(Math.abs(dx)>6)f.face=Math.sign(dx)}else{f.vx=f.vz=0;f.st='idle';f.face=M.e.face}return}
+ if(!t||best>220){const tx=rfClamp(f,M.e.x+(f.kind==='a'?-28:-48)),tz=Math.max(0,Math.min(40,M.e.z+(f.kind==='a'?9:-9))),dx=tx-f.x,dz=tz-f.z;if(Math.abs(dx)>6||Math.abs(dz)>4){f.vx=Math.abs(dx)>6?Math.sign(dx)*Math.min(70,Math.abs(dx)*2):0;f.vz=Math.abs(dz)>4?Math.sign(dz)*28:0;f.st='walk';f.wk+=dt;if(Math.abs(dx)>6)f.face=Math.sign(dx)}else{f.vx=f.vz=0;f.st='idle';f.face=M.e.face}return}
  const dx=t.x-f.x,dz=t.z-f.z,want=f.kind==='a'?21:18;
  if(Math.abs(dz)>4||Math.abs(dx)>want+4||Math.abs(dx)<want-10){f.vx=Math.abs(dx)>want+4?Math.sign(dx)*58:Math.abs(dx)<want-10?-Math.sign(dx)*35:0;f.vz=Math.abs(dz)>3?Math.sign(dz)*30:0;f.st='walk';f.wk+=dt;f.face=Math.sign(dx)||1;return}
  f.vx=f.vz=0;f.st='idle';f.face=Math.sign(dx)||1;f.th-=dt;if(f.th>0)return;f.th=f.kind==='a'?.6:.85;
@@ -216,11 +217,13 @@ function garageBg(T){let q=g.createLinearGradient(0,10,0,104);q.addColorStop(0,'
  q=g.createLinearGradient(0,104,0,160);q.addColorStop(0,'#4a4a52');q.addColorStop(1,'#303036');g.fillStyle=q;g.fillRect(0,104,W,56);R('#62626a',0,104,W,1);ell(150,140,30,5,'rgba(10,10,14,.45)');ell(60,128,14,3,'rgba(10,10,14,.4)');R('#1e1e22',150,150,14,2);
  R('#5a3a1a',196,88,58,4);R('#3a2410',200,92,4,14);R('#3a2410',246,92,4,14);R('#7a7a84',206,74,38,14);R('#5a5a64',206,74,38,3);for(let i=0;i<4;i++){R('#9a9aa4',209+i*9,68,6,7);R('#5a5a64',209+i*9,68,6,1.5)}R('#c8202a',240,80,6,2);ell(225,88,22,2,'rgba(0,0,0,.3)')}
 function rfH(x){const r=M.L.roof;if(x>=r.A[0]&&x<=r.A[1])return r.A[2];if(x>=r.B[0]&&x<=r.B[1])return r.B[2];if(x>r.B[1]&&x<r.S)return r.B[2]*(1-(x-r.B[1])/(r.S-r.B[1]));return null}
+/* Katolla olevan hahmon sallittu x oman rakennuksen sisällä (A tai B+ramppi); muualla ei rajoitusta */
+function rfClamp(f,x){const r=M.L.roof;if(!r||f.lev!=='roof')return x;return rfSeg(f)===1?Math.max(r.A[0]+2,Math.min(r.A[1]-3,x)):Math.max(r.B[0]+3,x)}
 function rfSeg(f){const r=M.L.roof;if(f.lev!=='roof')return f.x<r.A[0]?0:3;return f.x<=(r.A[1]+r.B[0])/2?1:2}
 const WN={w:['Hylsyavain','hajosi',6,6,9],p:['Putki','taipui käyttökelvottomaksi',5,9,13],k:['Ketju','katkesi',7,5,18]};
 function mjRoof(f,dt){const r=M.L.roof;if(!r||f.gone)return;f.base=f.base||0;const e=M.e;
  if(f.lev==='roof'){
-  if(f.st!=='fly'&&!f.fallR){if(f.x<r.A[0]+2)f.x=r.A[0]+2;if(f.team==='e'){const sg=rfSeg(f);if(sg===1)f.x=Math.min(f.x,r.A[1]-3);else f.x=Math.max(f.x,r.B[0]+3)}}
+  if(f.st!=='fly'&&!f.fallR){if(f.x<r.A[0]+2)f.x=r.A[0]+2;if(f!==e)f.x=rfClamp(f,f.x)}
   const fl=rfH(f.x),air=f.y>0||f.vy>0;
   if(fl!==null){if(air&&f.vy<0&&f.base+f.y<=fl&&f.st!=='fly'){f.y=0;f.vy=0;f.base=fl;if(f.st==='jump'){f.st='idle';f.atk=null}nz(.06,'lowpass',500,.12)}else if(!air)f.base=fl;if(f.x>=r.S-1){f.lev='street';f.base=0}}
   else if(f.team==='a'){f.x=e.x-(f.kind==='a'?20:36);if(rfH(f.x)===null)f.x=e.x;f.base=rfH(f.x)||e.base;f.y=0;f.vy=0}
@@ -232,7 +235,7 @@ function mjRoof(f,dt){const r=M.L.roof;if(!r||f.gone)return;f.base=f.base||0;con
  if(f.fallR&&f===e&&f.y===0&&f.vy===0){f.fallR=0;f.st='idle';f.vx=0;f.hp=Math.max(0,f.hp-15);sThud(true);vib(120);K.shake=.3;
   if(f.hp<=0){M.ph='lose';M.t=0;loseLife();bell(3);msgL=['Esa putosi katolta!']}else{f.lev='roof';f.base=r.A[2];f.x=r.A[0]+18;f.z=20;msgL=['Auts! Esa putosi kujalle.','Takaisin katolle... -15 energiaa'];M.al.forEach(a=>{a.lev='roof';a.base=r.A[2];a.x=r.A[0]+10;a.y=0})}}}
 function mjAllySync(){const r=M.L.roof;if(!r||(M.lift&&M.lift.on))return;const e=M.e;if(e.st==='climb'||e.fallR)return;const es=rfSeg(e);
- M.al.forEach(a=>{if(a.atk||a.tired>0||['fly','down','ko','roll','kip'].includes(a.st))return;if(rfSeg(a)!==es){a.lev=e.lev;a.x=e.x-(a.kind==='a'?20:36);if(e.lev==='roof'&&rfH(a.x)===null)a.x=e.x-4;if(e.lev!=='roof'&&es===3)a.x=Math.max(r.S+2,a.x);if(e.lev!=='roof'&&es===0)a.x=Math.min(r.A[0]-4,a.x);a.base=e.lev==='roof'?rfH(a.x):0;a.y=.01;a.vy=110;a.st='jump';a.vx=0}})}
+ M.al.forEach(a=>{if(a.atk||a.tired>0||['fly','down','ko','roll','kip'].includes(a.st))return;if(rfSeg(a)!==es){a.lev=e.lev;a.x=e.x-(a.kind==='a'?20:36);if(e.lev==='roof')a.x=es===1?Math.max(r.A[0]+2,Math.min(r.A[1]-3,a.x)):Math.max(r.B[0]+3,a.x);if(e.lev!=='roof'&&es===3)a.x=Math.max(r.S+2,a.x);if(e.lev!=='roof'&&es===0)a.x=Math.min(r.A[0]-4,a.x);a.base=e.lev==='roof'?rfH(a.x):0;a.y=.01;a.vy=110;a.st='jump';a.vx=0}})}
 /* Kattorakennus piirretään kerran välimuistikankaaseen (2x) ja kopioidaan joka kehys; ikkunavalot kiinteät rakennuksen mukaan */
 const RFC={};
 function rfBldDraw(x0,w,h,c1,c2){const X0=0,X1=w,yb=112-h,yf=152-h;let q;
