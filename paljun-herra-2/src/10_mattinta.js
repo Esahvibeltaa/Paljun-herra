@@ -37,6 +37,7 @@ function mjLevel(n,retry){const L=LV[n];M.lvl=n;M.L=L;M.camY=0;const hp=retry?10
  if(L.boss){M.lock=1;M.camT=0}}
 function mjPress(a){if(M.ph==='play')pushPress(M.q,M.ck,a,M.e&&M.e.y>0)}
 function act7(e){if(!e){mjPress('J');return}if(e.target!==cv)return;
+ if(M.ph==='play'&&M.L.onTap){const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width+M.cam,y=(e.clientY-r.top)*H/r.height-Math.round(M.camY||0);if(M.L.onTap(x,y))return}
  if(M.ph==='intro'){const nx=M.ii<MJI.length?MJI[M.ii][0]:12;M.t=Math.max(M.t,nx)}
  else if(M.ph==='kid'){const nx=M.ii<MJK.length?MJK[M.ii][0]:11.5;M.kt=Math.max(M.kt,nx)}
  else if(M.ph==='bintro'){const nx=M.ii<MJB.length?MJB[M.ii][0]:11.5;M.t=Math.max(M.t,nx)}
@@ -48,7 +49,11 @@ function mStart(f,n){const m=MVJ[n];f.atk={m,t:0,hits:new Set()};f.st='atk';if(!
 function mjVo(f){return f.team==='p'?240:f.kind==='k'?110:f.kind==='a'?200:f.kind==='pasi'?170:130}
 function mjSay(k,t){M.say=[k,t];M.sayT=2.6;sTalk(k==='w'?0:1)}
 function mjSpk(k){if(typeof k==='object')return[k.x-M.cam,112+k.z-66*(k.sc||1)-(k.base||0)];if(k==='b'&&M.boss)return mjSpk(M.boss);const f=k==='p'?M.e:k==='a'?M.al[0]:k==='k'?M.al[1]:k==='w'?(M.L.boss?M.hk:M.w):null;return f?[f.x-M.cam,112+f.z-66-(f.base||0)]:[160,40]}
-function mjDamage(a,d,m){let dmg=m.d*(a.team==='p'?pow(B.h):a.team==='a'?.8:(DIFF?1.25:1)*.85*(a.dm||1));if(a.team==='p'&&a.wpn>0){const wn=WN[a.wt||'w'];dmg+=wn[3];a.wpn--;tn(1800,1700,.06,.1,'square');if(!a.wpn){msgL=[wn[0]+' '+wn[1]+'!'];nz(.2,'highpass',3000,.15,1500)}}
+/* Opitut taidot (Lapin vanhus opettaa). Horjuva väistö: sopivassa humalassa Esa horjahtaa iskun alta osalla iskuista. */
+const SKILL={dodge:false};const DODGE={min:30,max:80,p:.4,slide:14};
+function tryDodge(a,d){if(!SKILL.dodge||B.h<DODGE.min||B.h>=DODGE.max||!['idle','walk'].includes(d.st)||Math.random()>=DODGE.p)return false;
+ const s=Math.sign(d.x-a.x)||1;d.x+=s*DODGE.slide;M.stg=.35;M.sgd=s;M.fx.push({x:d.x,y:112+d.z-40-(d.base||0),t:0,txt:'HORJ!'});nz(.2,'highpass',1800,.07,600);return true}
+function mjDamage(a,d,m){if(d===M.e&&a.team==='e'&&tryDodge(a,d))return;let dmg=m.d*(a.team==='p'?pow(B.h):a.team==='a'?.8:(DIFF?1.25:1)*.85*(a.dm||1));if(a.team==='p'&&a.wpn>0){const wn=WN[a.wt||'w'];dmg+=wn[3];a.wpn--;tn(1800,1700,.06,.1,'square');if(!a.wpn){msgL=[wn[0]+' '+wn[1]+'!'];nz(.2,'highpass',3000,.15,1500)}}
  d.hp=Math.max(0,d.hp-dmg);const ad=d.x>a.x?1:-1;sImpact(KICKS.includes(m.n)?'k':'p',dmg>=10);M.stop=dmg>=10?.08:.04;M.fx.push({x:(a.x+d.x)/2,y:112+d.z-30-d.y-(d.base||0),t:0,big:dmg>=10,txt:dmg>=14?'POW!':dmg>=10?'BAM!':null});
  if(d.team==='p')vib(dmg>=10?50:20);else if(dmg>=10)vib(25);
  const big=d.kind==='ms'?(dmg>=14||d.hp<=0):(m.kd||dmg>=12||d.hp<=0||(a.team==='p'&&a.cmb>=3&&m.n==='upper'));
@@ -141,7 +146,7 @@ function stepMJ(dt){M.t+=dt;mjCamY(dt);musicTick();M.sayT-=dt;M.fx.forEach(x=>x.
   if(M.ph==='play'){B.h=Math.max(0,B.h-.7*dt);if(B.h>=80&&!M.w80){M.w80=1;msgL=['Liikaa kuparia! Esa horjuu','ja lyönnit menevät ohi. Vesipullo auttaa.']}else if(B.h<70)M.w80=0;if(B.h<20&&!M.w20){M.w20=1;msgL=['Esa on selvinnyt: lyönnit heikkenevät.','Kuparitölkki palauttaa voimat!']}else if(B.h>=25)M.w20=0;const wv=!M.L.boss?M.L.waves[M.wi]:null;
    if(wv&&!M.lock&&e.x>=wv.x&&(!wv.roof||e.lev==='roof')){M.lock=1;M.camT=wv.x-160;M.sq=wv.list.map((k,i)=>[i*.7,k]);M.sqR=wv.roof;M.sqT=0;msgL=['Diesel-jengi hyökkää!'];bell(1)}
    if(M.lock){M.sqT+=dt;while(M.sq.length&&M.sq[0][0]<=M.sqT)mjSpawn(M.sq.shift()[1],M.sqR);if(!M.sq.length&&!M.ents.some(f=>f.team==='e'&&!f.dead)){M.lock=0;M.wi++;M.go=2.5;msgL=M.wi<M.L.waves.length?['Alue tyhjä! GO →']:['Katu on tyhjä. Jatka eteenpäin!'];tn(660,990,.15,.08);tn(990,1320,.2,.08,'sine',.15)}}
-   if((M.lvl>1||M.L.fin)&&!M.L.boss&&!M.lock&&M.wi>=M.L.waves.length&&e.x>=M.L.len-90){M.ph='done';M.t=0;tn(523,523,.3,.07,'triangle');tn(659,659,.3,.07,'triangle',.12);tn(784,784,.5,.07,'triangle',.24);msgL=['Kenttä '+M.lvl+' suoritettu!']}
+   if((M.lvl>1||M.L.fin)&&!M.L.boss&&!M.lock&&M.wi>=M.L.waves.length&&e.x>=M.L.len-90&&(!M.L.gate||M.L.gate())){M.ph='done';M.t=0;tn(523,523,.3,.07,'triangle');tn(659,659,.3,.07,'triangle',.12);tn(784,784,.5,.07,'triangle',.24);msgL=['Kenttä '+M.lvl+' suoritettu!']}
    if(M.L.kid&&!M.lock&&M.wi>=M.L.waves.length&&e.x>=M.L.len-90){M.ph='kid';M.kt=0;M.ii=0;M.van={x:M.cam+380,z:40,ph:0};msgL=['Mikä tuo ääni on?'];tn(90,140,1.5,.12,'sawtooth')}
    M.nx-=dt;if(M.nx<=0&&M.sayT<=0){M.nx=6+Math.random()*4;const k=pick(['p','a','k']);mjSay(k,pick(MSAY[k]))}}
   const tc=M.lock?M.camT:Math.max(0,Math.min(M.L.len-320,e.x-140));M.cam+=(tc-M.cam)*Math.min(1,dt*4);PHB=[M.cam+16,M.cam+304];M.go=Math.max(0,M.go-dt)}

@@ -34,12 +34,12 @@ const LR={n:1,fin:1,noW:1,name:'Rovaniemen keskusta',hud:'ROVANIEMI',theme:'rova
  bins:[[180,30,'c'],[460,10,'v'],[820,28,'w'],[1520,30,'c'],[1600,12,'v'],[1700,26,'p']],
  msg:['Kenttä 1: Rovaniemen keskusta','Vapauta lukitut latausasemat!'],say:['a','Aapeli: Jätkänkynttilä! Täältä se alkaa.'],
  done:['Latausasemat vapautettu!','Lordin aukio on hiljainen... liian hiljainen.','Napauta: jatka.'],
- onStep:rovaStep,onDraw:rovaDraw,onHud:rovaHud,onFg:rovaFg,onSort:liftSort};
+ onStep:rovaStep,onDraw:rovaDraw,onHud:rovaHud,onFg:rovaFg,onSort:liftSort,onTap:aukioTap,gate:()=>M.rvQ&&M.rvQ.taught};
 const RV_QUIP=[['a','Aapeli: Latausasema vapaa! ID.3 kiittää.'],['k','Kermis: Virta kulkee taas. Rock!'],['p','Esa: Seuraava!']];
-function startRova(){LV.length=1;LV.push(LR);startMJ()}
+function startRova(){SKILL.dodge=false;LV.length=1;LV.push(LR);startMJ()}
 
 /* Asemien tila nollataan, kun kenttä alkaa tai yritetään uudestaan (mjLevel nollaa kellon M.ck) */
-function rovaSt(){if(!M.rv||M.ck<M.rvCk){M.rv=RV_ST.map(s=>({...s,free:0,t:0}));M.lift=null;M.rvD=RV_DOOR.map(d=>({...d,op:0}))}M.rvCk=M.ck;return M.rv}
+function rovaSt(){if(!M.rv||M.ck<M.rvCk){M.rv=RV_ST.map(s=>({...s,free:0,t:0}));M.rvQ=null;M.lift=null;M.rvD=RV_DOOR.map(d=>({...d,op:0}))}M.rvCk=M.ck;return M.rv}
 /* Vihollinen ilmestyy maailman kohtaan (ovesta), ei ruudun reunalta kuten aalloissa */
 function spawnAt(k,x,z){const t=KT[k],f=mjE(SP[t.sp],x,z,'e',k,t.hp*(DIFF?1.3:1));f.face=M.e.x<x?-1:1;f.slot=(t.sc?21:15)+Math.random()*6;f.cd=1.2;M.ents.push(f);return f}
 function rovaDoors(dt){for(const d of M.rvD){if(d.op){d.op=Math.min(1,d.op+dt*3);continue}if(M.e.lev!=='roof'&&M.e.x>=d.trig){d.op=.01;tn(160,90,.25,.25,'square');nz(.25,'lowpass',600,.3);const f=spawnAt(d.k,d.x,2);M.say=[f,d.say];M.sayT=2.6;sTalk(1);msgL=['Ovi paukahtaa auki!']}}}
@@ -138,9 +138,31 @@ function liftBack(T){const r=M.L.roof,x=r.lad-M.cam;if(x<-60||x>W+60)return;cons
 /* Ovet syvyysjärjestyksessä hahmojen kanssa: katuovi (z = sz+.5) ja konehuoneen ovi (z = hz+.5); sisällä olevat jäävät ovien taakse */
 function liftSort(Ls){const r=M.L.roof,x=r.lad-M.cam;if(x<-60||x>W+60)return;const L=M.lift,top=r.A[2],atBot=!L||L.y<.5,atTop=L&&L.y>=top-.5,d=L?L.d:0;
  Ls.push([LIFT.sz+.5,()=>liftDoors(x,112+LIFT.sz,atBot?d:0)]);Ls.push([LIFT.hz+.5,()=>liftDoors(x,112-top+LIFT.hz,atTop?d:0)])}
+/* ---- Lordin aukion hiljainen vaihe ----
+   Kun aukion aallot on voitettu ja Esa saapuu aukiolle, taistelu hiljenee (musiikki vaimenee). Kioskista saa poroburgerin
+   (terveys täyteen, humala pois), ja penkillä istuvan vanhuksen luo mennään juttelemaan (ylös kohteen kohdalla tai napautus).
+   Vanhus opettaa horjuvan väistön; vasta sen jälkeen kenttä päättyy. */
+const AUKIO={start:1900,near:28,lineT:3.2};
+const VANHUS_LINES=[['vh','Lapin vanhus: Hmm? Pakkasta riittää, mutta viisautta ei.'],['p','Esa: Kuka sä olet?'],['vh','Lapin vanhus: Vanha mies penkillä. Kerran minua kutsuttiin Lapin humalanyrkiksi.'],
+ ['vh','Lapin vanhus: Tyhjä tuoppi on täynnä mahdollisuuksia. Täysi tuoppi on täynnä... no, olutta.'],['vh','Lapin vanhus: Kun olet sopivasti hiprakassa, älä taistele vastaan. Horju. Isku menee ohi.'],
+ ['vh','Lapin vanhus: Ja syö jotain. Kioskin poroburgeri on hyvää.']];
+function aukioQ(){return M.rvQ||(M.rvQ={on:0,burger:0,talk:-1,t:0,taught:0,pu:0})}
+function aukioUse(k){const Q=aukioQ(),e=M.e;if(!Q.on)return false;
+ if(k==='kioski'&&!Q.burger){Q.burger=1;e.hp=e.mhp;B.h=0;M.w20=1;mjSay('k','Kermis: Poroburgeri! Ota mullekin.');msgL=['Poroburgeri: terveys täynnä, humala haihtui.'];[523,659,784].forEach((f,i)=>tn(f,f,.15,.06,'triangle',i*.1));return true}
+ if(k==='penkki'&&Q.talk<0&&!Q.taught){Q.talk=0;Q.t=0;e.vx=e.vz=0;msgL=['Esa istahtaa vanhuksen viereen...'];return true}return false}
+function aukioNear(){const x=M.e.x;return Math.abs(x-RV.kioski)<AUKIO.near?'kioski':Math.abs(x-RV.penkki)<AUKIO.near?'penkki':null}
+function aukioTap(wx,wy){const Q=aukioQ();if(!Q.on)return false;const k=Math.abs(wx-RV.kioski)<30&&wy>40&&wy<112?'kioski':Math.abs(wx-RV.penkki)<22&&wy>50&&wy<112?'penkki':null;if(!k)return false;
+ M.e.x+=Math.sign((k==='kioski'?RV.kioski:RV.penkki)-M.e.x)*Math.max(0,Math.abs((k==='kioski'?RV.kioski:RV.penkki)-M.e.x)-10);return aukioUse(k)}
+function aukioStep(dt){const Q=aukioQ(),e=M.e;
+ if(!Q.on&&M.wi>=M.L.waves.length&&!M.lock&&e.x>=AUKIO.start){Q.on=1;duck(.08);msgL=['Lordin aukio hiljenee...','Kioski ja penkin vanhus odottavat.']}
+ if(!Q.on)return;const u=keysNow().u;if(u&&!Q.pu){const k=aukioNear();if(k)aukioUse(k)}Q.pu=u;
+ if(Q.talk>=0){e.vx=e.vz=0;if(e.st==='walk')e.st='idle';Q.t+=dt;const i=Math.floor(Q.t/AUKIO.lineT);if(i!==Q.talk||Q.t<dt*1.5){if(i<VANHUS_LINES.length){Q.talk=i;const [k,l]=VANHUS_LINES[i];mjSay(k==='vh'?{x:RV.penkki,z:2,sc:.9}:k,l)}else{Q.talk=-1;Q.taught=1;SKILL.dodge=true;duck(.32);
+   [523,659,784,1047,1319].forEach((f,i)=>tn(f,f,.25,.07,'square',i*.09));msgL=['UUSI TAITO: HORJUVA VÄISTÖ','Sopivassa humalassa (30–79 %) Esa horjahtaa osan iskuista ohi. GO →'];M.go=3}}}}
+function aukioHints(T){const Q=M.rvQ;if(!Q||!Q.on||Q.talk>=0||M.ph!=='play'||Math.sin(T*6)<-.3)return;const k=aukioNear();const tag=(k==='kioski'&&!Q.burger)?['POROBURGERI',RV.kioski]:(k==='penkki'&&!Q.taught)?['PUHU',RV.penkki]:null;if(!tag)return;
+ const hx=tag[1]-M.cam,hy=40+Math.round(M.camY||0);g.save();g.font='bold 9px monospace';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#1a0820';g.strokeText('↑ '+tag[0],hx,hy);g.fillStyle='#9ff';g.fillText('↑ '+tag[0],hx,hy);g.restore()}
 function rovaStep(dt){const st=rovaSt();rovaDoors(dt);for(const s of st){if(s.free){s.t+=dt;continue}if(M.wi>s.w){s.free=1;s.t=0;const n=st.filter(x=>x.free).length;
- msgL=['Latausasema vapautettu! ('+n+'/'+st.length+')'];[784,988,1175,1568].forEach((f,i)=>tn(f,f,.12,.06,'square',i*.07));const q=RV_QUIP[(n-1)%RV_QUIP.length];mjSay(q[0],q[1])}}}
-function rovaHud(){const st=M.rv||RV_ST,n=st.filter(s=>s.free).length;g.save();g.font='bold 7px monospace';g.textAlign='right';g.fillStyle=n===st.length?'#7dff9a':'#bfe8ff';g.shadowColor='#000';g.shadowBlur=2;g.fillText('ASEMAT '+n+'/'+st.length,314,29);g.restore()}
+ msgL=['Latausasema vapautettu! ('+n+'/'+st.length+')'];[784,988,1175,1568].forEach((f,i)=>tn(f,f,.12,.06,'square',i*.07));const q=RV_QUIP[(n-1)%RV_QUIP.length];mjSay(q[0],q[1])}}aukioStep(dt)}
+function rovaHud(T){aukioHints(T);const st=M.rv||RV_ST,n=st.filter(s=>s.free).length;g.save();g.font='bold 7px monospace';g.textAlign='right';g.fillStyle=n===st.length?'#7dff9a':'#bfe8ff';g.shadowColor='#000';g.shadowBlur=2;g.fillText('ASEMAT '+n+'/'+st.length,314,29);g.restore()}
 
 // ---- Tausta ----
 function rovaSky(){g.fillStyle=mkLg(10,110,[[0,'#03041a'],[1,'#1e2456']]);g.fillRect(0,10,W,H-10);for(let i=0;i<60;i++)R(i%6?'#c8ccf0':'#fff',(i*53)%W,12+(i*29)%60,1,1)}
