@@ -1215,12 +1215,18 @@ function step(dt){if(stage===7){stepMJ(dt);return}if(stage===6){step6(dt);return
 let hT=8;
 function slur(t,h){const k=Math.min(1,Math.max(0,(h-50)/45));return t.replace(/[a-zäöå]+/gi,w=>{if(w.length<3||w==='Esa')return w;if(Math.random()<k*.55)w=w.replace(/s/g,'sh');if(Math.random()<k*.45)w=w.replace(/([aeiouyäö])/,'$1$1');return w})+(Math.random()<.3+k*.6?' *hik*':'')}
 const tx=(s,x,y,c,a)=>{g.fillStyle=c;g.textAlign=a||'left';g.fillText(s,x,y)};
-function pos(p,e,sx,sa){const L=(a,b,u)=>a+(b-a)*u;let u;
- if(sa){if(p<1.6){u=p/1.6;return u<.6?[L(sx,40,u/.6),156]:[L(40,30,(u-.6)/.4),L(156,152,(u-.6)/.4)]}
-  if(p<e)return null;u=Math.min(1,(p-e)/1.6);return u<.4?[L(30,40,u/.4),L(152,156,u/.4)]:[L(40,60,(u-.4)/.6),L(156,148,(u-.4)/.6)]}
- if(p<1.6){u=p/1.6;return u<.5?[L(sx,40,u*2),148]:[L(40,50,u*2-1),L(148,118,u*2-1)]}
- if(p<e)return null;
- u=Math.min(1,(p-e)/1.6);return u<.5?[L(50,40,u*2),L(118,148,u*2)]:[L(40,60,u*2-1),148]}
+/* Pihan kävelyreitit reittipisteinä (ruudun koordinaatit, jalkojen kohta). Rakennusten rajat: saunamökki x 4–53, y 113–155,
+   mökki x 14–75, y 88–113 (ovi x≈50), paljun reuna x≥71 ja portaat x 58–74. Mökille kuljetaan saunan ja paljun välistä kujaa
+   (x≈62) eikä rakennusten läpi; Hempukka kiertää paljun edestä lumella. */
+const mkRoute=pts=>{const d=[0];for(let i=1;i<pts.length;i++)d.push(d[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));return{pts,d,len:d[d.length-1]}};
+const ROUTE={wcOut:mkRoute([[60,148],[62,146],[62,113],[57,111],[50,111]]),wcBack:mkRoute([[50,111],[57,111],[62,113],[62,146],[60,148]]),
+ saOut:mkRoute([[60,148],[60,156],[34,156],[32,155]]),saBack:mkRoute([[32,155],[34,156],[60,156],[60,148]]),
+ wOut:mkRoute([[190,158],[64,158],[62,146],[62,113],[57,111],[50,111]])};
+// paikka reitillä osuuden u (0..1) kohdalla, tasainen nopeus matkan mukaan
+function routeAt(r,u){const t=Math.max(0,Math.min(1,u))*r.len;let i=1;while(i<r.pts.length-1&&r.d[i]<t)i++;const a=r.pts[i-1],b=r.pts[i],k=(t-r.d[i-1])/((r.d[i]-r.d[i-1])||1);return[a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k]}
+// p = matkan aika, e = sisälläoloajan loppu, sx = lähtöpaikka (190 = Hempukka paljusta), sa = sauna
+function pos(p,e,sx,sa){const out=sa?ROUTE.saOut:sx>100?ROUTE.wOut:ROUTE.wcOut,back=sa?ROUTE.saBack:ROUTE.wcBack;
+ if(p<1.6)return routeAt(out,p/1.6);if(p<e)return null;return routeAt(back,(p-e)/1.6)}
 const sc=(a,f)=>`rgb(${a.map(v=>Math.max(0,Math.min(255,v*f))|0)})`;
 
 function ell(x,y,rx,ry,f,l){g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);if(f){g.fillStyle=f;g.fill()}if(l){g.strokeStyle=l;g.lineWidth=.5;g.stroke()}}

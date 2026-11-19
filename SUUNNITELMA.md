@@ -155,3 +155,4 @@ Myöhemmin:
   - Altaan pihalla kävelijän koko muuttuu syvyyden mukaan (`WALKS`, `walkS`): Esa ja Hempukka eivät ole enää mökkien seinien korkuisia.
   - Kehysaika on ennallaan tai parempi: pääkatu 8,6 → 7,8 ms ja katto 8,9 → 8,4 ms.
 - Windows-versio rakennettu uudelleen viimeistellystä index.html:stä (lataa/PaljunHerra-Windows.zip).
+- Pihan kävelyreitit reittipisteinä (`ROUTE`, `mkRoute`, `routeAt`): Esa kulkee paljulta mökille saunan ja paljun välistä kujaa, ei saunan läpi, ja saunaan seinän edestä ovelle. Hempukka kiertää paljun edestä lumella. Nopeus on tasainen matkan mukaan. Testi tarkistaa, ettei mikään reitin kohta osu saunaan, mökkiin tai paljuun. Windows-paketti rakennettu uudelleen.
