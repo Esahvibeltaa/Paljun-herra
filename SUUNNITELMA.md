@@ -154,3 +154,4 @@ Myöhemmin:
   - Falconin pihan Cessna suurennettu talojen mittakaavaan (`CESS_S`).
   - Altaan pihalla kävelijän koko muuttuu syvyyden mukaan (`WALKS`, `walkS`): Esa ja Hempukka eivät ole enää mökkien seinien korkuisia.
   - Kehysaika on ennallaan tai parempi: pääkatu 8,6 → 7,8 ms ja katto 8,9 → 8,4 ms.
+- Windows-versio rakennettu uudelleen viimeistellystä index.html:stä (lataa/PaljunHerra-Windows.zip).
