@@ -48,6 +48,10 @@ function rovaDoors(dt){for(const d of M.rvD){if(d.op){d.op=Math.min(1,d.op+dt*3)
    Yläkerroksissa liikkeiden lasiset myymäläjulkisivut kyltteineen ja kerrosten välillä liukuportaat (runko, askelmat,
    lasikaide ja käsijohde). part 0 = pääosa (hissi), 1 = viereinen siipi. Kirkkaus hehkurajan alla, reunoissa pilarit. */
 const MALL={edge:7,gf:68,floor:56,slab:4,mull:18,glass:['#173248','#1d3c56'],shops:['#7a5a3a','#6a5070','#4a6a5a','#7a6040','#5a5a7a'],signs:['#c86a3a','#3a9ac8','#c8a03a','#9a5ac8','#5ac87a']};
+/* Rivin paikat: mahtuu kokonaan väliin [a,b] ilman esteitä (block = [[x0,x1],...]); jokaiseen vapaaseen väliin keskitetty rivi.
+   Näin ovet, ikkunat ja myymälät eivät koskaan tule osittain rakennuksen kyljen, pilarin tai hissikuilun yli. */
+function fitRow(a,b,sw,gap,block){const segs=[[a,b]];for(const [x0,x1] of block||[]){for(let i=segs.length-1;i>=0;i--){const [s0,s1]=segs[i];if(x1<=s0||x0>=s1)continue;segs.splice(i,1,...[[s0,x0],[x1,s1]].filter(([p,q])=>q-p>0))}}
+ const out=[];for(const [s0,s1] of segs){const n=Math.floor((s1-s0+gap)/(sw+gap));if(n<1)continue;const st=s0+(s1-s0-(n*sw+(n-1)*gap))/2;for(let i=0;i<n;i++)out.push(st+i*(sw+gap))}return out}
 /* Liukuportaat kerroksesta toiseen: x0 = alapää, y0 = alakerran lattia, dir = +1 nousee oikealle; korkeus = yksi kerros */
 function escalator(x0,y0,dir){const h=MALL.floor-MALL.slab,run=h*1.6,x1=x0+dir*run,y1=y0-h,st=4;
  // runko (tumma kotelo portaiden alla)
@@ -67,12 +71,16 @@ function mallFacade(w,h,part){const y1=160,y0=156-h;g.fillStyle=mkLg(y0,y1,[[0,M
  for(let x=0;x<w;x+=MALL.mull)R('#22303e',x,y0,1.2,y1-y0);for(let i=0;i<5;i++){const x=hsh(i+part*9)*w;g.fillStyle='rgba(170,210,240,.07)';g.beginPath();g.moveTo(x,y0);g.lineTo(x+18,y0);g.lineTo(x-24,y1);g.lineTo(x-42,y1);g.fill()}
  // katutaso: korkeat näyteikkunat ja (pääosassa) sisäänkäyntikatos
  const gy=y1-MALL.gf;R('#c4c8d2',0,gy-MALL.slab,w,MALL.slab);R('#e0e4ec',0,gy-MALL.slab,w,1);
- for(let x=10;x<w-40;x+=40){R('#1a2028',x-1,gy+5,34,MALL.gf-12);R('#6a5434',x,gy+6,32,MALL.gf-14);R('#806640',x,gy+6,32,3);R('#3a2e22',x+4,gy+28,8,MALL.gf-36);R('#4a3a2a',x+16,gy+22,9,MALL.gf-30);R('#22303e',x+15.5,gy+6,1,MALL.gf-14)}
- if(part===0){const cx=w*.62;R('#1a1e26',cx-24,gy+10,48,MALL.gf-14);R('#8a6a44',cx-20,gy+14,40,MALL.gf-18);R('#c8ccd6',cx-30,gy+2,60,4);R('rgba(0,0,0,.4)',cx-30,gy+6,60,2)}
+ // kyljet ja hissikuilu (pääosassa) pidetään vapaina; reunapilarin sisäpuolelta 3 px väli
+ const lo=MALL.edge+3,hi=w-MALL.edge-3,liftZ=part===0?[[RV_ROOF.lad-RV_ROOF.A[0]-LIFT.w/2-6,RV_ROOF.lad-RV_ROOF.A[0]+LIFT.w/2+6]]:[],cx0=w*.62;
+ for(const x of fitRow(lo,hi,32,8,[...liftZ,...(part===0?[[cx0-32,cx0+32]]:[])])){R('#1a2028',x-1,gy+5,34,MALL.gf-12);R('#6a5434',x,gy+6,32,MALL.gf-14);R('#806640',x,gy+6,32,3);R('#3a2e22',x+4,gy+28,8,MALL.gf-36);R('#4a3a2a',x+16,gy+22,9,MALL.gf-30);R('#22303e',x+15.5,gy+6,1,MALL.gf-14)}
+ if(part===0){const cx=cx0;R('#1a1e26',cx-24,gy+10,48,MALL.gf-14);R('#8a6a44',cx-20,gy+14,40,MALL.gf-18);R('#c8ccd6',cx-30,gy+2,60,4);R('rgba(0,0,0,.4)',cx-30,gy+6,60,2)}
  // yläkerrat alhaalta ylös: myymälät ja liukuportaat
- let k=0;for(let yb=gy-MALL.slab;yb-MALL.floor>=y0-2;yb-=MALL.floor,k++){const ex=k%2?w*.62:w*.2,dir=k%2?-1:1,run=(MALL.floor-MALL.slab)*1.6,a=Math.min(ex,ex+dir*run)-14,b=Math.max(ex,ex+dir*run)+14;
+ // liukuportaat pidetään kokonaan hissikuilun ja pilarien välissä (14 px väli päihin, käsijohteen pää mukaan lukien)
+ const escLo=Math.max(lo,...liftZ.map(z=>z[1]))+14;
+ let k=0;for(let yb=gy-MALL.slab;yb-MALL.floor>=y0-2;yb-=MALL.floor,k++){const dir=k%2?-1:1,run=(MALL.floor-MALL.slab)*1.6,ex=dir>0?Math.max(w*.2,escLo):Math.max(w*.62,escLo+run),a=Math.min(ex,ex+dir*run)-14,b=Math.max(ex,ex+dir*run)+14;
   // liukuportaat vain, jos yläpuolella on vielä kerros (ylimmästä ei kulje portaita katolle)
-  const top=yb-MALL.floor,esc=top>y0+2;for(let x=8;x<w-40;x+=44){if(esc&&x+36>a&&x<b)continue;mallShop(x,yb,36,k+part*3)}if(esc)escalator(ex,yb,dir);
+  const top=yb-MALL.floor,esc=top>y0+2;for(const x of fitRow(lo,hi,36,8,[...liftZ,...(esc?[[a,b]]:[])]))mallShop(x,yb,36,k+part*3);if(esc)escalator(ex,yb,dir);
   if(esc){R('#c4c8d2',0,top,w,MALL.slab);R('#e0e4ec',0,top,w,1);R('rgba(0,0,0,.35)',0,top+MALL.slab,w,1.5)}}
  R('#3a4048',0,y1-4,w,4);R('#5ad8e8',0,y0+2,w,1.2);R('rgba(90,216,232,.25)',0,y0+3.2,w,1.5);
  // kulmapilarit: lasi ei saa loppua tyhjään, vaan reunassa on aina umpinainen seinä (betonipilari varjoineen)
