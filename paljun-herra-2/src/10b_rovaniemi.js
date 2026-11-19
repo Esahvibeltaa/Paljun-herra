@@ -46,7 +46,7 @@ function rovaDoors(dt){for(const d of M.rvD){if(d.op){d.op=Math.min(1,d.op+dt*3)
 /* Sampokeskuksen lasijulkisivu (piirretään kerran välimuistiin rakennuksen päälle): kerrosten valkoiset laattanauhat,
    suuret heijastavat lasipinnat ja ohuet karmit, valaistut liikkeet ja liukuportaat lasin takana, katutason näyteikkunat ja
    sisäänkäyntikatos, ylhäällä syaani valonauha. part 0 = pääosa (hissi), 1 = viereinen siipi. Kirkkaus pidetään hehkurajan alla. */
-const MALL={floor:28,slab:3,mull:16,glass:['#173248','#1d3c56'],shops:['#7a5a3a','#6a5070','#4a6a5a','#7a6040','#5a5a7a'],signs:['#c86a3a','#3a9ac8','#c8a03a','#9a5ac8','#5ac87a']};
+const MALL={edge:7,floor:28,slab:3,mull:16,glass:['#173248','#1d3c56'],shops:['#7a5a3a','#6a5070','#4a6a5a','#7a6040','#5a5a7a'],signs:['#c86a3a','#3a9ac8','#c8a03a','#9a5ac8','#5ac87a']};
 function mallFacade(w,h,part){const y0=156-h,y1=160,fl=MALL.floor;
  g.fillStyle=mkLg(y0,y1,[[0,MALL.glass[0]],[1,MALL.glass[1]]]);g.fillRect(0,y0,w,y1-y0);
  // kerrokset ylhäältä alas: liikkeiden valot lasin takana, liukuportaat, laattanauhat
@@ -58,7 +58,9 @@ function mallFacade(w,h,part){const y0=156-h,y1=160,fl=MALL.floor;
  // katutaso: korkeat näyteikkunat, sisäänkäyntikatos (pääosassa) ja sokkeli
  const gy=y1-34;R('#2a3440',0,gy-3,w,3);for(let x=6;x<w-10;x+=34){R('#6a5434',x,gy+2,28,26);R('#806640',x,gy+2,28,3);R('#3a2e22',x+4,gy+12,6,16);R('#4a3a2a',x+14,gy+8,8,20)}
  if(part===0){const cx=w*.6;R('#1a1e26',cx-22,gy+4,44,28);R('#8a6a44',cx-18,gy+8,36,24);R('#c8ccd6',cx-28,gy-6,56,4);R('rgba(0,0,0,.4)',cx-28,gy-2,56,2)}
- R('#3a4048',0,y1-4,w,4);R('#5ad8e8',0,y0+2,w,1.2);R('rgba(90,216,232,.25)',0,y0+3.2,w,1.5)}
+ R('#3a4048',0,y1-4,w,4);R('#5ad8e8',0,y0+2,w,1.2);R('rgba(90,216,232,.25)',0,y0+3.2,w,1.5)
+ // kulmapilarit: lasi ei saa loppua tyhjään, vaan reunassa on aina umpinainen seinä (betonipilari varjoineen)
+ for(const x of[0,w-MALL.edge]){R('#5a606c',x,y0,MALL.edge,y1-y0);R('#767c88',x+(x?0:MALL.edge-1.5),y0,1.5,y1-y0);R('rgba(0,0,0,.3)',x+(x?MALL.edge-2:0),y0,2,y1-y0)}R('#767c88',0,y0,w,2)}
 /* ---- Sampokeskuksen hissi (rakennuksen sisällä) ----
    Katutasolla ovi on julkisivussa, kori näkyy noustessaan julkisivun lasikaistaleesta, ja ylhäällä hissi tulee katon läpi
    konehuoneeseen katon takaosaan. Porukka astuu ulos konehuoneen ovista kattotasolle (katto heidän edessään).

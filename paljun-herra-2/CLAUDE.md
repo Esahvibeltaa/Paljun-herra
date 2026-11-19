@@ -17,8 +17,9 @@ Suunnitelma: `SUUNNITELMA.md`.
    - kuvaavat nimet ja lyhyt kommentti ei-ilmeisille ratkaisuille
    - mitatut tai säädettävät arvot nimettyihin vakioihin/taulukoihin
    - tekstit rivitetään yhteisillä apufunktioilla (`wrapLines`, `drawMsg`, `sbub`, `box3`)
-3. **Retrografiikka on aina päällä** (pikselipuskuri 320×200, väriportaat, hehku, teksti terävänä).
-4. **Taistelun periaatteet:** osuma vain kun raaja koskee vartaloon (`TIP`, `BODY`, `reachOf`), iskujen enimmäistiheys (`ATK_MIN`), ajoitukseen perustuva ketjutus, terävä ohjaus (syötepuskuri `IBUF`, suunta tallennetaan painalluksen hetkellä, humalaviive enintään 0,15 s).
+3. **Grafiikan reunat ja syvyys:** pinnat (ikkunat, lasi, näyteikkunat, julkisivut) eivät koskaan pääty tyhjään tai katkea terävästi. Reunaan piirretään aina ohut seinä, pilari, kehys tai muu objekti. Taustakerrokset piirretään kokonaisina (ei leikattuja puolikkaita taloja), tekstit omalle taululleen (`labelBoard`) ja kirkkaat pinnat pidetään himmeinä, jottei hehku liimaa niitä. Rakennuksiin pientä syvyyttä (räystäsvarjo, sivuseinä, sokkeli), vältetään pahvimaisuutta.
+4. **Retrografiikka on aina päällä** (pikselipuskuri 320×200, väriportaat, hehku, teksti terävänä).
+5. **Taistelun periaatteet:** osuma vain kun raaja koskee vartaloon (`TIP`, `BODY`, `reachOf`), iskujen enimmäistiheys (`ATK_MIN`), ajoitukseen perustuva ketjutus, terävä ohjaus (syötepuskuri `IBUF`, suunta tallennetaan painalluksen hetkellä, humalaviive enintään 0,15 s).
 
 ## Rakenne
 
