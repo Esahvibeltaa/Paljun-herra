@@ -240,10 +240,11 @@ function rfBldDraw(x0,w,h,c1,c2){const X0=0,X1=w,yb=112-h,yf=152-h;let q;
   R('rgba(0,0,0,.45)',X0,yb-10,2,170-yb);R('rgba(0,0,0,.45)',X1-2,yb-10,2,170-yb)}
 function roofDraw(T){const r=M.L.roof,c=M.cam;let q;
  {const X0=r.A[1]-c,X1=r.B[0]-c;q=g.createLinearGradient(0,60,0,160);q.addColorStop(0,'#0a0a14');q.addColorStop(1,'#1a1620');g.fillStyle=q;g.fillRect(X0,112-r.B[2]-14,X1-X0,60+r.B[2]);mkBox(X0+6,134,20,14,'#2a5a3a','#1a3a26',1);R('#3a7a4a',X0+5,132,22,3);for(let i=0;i<3;i++){const u=(T*.3+i*.33)%1;ell(X0+16+Math.sin(u*5)*3,128-u*30,2+u*4,2+u*4,`rgba(120,110,130,${.25*(1-u)})`)}}
- const bld=(x0,x1,h,c1,c2)=>{const X0=x0-c;if(x1-c<-10||X0>W+10)return;const key=x0+'|'+x1+'|'+h+'|'+c1,top=112-h-20;let cc=RFC[key];
-  if(!cc){const w=x1-x0;cc=RFC[key]=document.createElement('canvas');cc.width=(w+2)*2;cc.height=(172-top)*2;const x=cc.getContext('2d');x.scale(2,2);x.translate(0,-top);const gs=g;g=x;try{rfBldDraw(x0,w,h,c1,c2)}finally{g=gs}}
+ // paint = kentän oma julkisivumaalari (piirtää julkisivun perusrakennuksen päälle välimuistiin)
+ const bld=(x0,x1,h,c1,c2,paint)=>{const X0=x0-c;if(x1-c<-10||X0>W+10)return;const key=x0+'|'+x1+'|'+h+'|'+c1+(paint?'|p':''),top=112-h-20;let cc=RFC[key];
+  if(!cc){const w=x1-x0;cc=RFC[key]=document.createElement('canvas');cc.width=(w+2)*2;cc.height=(172-top)*2;const x=cc.getContext('2d');x.scale(2,2);x.translate(0,-top);const gs=g;g=x;try{rfBldDraw(x0,w,h,c1,c2);if(paint)paint(w,h)}finally{g=gs}}
   g.drawImage(cc,X0,top,cc.width/2,cc.height/2)};
- bld(r.A[0],r.A[1],r.A[2],'#5a3a2e','#3a2620');bld(r.B[0],r.B[1],r.B[2],'#3e4a5a','#2a323e');
+ bld(r.A[0],r.A[1],r.A[2],'#5a3a2e','#3a2620',r.paintA);bld(r.B[0],r.B[1],r.B[2],'#3e4a5a','#2a323e',r.paintB);
  {const X0=r.B[1]-c,X1=r.S-c,h=r.B[2];if(X1>-10&&X0<W+10){for(let x=X0;x<X1;x+=5){const u=(x-X0)/(X1-X0),hh=h*(1-u);mkBox(x,112-hh,5.5,40,'#6a6e78','#4a4e58');R('#9aa0aa',x,112-hh,5.5,.8);R('#9aa0aa',x,152-hh,5.5,.8)}
   g.strokeStyle='#2a2e36';g.lineWidth=1.4;g.beginPath();g.moveTo(X0,152-h-12);g.lineTo(X1,140);g.stroke();for(let x=X0;x<X1;x+=10){const u=(x-X0)/(X1-X0);g.beginPath();g.moveTo(x,152-h*(1-u)-12+h*0*u);g.lineTo(x,152-h*(1-u));g.stroke()}
   g.strokeStyle='#3a3e46';g.lineWidth=1.2;for(let x=X0+8;x<X1;x+=20){const u=(x-X0)/(X1-X0);g.beginPath();g.moveTo(x,154-h*(1-u));g.lineTo(x,160);g.stroke()}}}
