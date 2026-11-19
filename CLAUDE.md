@@ -16,6 +16,10 @@ Selainpeli yhdessä tiedostossa (`index.html`). Suunnitelma ja muutoshistoria: `
    - mitatut tai säädettävät arvot nimettyihin taulukoihin/vakioihin (esim. `TIP`, `BODY`, `WN`, `KT`)
    - tekstit rivitetään yhteisillä apufunktioilla, ei kiinteillä merkkimäärillä
 
+## Grafiikka- ja mittasuhdeohje
+
+- `GRAFIIKKAOHJE.md` (yhteinen molemmille peleille) noudatetaan aina: mittasuhteet hahmoihin, reunat ja rakenteet, syvyys ja piirtojärjestys, valot ja tekstit, elävyys, animaatio (myös tikapuut `climbPose`) ja tarkistuslista.
+
 ## Työtapa
 
 - Muutokset testataan Playwrightilla (kuvat scratchpadiin), myös aiemmat testit (allas, intro, vaiheet, katot, reunat).

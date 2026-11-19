@@ -22,6 +22,8 @@ Suunnitelma: `SUUNNITELMA.md`.
 5. **Retrografiikka on aina päällä** (pikselipuskuri 320×200, väriportaat, hehku, teksti terävänä).
 6. **Taistelun periaatteet:** osuma vain kun raaja koskee vartaloon (`TIP`, `BODY`, `reachOf`), iskujen enimmäistiheys (`ATK_MIN`), ajoitukseen perustuva ketjutus, terävä ohjaus (syötepuskuri `IBUF`, suunta tallennetaan painalluksen hetkellä, humalaviive enintään 0,15 s).
 
+Kokonaisohje (myös ykkösosalle): `../GRAFIIKKAOHJE.md` – noudatetaan aina, tarkistuslista ennen valmista.
+
 ## Rakenne
 
 - `src/*.js` moduulit, liitetään nimijärjestyksessä (`00_tila.js` ensin, `14_peli.js` viimeisenä):

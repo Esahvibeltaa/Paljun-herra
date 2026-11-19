@@ -238,6 +238,21 @@ function rfBldDraw(x0,w,h,c1,c2){const X0=0,X1=w,yb=112-h,yf=152-h;let q;
   g.fillStyle='rgba(0,0,0,.2)';for(let y=yf+8;y<160;y+=5){g.fillRect(X0,y,w,.6);for(let x=X0+((y/5|0)%2)*6;x<X1;x+=12)g.fillRect(x,y,.6,5)}
   for(let x=X0+12;x<X1-14;x+=26){const lit=hsh(x+x0)>.45;R('#1a1a22',x-1,yf+11,14,13);R(lit?'#ffd890':'#2a3040',x,yf+12,12,11);R('rgba(0,0,0,.3)',x+5.5,yf+12,1,11);if(lit){g.save();g.globalCompositeOperation='lighter';const lq=g.createRadialGradient(x+6,yf+18,1,x+6,yf+18,14);lq.addColorStop(0,'rgba(255,200,120,.18)');lq.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=lq;g.fillRect(x-8,yf+4,28,28);g.restore()}}
   R('rgba(0,0,0,.45)',X0,yb-10,2,170-yb);R('rgba(0,0,0,.45)',X1-2,yb-10,2,170-yb)}
+/* Tikapuut hahmojen mittakaavassa (hahmo ~52 px): leveys 18, puolat 8 px välein (≈ 30 cm), kaiteet jatkuvat katon yli
+   kaarevina tarttumakahvoina, seinäkiinnikkeet välein ja jalat maassa. top = katon taso (ruudulla), bot = jalkojen taso. */
+const LADDER={w:18,rail:2.5,rung:8,ext:16,brk:30};
+function ladderDraw(X,top,bot){const L=LADDER,hw=L.w/2,t=top-L.ext;
+ for(let y=top+L.brk*.5;y<bot-6;y+=L.brk){R('#2a2e36',X-hw-3,y,L.w+6,3);R('#4a4e58',X-hw-3,y,L.w+6,1)}
+ for(let y=bot-3;y>t+4;y-=L.rung){R('#8a909a',X-hw,y,L.w,1.8);R('rgba(0,0,0,.35)',X-hw,y+1.8,L.w,1)}
+ for(const s of[-1,1]){const x=X+s*hw-(s>0?L.rail:0);R('#6a707a',x,t+4,L.rail,bot-t-4);R('#9aa0aa',x,t+4,.8,bot-t-4);R('rgba(0,0,0,.35)',x+L.rail-.8,t+4,.8,bot-t-4)}
+ g.strokeStyle='#6a707a';g.lineWidth=L.rail;g.beginPath();g.moveTo(X-hw+L.rail/2,t+5);g.quadraticCurveTo(X-hw+L.rail/2,t-1,X-hw+5,t-1);g.moveTo(X+hw-L.rail/2,t+5);g.quadraticCurveTo(X+hw-L.rail/2,t-1,X+hw-5,t-1);g.stroke();
+ for(const s of[-1,1])R('#3a3e48',X+s*hw-(s>0?4:0)-.5,bot-2,4.5,2)}
+/* Kiipeämisasento sidottu korkeuteen (ei aikaan): pysähtyessä asento pysyy, kädet ja jalat vuorottelevat puola kerrallaan.
+   Ylempi käsi ojentuu seuraavalle puolalle, vastakkainen polvi nousee; vartalo nytkähtää kevyesti joka askeleella. */
+function climbPose(base){const p=base/LADDER.rung,k=Math.floor(p),u=p-k,e=u*u*(3-2*u),a=k%2?1-e:e,lift=Math.sin(u*Math.PI);
+ return{prof:0,flip:false,rot:0,cy:0,item:null,tilt:(a-.5)*.08,bob:-lift*1.2,
+  // kädet lähes suoraan ylös kaiteiden levyisinä (kyynärpää taittuu sisään), alempi käsi koukussa
+  aL:2.75+a*.3,eL:.35+(1-a)*.55,aR:-2.75-(1-a)*.3,eR:-.35-a*.55,lL:-.1+a*.2,kL:.1+a*.9,lR:.1-(1-a)*.2,kR:.1+(1-a)*.9}}
 /* Katolta kadulle laskeutuvan rampin rakenne: palkin paksuus, pilarin leveys, ensimmäisen pilarin etäisyys ja pilariväli (px) */
 const RAMP={beam:7,pw:12,first:16,gap:44,sink:22};
 function roofDraw(T){const r=M.L.roof,c=M.cam;let q;
@@ -258,7 +273,7 @@ for(let x=X0;x<X1;x+=5){const u=(x-X0)/(X1-X0),hh=h*(1-u);mkBox(x,112-hh,5.5,40,
   g.fillStyle='#4a4e58';g.beginPath();g.moveTo(X0,152-h);g.lineTo(X1,152);g.lineTo(X1,152+RP.beam);g.lineTo(X0,152-h+RP.beam);g.closePath();g.fill();
   g.strokeStyle='#6a6e78';g.lineWidth=.8;g.beginPath();g.moveTo(X0,152-h);g.lineTo(X1,152);g.stroke();
 }}
- if(!r.lift){const X=r.lad-c;if(X>-10&&X<W+10){const top=112-r.A[2]-10;R('#7a7e86',X-5,top,1.6,160-top);R('#7a7e86',X+4,top,1.6,160-top);for(let y=top+3;y<158;y+=5)R('#9aa0aa',X-4,y,8.5,1.2);R('rgba(0,0,0,.3)',X-4,top,1,160-top)}}}
+ if(!r.lift){const X=r.lad-c;if(X>-20&&X<W+20)ladderDraw(X,112-r.A[2],113)}}
 function mjBg(T){if(M.L&&M.L.theme==='rova'){rovaBg(T);return}if(M.L&&M.L.theme==='gas'){gasBg(T);return}if(M.L&&M.L.theme==='scrap'){scrapBg(T);return}if(M.L&&M.L.theme==='ind'){indBg(T);return}if(M.L&&M.L.theme==='garage'){garageBg(T);return}const c=M.cam;let q=g.createLinearGradient(0,10,0,110);q.addColorStop(0,'#05061a');q.addColorStop(1,'#1e1a44');g.fillStyle=q;g.fillRect(0,10,W,100);
  for(let i=0;i<40;i++){const x=((hsh(i)*W*2-c*.05)%W+W)%W,y=12+hsh(i+50)*50;g.fillStyle=`rgba(255,250,230,${.3+.7*Math.abs(Math.sin(T*(1+hsh(i+9))+i))})`;g.fillRect(x,y,.8,.8)}
  ell(272-c*.02,30,8,8,'#f2ecc8');
@@ -278,7 +293,7 @@ function mjDrawE(f,T){if(f.hidden)return;const isE=f===M.e,o=Object.assign(fpose
  if(f.atk&&f.atk.m.n==='solo'){o.aL=-1.35;o.eL=.15;o.aR=-.45+Math.sin(T*30)*.22;o.eR=-1.25;o.tilt=Math.sin(T*14)*.2}
  if(isE&&f.wpn>0&&!o.item)o.item=f.wt||'w';
  if(f.team==='e'&&f.st==='ko'&&f.kt>1&&Math.sin(T*40)>0)return;
- if(f.st==='climb'&&!(M.L.roof&&M.L.roof.lift)){const c2=f.cl||0;Object.assign(o,{prof:0,flip:false,aL:2.9+Math.sin(c2*9)*.25,eL:-.3,aR:-2.9+Math.sin(c2*9+3)*.25,eR:.3,lL:Math.sin(c2*9)*.35,kL:.5+Math.sin(c2*9)*.4,lR:-Math.sin(c2*9)*.35,kR:.5-Math.sin(c2*9)*.4,rot:0,cy:0,tilt:0,item:null})}
+ if(f.st==='climb'&&!(M.L.roof&&M.L.roof.lift))Object.assign(o,climbPose(f.base||0))
  const sx=f.x-M.cam,sy=112+f.z-(f.base||0),sc=f.sc||1;ell(sx,sy+1,10*sc,2.4*sc,'rgba(0,0,0,.35)');o.flip=o.flipX!==undefined?o.flipX:f.face<0;o.s=sc;{const X=sx+(o.lx||0)*sc*f.face,Y=sy-f.y+(o.dy||0)*sc;drawChar(f.sp,X,Y,o);swingTrail(f,o,X,Y,T)}
  if(f.notes>0)for(let i=0;i<3;i++){const u=((T*.8+i*.33)%1);g.save();g.globalAlpha=1-u;g.font='bold 9px monospace';g.fillStyle=['#ff6ac8','#6ae0ff','#ffe23a'][i];g.fillText('♪',sx-10+i*9+Math.sin(u*6)*3,sy-56-u*18);g.restore()}
  if(f.team==='a'&&f.tired>0)zzz(sx+8,sy-20,T)}
