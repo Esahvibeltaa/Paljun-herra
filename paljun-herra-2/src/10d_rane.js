@@ -1,6 +1,6 @@
 /* Paljun Herra 2 – Välipomo Rysty-Rane (Lordin aukio, Rovaniemi).
    Liioitellun leveät hartiat, isot hauikset, 1,5 × pelaajahahmojen korkeus (KT.rr.sc).
-   Vaarallinen koukku (MVJ.hook): pitkä, selvästi näkyvä valmistelu (käsi taakse, punainen "!", murina).
+   Vaarallinen koukku (MVJ.hook): pitkä, selvästi näkyvä valmistelu (käsi taakse, "!", murina).
    Valmistelun ja lyönnin ajan Rane on panssaroitu (iskut eivät keskeytä), eikä horjuva väistö auta:
    ainoa keino on perääntyä ulottumattomiin ja rangaista pitkän palautumisen aikana. */
 const RANE={hp:300,trig:2130,startX:2275,hookCd:3.4,rageCd:2.4,hookDx:48,hookDz:9,slot:30,rage:.5};
@@ -40,9 +40,8 @@ function hookPose(f,o,T){const a=f.atk,m=a.m,t=a.t,L2=(x,y,u)=>x+(y-x)*u;
   Object.assign(o,{aL:L2(2.15,-1.75,v),eL:L2(1.35,.25,v),aR:L2(-1.3,-.4,v),eR:L2(-1.9,-1.9,v),rot:L2(-.12,.14,v),tilt:L2(-.08,.06,v),lx:L2(-3,9,v),cy:26})}
  else{const w=ease((t-m.st-m.ac)/m.rc);// raskas palautuminen: käsi roikkuu, hengästyy
   Object.assign(o,{aL:L2(-1.75,-.75,w),eL:L2(.25,-2,w),aR:L2(-.4,-1.15,w),eR:L2(-1.9,-1.55,w),rot:.14*(1-w),tilt:.06*(1-w)+Math.sin(T*9)*.04,lx:9*(1-w),bob:Math.sin(T*9)*1.2,cy:26})}}
-/* Varoitus valmistelun aikana: vilkkuva punainen huutomerkki pään yläpuolella ja maassa punainen ulottuvuusviiva */
+/* Varoitus valmistelun aikana: vilkkuva huutomerkki pään yläpuolella (ei ulottuvuusviivaa: etäisyys opitaan itse) */
 function hookOver(f,X,Y,T){const a=f.atk,m=a.m;if(a.t>=m.st)return;const u=a.t/m.st,sc=f.sc||1,top=Y-42*sc;
- const reach=reachOf(m,sc,1)+m.lunge*m.ac;g.save();g.globalAlpha=.25+.35*u;g.fillStyle='#ff2a1a';g.fillRect(f.face>0?X:X-reach,Y-1,reach,2);g.restore();
  if(Math.sin(T*24)>-.2){g.save();g.font='bold 14px monospace';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#1a0408';g.strokeText('!',X,top);g.fillStyle=u>.6?'#ff3a2a':'#ffb040';g.fillText('!',X,top);g.restore()}}
 
 function raneAI(f,dx,dz,dt){
