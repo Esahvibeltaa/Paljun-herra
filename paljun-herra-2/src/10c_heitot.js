@@ -15,7 +15,7 @@ addEventListener('keyup',e=>{if(e.key==='j'||e.key==='J')PHOLD.p=0});
 function punchHeld(){return PHOLD.p||!!gpPrev[GB.punch]}
 
 /* Esan lyönti, kun edessä on horjahtanut vastustaja: odotetaan hetki, pidetäänkö nappi pohjassa (kiinniotto) vai oliko se näpäytys (lyönti) */
-function grabTarget(e){return M.ents.find(x=>x.team==='e'&&!x.dead&&x.stag>0&&['hit','idle','walk','atk'].includes(x.st)&&Math.sign(x.x-e.x)===e.face&&Math.abs(x.x-e.x)<GRAB.reach&&Math.abs(x.z-e.z)<GRAB.dz&&Math.abs((x.base||0)-(e.base||0))<8)}
+function grabTarget(e){return M.ents.find(x=>x.team==='e'&&!x.dead&&x.stag>0&&!(KT[x.kind]||{}).heavy&&['hit','idle','walk','atk'].includes(x.st)&&Math.sign(x.x-e.x)===e.face&&Math.abs(x.x-e.x)<GRAB.reach&&Math.abs(x.z-e.z)<GRAB.dz&&Math.abs((x.base||0)-(e.base||0))<8)}
 function startGrab(g,v){g.grab=v;v.held=g;g.atk=null;v.atk=null;g.st='grab';v.st='held';g.gt=0;g.vx=g.vz=v.vx=v.vz=0;v.stag=0;g.gdir=null;g.face=Math.sign(v.x-g.x)||g.face;
  nz(.12,'bandpass',900,.12,500);tn(220,160,.1,.08,'square');if(g===M.e)msgL=['KIINNI!','Valitse suunta ja päästä lyöntinappi.'];else if(v===M.e){msgL=['Esa joutui otteeseen!'];M.say=[g,pick(['Tuu tänne!','Hiuksista kiinni!','Nyt lentää!'])];M.sayT=1.6}}
 /* Heitto valittuun suuntaan; vahinko kulkee yhteisen mjDamage-funktion kautta (kaatuminen, pisteet, häviö) */

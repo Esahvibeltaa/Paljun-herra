@@ -70,7 +70,7 @@ function genK(){LY={};const sk='#eab894',sd='#c8906c',h='#1a1a20',hl='#34343e',t
 function mkPart(q){if(!q)return null;const c=document.createElement('canvas');c.width=GW+2;c.height=GH+2;const x=c.getContext('2d'),O=(i,j)=>j>=0&&j<GH&&i>=0&&i<GW&&q[j][i];
  for(let j=-1;j<=GH;j++)for(let i=-1;i<=GW;i++){const v=O(i,j);if(v){x.fillStyle=v;x.fillRect(i+1,j+1,1,1)}else if(O(i+1,j)||O(i-1,j)||O(i,j+1)||O(i,j-1)){x.fillStyle='#18121a';x.fillRect(i+1,j+1,1,1)}}return c}
 function shd(c,f){if(!c||c[0]!=='#')return c;if(c.length===4)c='#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3];if(c.length!==7)return c;const n=parseInt(c.slice(1),16);return'#'+[16,8,0].map(b=>Math.round(((n>>b)&255)*f).toString(16).padStart(2,'0')).join('')}
-function buildProf(G,sk){const E=()=>Array.from({length:GH},()=>Array(GW).fill(null)),hm=d=>12+Math.round((16-d)/1.5);
+function buildProf(G,sk,pp){const E=()=>Array.from({length:GH},()=>Array(GW).fill(null)),hm=d=>12+Math.round((16-d)/1.5);
  const mapH=q=>{if(!q)return null;const o=E();for(let y=0;y<GH;y++)for(let d=0;d<=16;d++){const s=hm(d);if(s<GW&&q[y][s])o[y][d]=q[y][s]}return o};
  const sh=(q,dx,f)=>{if(!q)return null;const o=E();for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const v=q[y][x];if(v&&x+dx>=0&&x+dx<GW)o[y][x+dx]=f?shd(v,f):v}return o};
  const crop=(q,a,b)=>{if(!q)return null;const o=E();for(let y=0;y<GH;y++)for(let x=a;x<=b;x++)o[y][x]=q[y][x];return o};
@@ -81,12 +81,13 @@ function buildProf(G,sk){const E=()=>Array.from({length:GH},()=>Array(GW).fill(n
  const hb=G.head.map(v=>v.slice());[[9,12],[10,12],[14,12],[15,12],[9,13],[10,13],[14,13],[15,13]].forEach(([x,y])=>hb[y][x]=y===13?'#3a2418':sk);
  const L={back:mapH(G.back),front:mapH(G.front),head:fixH(mapH(G.head),0),headB:fixH(mapH(hb),1),torso:crop(G.torso,8,17),legR:sh(G.legR,-4),legL:sh(G.legR,-4,.72),legR2:sh(G.legR2,-4),legL2:sh(G.legR2,-4,.72),armR:sh(G.armR,-8),armL:sh(G.armR,-8,.72),armR2:sh(G.armR2,-8),armL2:sh(G.armR2,-8,.72)};
  if(BRIM){[L.head,L.headB].forEach(q=>{for(let x=8;x<=11;x++){q[8][x]=q[9][x]=null}for(let x=15;x<=20;x++){q[8][x]=BRIM;if(x<20)q[9][x]=shd(BRIM,.75)}})}
+ if(pp){const s0=LY;LY=L;pp(sk);LY=s0}// valinnainen sivuprofiilin lisämaalaus (esim. leveät hartiat, joita rajaus ei näytä)
  const r={pv:1};for(const k in L)r[k]=mkPart(L[k]);return r}
 function splitArms(){['legL','legR'].forEach(k=>{const q=LY[k];if(!q)return;LY[k+'2']=q.map((r,y)=>y>=41?r.slice():Array(GW).fill(null));LY[k]=q.map((r,y)=>y<=43?r.slice():Array(GW).fill(null))});['armL','armR'].forEach(k=>{const q=LY[k];if(!q)return;LY[k+'2']=q.map((r,y)=>y>=27?r.slice():Array(GW).fill(null));LY[k]=q.map((r,y)=>y<=29?r.slice():Array(GW).fill(null))})}
 function capC(c){if(!c)return null;const cc=document.createElement('canvas');cc.width=cc.height=5;const x=cc.getContext('2d');x.fillStyle=c;x.beginPath();x.arc(2.5,2.5,2.1,0,7);x.fill();return cc}
 /* post = valinnainen kerrosten muokkaus ennen kokoamista (esim. takaa nähty versio) */
-let BRIM=null;function buildSpr(gen,a,post){BRIM=null;const sk=gen(a),r={};if(post)post(LY,sk);splitArms();r.shL=capC(LY.armL&&LY.armL[23][5]);r.shR=capC(LY.armR&&LY.armR[23][20]);for(const k in LY)r[k]=mkPart(LY[k]);const hb=LY.head.map(v=>v.slice());
- [[9,12],[10,12],[14,12],[15,12],[9,13],[10,13],[14,13],[15,13]].forEach(([x,y])=>hb[y][x]=y===13?'#3a2418':sk);r.headB=mkPart(hb);r.P=buildProf(LY,sk);return r}
+let BRIM=null;function buildSpr(gen,a,post,pp){BRIM=null;const sk=gen(a),r={};if(post)post(LY,sk);splitArms();r.shL=capC(LY.armL&&LY.armL[23][5]);r.shR=capC(LY.armR&&LY.armR[23][20]);for(const k in LY)r[k]=mkPart(LY[k]);const hb=LY.head.map(v=>v.slice());
+ [[9,12],[10,12],[14,12],[15,12],[9,13],[10,13],[14,13],[15,13]].forEach(([x,y])=>hb[y][x]=y===13?'#3a2418':sk);r.headB=mkPart(hb);r.P=buildProf(LY,sk,pp);return r}
 const SP={e:[0,1,2,3,4,5].map(o=>buildSpr(genEsa,o)),w:buildSpr(genW,0),ws:buildSpr(genW,1),a:buildSpr(genA,0),as:buildSpr(genA,1),k:buildSpr(genK)};
 SP.eS=[0,1,2,3,4,5].map(o=>buildSpr(()=>{const sk=genEsa(o);['legL','legR'].forEach(k=>LY[k]&&LY[k].forEach((r,y)=>{if(y>=48)for(let i=0;i<r.length;i++)if(r[i])r[i]=y>=50?'#c4c4d0':'#ececf2'}));return sk}));
 const OCv=document.createElement('canvas');OCv.width=128;OCv.height=144;const oc=OCv.getContext('2d');

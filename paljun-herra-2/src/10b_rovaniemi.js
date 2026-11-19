@@ -34,7 +34,7 @@ const LR={n:1,fin:1,noW:1,name:'Rovaniemen keskusta',hud:'ROVANIEMI',theme:'rova
  bins:[[180,30,'c'],[460,10,'v'],[820,28,'w'],[1520,30,'c'],[1600,12,'v'],[1700,26,'p']],
  msg:['Kenttä 1: Rovaniemen keskusta','Vapauta lukitut latausasemat!'],say:['a','Aapeli: Jätkänkynttilä! Täältä se alkaa.'],
  done:['Latausasemat vapautettu!','Lordin aukio on hiljainen... liian hiljainen.','Napauta: jatka.'],
- onStep:rovaStep,onDraw:rovaDraw,onHud:rovaHud,onFg:rovaFg,onSort:liftSort,onTap:aukioTap,gate:()=>M.rvQ&&M.rvQ.taught};
+ onStep:rovaStep,onDraw:rovaDraw,onHud:rovaHud,onFg:rovaFg,onSort:liftSort,onTap:aukioTap,gate:()=>M.rvQ&&M.rvQ.taught&&M.rvQ.rane===2};
 const RV_QUIP=[['a','Aapeli: Latausasema vapaa! ID.3 kiittää.'],['k','Kermis: Virta kulkee taas. Rock!'],['p','Esa: Seuraava!']];
 function startRova(){SKILL.dodge=false;LV.length=1;LV.push(LR);startMJ()}
 
@@ -161,7 +161,7 @@ function aukioStep(dt){const Q=aukioQ(),e=M.e;
 function aukioHints(T){const Q=M.rvQ;if(!Q||!Q.on||Q.talk>=0||M.ph!=='play'||Math.sin(T*6)<-.3)return;const k=aukioNear();const tag=(k==='kioski'&&!Q.burger)?['POROBURGERI',RV.kioski]:(k==='penkki'&&!Q.taught)?['PUHU',RV.penkki]:null;if(!tag)return;
  const hx=tag[1]-M.cam,hy=40+Math.round(M.camY||0);g.save();g.font='bold 9px monospace';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#1a0820';g.strokeText('↑ '+tag[0],hx,hy);g.fillStyle='#9ff';g.fillText('↑ '+tag[0],hx,hy);g.restore()}
 function rovaStep(dt){const st=rovaSt();rovaDoors(dt);for(const s of st){if(s.free){s.t+=dt;continue}if(M.wi>s.w){s.free=1;s.t=0;const n=st.filter(x=>x.free).length;
- msgL=['Latausasema vapautettu! ('+n+'/'+st.length+')'];[784,988,1175,1568].forEach((f,i)=>tn(f,f,.12,.06,'square',i*.07));const q=RV_QUIP[(n-1)%RV_QUIP.length];mjSay(q[0],q[1])}}aukioStep(dt)}
+ msgL=['Latausasema vapautettu! ('+n+'/'+st.length+')'];[784,988,1175,1568].forEach((f,i)=>tn(f,f,.12,.06,'square',i*.07));const q=RV_QUIP[(n-1)%RV_QUIP.length];mjSay(q[0],q[1])}}aukioStep(dt);raneStep()}
 function rovaHud(T){aukioHints(T);const st=M.rv||RV_ST,n=st.filter(s=>s.free).length;g.save();g.font='bold 7px monospace';g.textAlign='right';g.fillStyle=n===st.length?'#7dff9a':'#bfe8ff';g.shadowColor='#000';g.shadowBlur=2;g.fillText('ASEMAT '+n+'/'+st.length,314,29);g.restore()}
 
 // ---- Tausta ----
