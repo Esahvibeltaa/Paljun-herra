@@ -53,7 +53,7 @@ function mjSpk(k){if(typeof k==='object')return[k.x-M.cam,112+k.z-66*(k.sc||1)-(
 const SKILL={dodge:false};const DODGE={min:30,max:80,p:.4,slide:14};
 function tryDodge(a,d){if(!SKILL.dodge||B.h<DODGE.min||B.h>=DODGE.max||!['idle','walk'].includes(d.st)||Math.random()>=DODGE.p)return false;
  const s=Math.sign(d.x-a.x)||1;d.x+=s*DODGE.slide;M.stg=.35;M.sgd=s;M.fx.push({x:d.x,y:112+d.z-40-(d.base||0),t:0,txt:'HORJ!'});nz(.2,'highpass',1800,.07,600);return true}
-function mjDamage(a,d,m){if(d===M.e&&a.team==='e'&&!m.nd&&tryDodge(a,d))return;let dmg=m.d*(a.team==='p'?pow(B.h):a.team==='a'?.8:(DIFF?1.25:1)*.85*(a.dm||1));if(a.team==='p'&&a.wpn>0){const wn=WN[a.wt||'w'];dmg+=wn[3];a.wpn--;tn(1800,1700,.06,.1,'square');if(!a.wpn){msgL=[wn[0]+' '+wn[1]+'!'];nz(.2,'highpass',3000,.15,1500)}}
+function mjDamage(a,d,m){if(d===M.e&&a.team==='e'&&!m.nd&&tryDodge(a,d))return;if(d.team==='e'){d.cq=null;if(eaiBlocked(a,d,m))return}let dmg=m.d*(a.team==='p'?pow(B.h):a.team==='a'?.8:(DIFF?1.25:1)*.85*(a.dm||1));if(a.team==='p'&&a.wpn>0){const wn=WN[a.wt||'w'];dmg+=wn[3];a.wpn--;tn(1800,1700,.06,.1,'square');if(!a.wpn){msgL=[wn[0]+' '+wn[1]+'!'];nz(.2,'highpass',3000,.15,1500)}}
  d.hp=Math.max(0,d.hp-dmg);const ad=d.x>a.x?1:-1;sImpact(KICKS.includes(m.n)?'k':'p',dmg>=10);M.stop=dmg>=10?.08:.04;M.fx.push({x:(a.x+d.x)/2,y:112+d.z-30-d.y-(d.base||0),t:0,big:dmg>=10,txt:dmg>=14?'POW!':dmg>=10?'BAM!':null});
  if(d.team==='p')vib(dmg>=10?50:20);else if(dmg>=10)vib(25);
  const hv=(KT[d.kind]||{}).heavy,da=d.atk&&d.atk.m,arm=da&&da.arm&&d.atk.t<da.st+da.ac&&d.hp>0,big=hv?(dmg>=14||d.hp<=0):(m.kd||dmg>=12||d.hp<=0||(a.team==='p'&&a.cmb>=3&&m.n==='upper'));
@@ -76,10 +76,11 @@ function mjUpd(f,dt){phys(f,dt);
  if(f.st!=='fly'&&f.st!=='kip'&&(f.y>0||f.vy>0)){f.vy-=440*dt;f.y=Math.max(0,f.y+f.vy*dt);if(f.y===0){f.vy=0;if(f.st==='jump'||(f.atk&&f.atk.m.air)){f.atk=null;f.st='idle';nz(.06,'lowpass',500,.12)}}}
  if(f.st==='jump'&&f.y===0&&f.vy<=0&&!(f.jk>0)){f.st='idle';f.atk=null}
  if(f.st==='jump'&&f.jk>0&&!f.atk){f.jk-=dt;if(f.jk<=0)mStart(f,'fkick')}
- if(f.atk){const a=f.atk,m=a.m;a.t+=dt;{const lv=m.dash?230:m.lunge;if(lv)f.vx=a.t>=m.st&&a.t<m.st+m.ac?f.face*lv:0}if(a.t>=m.st&&a.t<=m.st+m.ac){if(m.fx){if(!a.fxd){a.fxd=1;mjSpecial(f)}}else mjHitCheck(f)}if(f.atk&&!m.air&&a.t>=m.st+m.ac+m.rc){f.atk=null;f.st='idle'}}
+ if(f.atk){const a=f.atk,m=a.m;a.t+=dt;{const lv=m.dash?230:m.lunge;if(lv)f.vx=a.t>=m.st&&a.t<m.st+m.ac?f.face*lv:0}if(a.t>=m.st&&a.t<=m.st+m.ac){if(m.fx){if(!a.fxd){a.fxd=1;mjSpecial(f)}}else mjHitCheck(f)}if(f.atk&&!m.air&&a.t>=m.st+m.ac+m.rc){f.atk=null;f.st='idle';if(f.team==='e')eaiAfter(f)}}
  f.x+=f.vx*dt;f.z=Math.max(0,Math.min(40,f.z+f.vz*dt));
  if(['hit','down','ko'].includes(f.st)||(f.st==='fly'&&f.y===0))f.vx*=Math.pow(.02,dt);
  if(f.st==='hit'){f.ht-=dt;if(f.ht<=0)f.st='idle'}
+ if(f.st==='block'){f.blk-=dt;f.vx*=Math.pow(.02,dt);if(f.blk<=0)f.st='idle'}
  if(f.st==='down'){f.dt-=dt;if(f.dt<=0){f.gt=0;f.kj=0;f.vx=0;if(Math.random()<.5)f.st='kip';else{f.st='roll';f.x+=f.lie*16}}}
  if(f.team==='a'&&f.tired>0){f.tired-=dt;if(f.st==='down'||f.st==='ko'){f.ko=1;f.st='ko'}if(f.tired<=0){f.ko=0;f.hp=f.mhp*.55;if(f.st==='ko'){f.st='down';f.dt=.1}}}
  if(f.st==='ko'&&f.team==='e'){f.kt=(f.kt||0)+dt;if(f.kt>1.6)f.gone=1}
@@ -114,16 +115,14 @@ function mjAlly(f,dt){if(f.inLift){f.vx=f.vz=0;return}if(f.tired>0||f.atk||f.y>0
  mStart(f,f.kind==='a'?pick(['kick','hikick','kick']):pick(['punch','punch','kick']))}
 function mjEnemy(f,dt){if(f.dead||f.atk||f.y>0||!['idle','walk'].includes(f.st))return;
  f.tc=(f.tc||0)-dt;if(!f.tgt||f.tgt.st==='ko'||f.tgt.tired>0||f.tc<=0){f.tc=2+Math.random()*2;const c=[M.e,M.e,...M.al.filter(a=>a.tired<=0)];f.tgt=pick(c)}
- const t=f.tgt,dx=t.x-f.x,dz=t.z-f.z,kt=KT[f.kind]||{};if(kt.ai&&kt.ai(f,dx,dz,dt))return;
+ const t=f.tgt,dx=t.x-f.x,dz=t.z-f.z,kt=KT[f.kind]||{};if(eaiReact(f,t,dx,dz))return;if(kt.ai&&kt.ai(f,dx,dz,dt))return;
  if(f.kind==='ms'){if(!f.sum&&f.hp<f.mhp/2){f.sum=1;M.say=[f,'Mersumies: Pojat, apuun!'];M.sayT=2.4;mjSpawn('rn');mjSpawn('tp')}if(f.cd<=0&&Math.abs(dx)>34){f.cd=f.hp<f.mhp/2?2.2:3.4;f.face=Math.sign(dx)||f.face;mStart(f,'star');msgL=['Mersumies heittää Mersun tähtiä!'];return}}
  if(f.kind==='tt'&&f.cd<=0&&Math.abs(dz)<7&&Math.abs(dx)>40&&Math.abs(dx)<230){f.cd=5.5;f.face=Math.sign(dx);mStart(f,'dash');msgL=['TRUKKIRYNNÄKKÖ!'];tn(110,320,.6,.14,'sawtooth');nz(.6,'lowpass',400,.2,150);return}
  if(f.kind==='pe'&&f.cd<=0&&Math.abs(dx)<70&&Math.abs(dz)<12){f.cd=9;mStart(f,'smoke');return}
  if(f.kind==='ta'&&f.cd<=0&&Math.abs(dz)<5&&Math.abs(dx)>45&&Math.abs(dx)<200){f.cd=6;f.face=Math.sign(dx);mStart(f,'dash');msgL=['TURBORYNTÄYS!'];tn(200,900,.4,.1,'sawtooth');return}
  if((f.kind==='tp'||f.kind==='ta')&&Math.abs(dz)<6&&Math.abs(dx)<75&&Math.abs(dx)>28&&Math.random()<dt*1.4){f.vy=150;f.y=.01;f.vx=Math.sign(dx)*62;f.vz=0;f.st='jump';f.jk=.22;f.face=Math.sign(dx);return}
  if(f.kind==='pasi'&&f.cd<=0&&Math.abs(dz)<5&&Math.abs(dx)>50&&Math.abs(dx)<170){f.cd=4+Math.random()*2;f.face=Math.sign(dx);mStart(f,'throw');msgL=['Pakoputki-Pasi heittää putken!'];return}
- const want=f.slot||22;
- if(Math.abs(dz)>4||Math.abs(dx)>want+3){f.vx=Math.abs(dx)>want+3?Math.sign(dx)*f.spd*(DIFF?1.15:1):0;f.vz=Math.abs(dz)>3?Math.sign(dz)*f.spd*.6:0;f.st='walk';f.wk+=dt;f.face=Math.sign(dx)||f.face;return}
- f.vx=f.vz=0;f.st='idle';f.face=Math.sign(dx)||f.face;f.th-=dt;if(f.th>0)return;f.th=(.8+Math.random()*1)*(DIFF?.75:1);mStart(f,pick(kt.atk||['punch','kick','punch']))}
+ eaiMove(f,t,dx,dz,dt,kt)}// vuorot, saarto, rangaistus, sarjat (10e_vihut)
 function mjSpawn(k,rf){const t=KT[k],fromR=k==='ms'?true:Math.random()<.6,x=k==='ms'?M.cam+240:M.cam+(fromR?345:-25),f=mjE(SP[t.sp],x,k==='ms'?20:4+Math.random()*34,'e',k,t.hp*(DIFF?1.3:1));if(rf){const R2=M.L.roof,sA=M.e.x<R2.B[0];f.lev='roof';f.x=sA?R2.A[1]-8-Math.random()*40:R2.B[1]-8-Math.random()*50;f.base=sA?R2.A[2]:R2.B[2];f.face=-1}f.face=fromR?-1:1;f.slot=(t.sc?21:15)+Math.random()*6;if(k==='ms'){f.cd=2.5;M.boss=f}if(k==='tt'){f.cd=2;M.boss=f}M.ents.push(f);if(MSAY[k]){M.say=[f,MSAY[k][0]];M.sayT=2.6;sTalk(1)}}
 /* Pystykamera: kenttä voi antaa camY={off,max}; kamera nousee pehmeästi Esan korkeuden (katot, hissi) mukaan */
 function mjCamY(dt){const c=M.L.camY,ty=c?Math.max(0,Math.min(c.max,(M.e.base||0)-c.off)):0;M.camY=(M.camY||0)+(ty-(M.camY||0))*Math.min(1,dt*4)}
