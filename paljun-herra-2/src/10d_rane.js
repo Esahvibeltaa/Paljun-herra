@@ -30,7 +30,9 @@ SP.rr=buildSpr(genRane,0,null,raneProf);
 KT.rr={sp:'rr',hp:RANE.hp,spd:20,dm:1.2,sc:1.5,nm:'RYSTY-RANE',heavy:1,front:1,atk:['punch','punch','kick'],ai:raneAI,ko:raneKO};
 
 /* Koukku: valmistelu st (käsi taakse), lyönti ac (kaari eteen + syöksy), pitkä palautuminen rc (avoin vastaiskuille) */
-MVJ.hook={h:'mid',d:30,r:42,tip:25,st:.85,ac:.14,rc:.75,kd:1,nd:1,arm:1,lunge:95,n:'hook',pose:hookPose,over:hookOver};
+/* Ajoitus mitattu simuloidulla pelaajalla (vaisto-testi): valmistelu 1,0 s ja syöksy 60 jättävät normaalilta etäisyydeltä
+   ~0,6 s reaktioaikaa perääntymiseen (humalassa ~0,5 s, aivan vierestä ~0,5 s) ja ~0,7 s sivuaskeleeseen */
+MVJ.hook={h:'mid',d:30,r:42,tip:25,st:1.0,ac:.14,rc:.75,kd:1,nd:1,arm:1,lunge:60,n:'hook',pose:hookPose,over:hookOver};
 /* Koukku takakädellä (aL) etuviistosta: valmistelussa käsi nousee leveälle sivulle ja taakse, lyönnissä se pyyhkäisee
    laajassa kaaressa vartalon yli kohti kohdetta. Etukäsi (aR) suojaa. Kulmat: 0 = alas, + = myötäpäivään. */
 function hookPose(f,o,T){const a=f.atk,m=a.m,t=a.t,L2=(x,y,u)=>x+(y-x)*u;
@@ -46,7 +48,8 @@ function hookOver(f,X,Y,T){const a=f.atk,m=a.m;if(a.t>=m.st)return;const u=a.t/m
 
 function raneAI(f,dx,dz,dt){
  if(!f.rage&&f.hp<f.mhp*RANE.rage){f.rage=1;f.spd*=1.3;mjSay(f,'Rysty-Rane: Nyt suututtaa! Rystyt kuumana!');tn(80,50,.6,.2,'sawtooth')}
- if(f.cd<=0&&Math.abs(dz)<RANE.hookDz&&Math.abs(dx)<RANE.hookDx){f.cd=f.rage?RANE.rageCd:RANE.hookCd;f.face=Math.sign(dx)||f.face;mStart(f,'hook');
+ // koukku vain, kun kohde pystyy liikkumaan (ei osumajäykkyydessä tai maassa), jotta väistöaika ei lyhene
+ if(f.cd<=0&&Math.abs(dz)<RANE.hookDz&&Math.abs(dx)<RANE.hookDx&&['idle','walk','atk','jump'].includes(f.tgt.st)){f.cd=f.rage?RANE.rageCd:RANE.hookCd;f.face=Math.sign(dx)||f.face;mStart(f,'hook');
   tn(75,52,.7,.2,'sawtooth');tn(180,640,.8,.05,'square');return true}
  return false}
 function raneKO(d){M.boss=null;const Q=aukioQ();Q.rane=2;bell(3);crowd('cheer');M.say=[d,'Rysty-Rane: Rystyt... puutuu...'];M.sayT=2.4;
