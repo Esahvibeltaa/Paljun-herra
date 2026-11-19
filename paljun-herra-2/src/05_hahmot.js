@@ -84,7 +84,8 @@ function buildProf(G,sk){const E=()=>Array.from({length:GH},()=>Array(GW).fill(n
  const r={pv:1};for(const k in L)r[k]=mkPart(L[k]);return r}
 function splitArms(){['legL','legR'].forEach(k=>{const q=LY[k];if(!q)return;LY[k+'2']=q.map((r,y)=>y>=41?r.slice():Array(GW).fill(null));LY[k]=q.map((r,y)=>y<=43?r.slice():Array(GW).fill(null))});['armL','armR'].forEach(k=>{const q=LY[k];if(!q)return;LY[k+'2']=q.map((r,y)=>y>=27?r.slice():Array(GW).fill(null));LY[k]=q.map((r,y)=>y<=29?r.slice():Array(GW).fill(null))})}
 function capC(c){if(!c)return null;const cc=document.createElement('canvas');cc.width=cc.height=5;const x=cc.getContext('2d');x.fillStyle=c;x.beginPath();x.arc(2.5,2.5,2.1,0,7);x.fill();return cc}
-let BRIM=null;function buildSpr(gen,a){BRIM=null;const sk=gen(a),r={};splitArms();r.shL=capC(LY.armL&&LY.armL[23][5]);r.shR=capC(LY.armR&&LY.armR[23][20]);for(const k in LY)r[k]=mkPart(LY[k]);const hb=LY.head.map(v=>v.slice());
+/* post = valinnainen kerrosten muokkaus ennen kokoamista (esim. takaa nähty versio) */
+let BRIM=null;function buildSpr(gen,a,post){BRIM=null;const sk=gen(a),r={};if(post)post(LY,sk);splitArms();r.shL=capC(LY.armL&&LY.armL[23][5]);r.shR=capC(LY.armR&&LY.armR[23][20]);for(const k in LY)r[k]=mkPart(LY[k]);const hb=LY.head.map(v=>v.slice());
  [[9,12],[10,12],[14,12],[15,12],[9,13],[10,13],[14,13],[15,13]].forEach(([x,y])=>hb[y][x]=y===13?'#3a2418':sk);r.headB=mkPart(hb);r.P=buildProf(LY,sk);return r}
 const SP={e:[0,1,2,3,4,5].map(o=>buildSpr(genEsa,o)),w:buildSpr(genW,0),ws:buildSpr(genW,1),a:buildSpr(genA,0),as:buildSpr(genA,1),k:buildSpr(genK)};
 SP.eS=[0,1,2,3,4,5].map(o=>buildSpr(()=>{const sk=genEsa(o);['legL','legR'].forEach(k=>LY[k]&&LY[k].forEach((r,y)=>{if(y>=48)for(let i=0;i<r.length;i++)if(r[i])r[i]=y>=50?'#c4c4d0':'#ececf2'}));return sk}));
@@ -124,3 +125,13 @@ function genTapsa(){LY={};const sk='#ecc0a0',sd='#cc9a7a',ts='#1e1e28',tsd='#121
  sFace(sk,sd);P(8,12,10,2,'#111');P(9,12,1,1,'#5a6a8a');P(14,12,1,1,'#5a6a8a');P(12,15,2,1,sd);P(10,16,6,1,'#6a4020');P(11,18,4,1,'#9a4a40');
  P(8,5,10,4,hr);P(7,7,12,2,hr);P(8,9,2,1,hr);P(16,9,2,1,hr);P(14,5,3,3,'#6a4420');return sk}
 SP.pe=buildSpr(genPena);SP.ta=buildSpr(genTapsa);
+
+/* Esa takaa nähtynä (tikapuilla kasvot tikkaita kohti): kasvot peitetään takaraivolla (hiukset ja niska), paidan etuosan
+   yksityiskohdat (kaulus, napit, tasku) korvataan selkäpuolella, jossa keskellä sauma. Lakki, korvat, kädet ja jalat ennallaan. */
+const ESA_BACK={hair:'#c89a38',hairD:'#a07820'};
+function esaBackPost(LY,sk){const sd='#cf8f6a',h=LY.head,t=LY.torso;
+ for(let y=11;y<=19;y++)for(let x=8;x<=17;x++){if(!h[y][x])continue;const neck=y>=17&&x>=10&&x<=15;h[y][x]=neck?(x===15?sd:sk):(x>=16||y===16?ESA_BACK.hairD:ESA_BACK.hair)}
+ let sh=null,shd=null;for(let y=24;y<=31&&!sh;y++)if(t[y][8])sh=t[y][8];shd=t[26]&&t[26][18]||sh;
+ if(sh)for(let y=20;y<=32;y++)for(let x=7;x<=18;x++){if(!t[y][x])continue;if(y<=21&&x>=10&&x<=15){t[y][x]=y===20?sk:sh;continue}t[y][x]=x>=17?shd:x===12?shd:sh}}
+const ESA_BACKC={};
+function esaBack(o){return ESA_BACKC[o]||(ESA_BACKC[o]=buildSpr(genEsa,o,esaBackPost))}

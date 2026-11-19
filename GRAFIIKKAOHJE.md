@@ -57,6 +57,7 @@ Perusmitta on hahmo, joka on noin **52 px** korkea (sprite koossa 1, pikselimaai
 ## 6. Animaatio
 
 - Liike sidotaan siihen, mitä hahmo tekee, ei pelkkään aikaan. Esimerkiksi kiipeämisasento lasketaan korkeudesta, joten pysähtyessä asento pysyy eikä hahmo heilu paikallaan.
+- **Hahmon suunta vastaa toimintaa:** tikapuita kiivetään kasvot ja maha tikkaita kohti, joten pelaaja näkee hahmon **selän**: takaraivon, niskan ja paidan selkäpuolen (oma takaa nähty sprite, esim. `esaBack`, ilman silmiä tai kasvojen piirteitä). Sama koskee muita seinää, ovea tai konetta kohti tehtäviä toimintoja.
 - **Tikapuilla kiipeäminen** (`climbPose`): kädet ovat lähes suoraan ylhäällä kaiteiden levyisinä ja vuorottelevat puola kerrallaan. Ylempi käsi ojentuu seuraavalle puolalle ja vastakkainen polvi nousee. Vartalo nytkähtää kevyesti joka askeleella. Asento lasketaan puolien välistä (`base / LADDER.rung`), jotta kädet ja askeleet osuvat puoliin.
 - Siirtymät animoidaan kokonaan. Esimerkiksi hississä ovet aukeavat, porukka kävelee sisään, ovet sulkeutuvat, kori nousee, ovet aukeavat ja porukka astuu ulos.
 

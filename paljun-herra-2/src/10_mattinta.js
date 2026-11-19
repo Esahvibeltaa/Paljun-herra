@@ -250,7 +250,7 @@ function ladderDraw(X,top,bot){const L=LADDER,hw=L.w/2,t=top-L.ext;
 /* Kiipeämisasento sidottu korkeuteen (ei aikaan): pysähtyessä asento pysyy, kädet ja jalat vuorottelevat puola kerrallaan.
    Ylempi käsi ojentuu seuraavalle puolalle, vastakkainen polvi nousee; vartalo nytkähtää kevyesti joka askeleella. */
 function climbPose(base){const p=base/LADDER.rung,k=Math.floor(p),u=p-k,e=u*u*(3-2*u),a=k%2?1-e:e,lift=Math.sin(u*Math.PI);
- return{prof:0,flip:false,rot:0,cy:0,item:null,tilt:(a-.5)*.08,bob:-lift*1.2,
+ return{prof:0,flip:false,rot:0,cy:0,item:null,blink:false,blush:0,tilt:(a-.5)*.08,bob:-lift*1.2,
   // kädet lähes suoraan ylös kaiteiden levyisinä (kyynärpää taittuu sisään), alempi käsi koukussa
   aL:2.75+a*.3,eL:.35+(1-a)*.55,aR:-2.75-(1-a)*.3,eR:-.35-a*.55,lL:-.1+a*.2,kL:.1+a*.9,lR:.1-(1-a)*.2,kR:.1+(1-a)*.9}}
 /* Katolta kadulle laskeutuvan rampin rakenne: palkin paksuus, pilarin leveys, ensimmäisen pilarin etäisyys ja pilariväli (px) */
@@ -294,7 +294,7 @@ function mjDrawE(f,T){if(f.hidden)return;const isE=f===M.e,o=Object.assign(fpose
  if(isE&&f.wpn>0&&!o.item)o.item=f.wt||'w';
  if(f.team==='e'&&f.st==='ko'&&f.kt>1&&Math.sin(T*40)>0)return;
  if(f.st==='climb'&&!(M.L.roof&&M.L.roof.lift))Object.assign(o,climbPose(f.base||0))
- const sx=f.x-M.cam,sy=112+f.z-(f.base||0),sc=f.sc||1;ell(sx,sy+1,10*sc,2.4*sc,'rgba(0,0,0,.35)');o.flip=o.flipX!==undefined?o.flipX:f.face<0;o.s=sc;{const X=sx+(o.lx||0)*sc*f.face,Y=sy-f.y+(o.dy||0)*sc;drawChar(f.sp,X,Y,o);swingTrail(f,o,X,Y,T)}
+ const sx=f.x-M.cam,sy=112+f.z-(f.base||0),sc=f.sc||1;ell(sx,sy+1,10*sc,2.4*sc,'rgba(0,0,0,.35)');o.flip=o.flipX!==undefined?o.flipX:f.face<0;o.s=sc;{const X=sx+(o.lx||0)*sc*f.face,Y=sy-f.y+(o.dy||0)*sc;drawChar(f===M.e&&f.st==='climb'&&!(M.L.roof&&M.L.roof.lift)?esaBack(S2.outfit):f.sp,X,Y,o);swingTrail(f,o,X,Y,T)}
  if(f.notes>0)for(let i=0;i<3;i++){const u=((T*.8+i*.33)%1);g.save();g.globalAlpha=1-u;g.font='bold 9px monospace';g.fillStyle=['#ff6ac8','#6ae0ff','#ffe23a'][i];g.fillText('♪',sx-10+i*9+Math.sin(u*6)*3,sy-56-u*18);g.restore()}
  if(f.team==='a'&&f.tired>0)zzz(sx+8,sy-20,T)}
 /* Roskikset: malli arvotaan paikan mukaan (kiinteä): vihreä peltipönttö, harmaa kannellinen sinkkipönttö, harmaa pyörillinen jäteastia, matala tummanvihreä. Rikottu = kaatunut. */
