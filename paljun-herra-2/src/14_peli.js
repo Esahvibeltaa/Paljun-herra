@@ -12,9 +12,12 @@ const START_HS=2;
 function startGame(){LIVES=3;for(const k in PTS)PTS[k]=0;B.h=0;B.hs=START_HS;S2.outfit=2;musicStop();startCut(INTRO_CUT,JULKINEN?showSoon:startPiha,true)}
 /* Toistaiseksi alkunäytöksen jälkeen vain musta ruutu: pelattavissa pian (kenttä ja pomo odottavat uusia vihollisia) */
 function showSoon(){stage=9;state='soon';ot=0;showPad(false);musicStop()}
-function drawSoon(){R('#000',0,0,W,H);g.save();g.globalAlpha=Math.min(1,ot/1.2);g.textAlign='center';g.font='bold 10px monospace';g.fillStyle='#e8eeff';g.fillText('PELATTAVISSA PIAN'+'...'.slice(0,1+Math.floor(ot*1.5)%3),W/2,H/2+3);g.restore()}
-// Rovaniemen jälkeen toistaiseksi "pelattavissa pian" (välipomo ja Santapark tulevat myöhemmin)
-function onLevelsDone(){if(M.L===LR)showSoon();else startFight()}
+/* Musta loppuruutu: "pelattavissa pian" (lukittu julkinen versio) tai "jatkoa seuraa" (Rysty-Ranen jälkeen, dramaattinen teema) */
+const SOON_TXT={soon:'PELATTAVISSA PIAN',tbc:'JATKOA SEURAA'};
+function showTbc(){showSoon();state='tbc';musicStart('js')}
+function drawSoon(){R('#000',0,0,W,H);const tbc=state==='tbc',fade=tbc?3:1.2;g.save();g.globalAlpha=Math.min(1,Math.max(0,ot-(tbc?1.5:0))/fade);g.textAlign='center';g.font=tbc?'bold 14px monospace':'bold 10px monospace';g.fillStyle=tbc?'#ffe8c0':'#e8eeff';g.fillText(SOON_TXT[tbc?'tbc':'soon']+'...'.slice(0,1+Math.floor(ot*1.5)%3),W/2,H/2+3);g.restore()}
+// Rovaniemen (ja Rysty-Ranen) jälkeen: jatkoa seuraa (Santapark tulee myöhemmin)
+function onLevelsDone(){if(M.L===LR)showTbc();else startFight()}
 function onBossWon(){stage=8;state='end';ot=0;TI.on=false;PTS.lives=LIVES*100;showPad(false);musicStop();musicStart('t');msgL=['Prototyyppi läpäisty!']}
 // Ei päävalikkoa vielä: alkuun = alkunäytös
 function restartAll(){showPad(false);musicStop();startGame()}

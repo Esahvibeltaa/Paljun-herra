@@ -30,12 +30,13 @@ Kokonaisohje (myös ykkösosalle): `../GRAFIIKKAOHJE.md` – noudatetaan aina, t
 - `src/*.js` moduulit, liitetään nimijärjestyksessä (`00_tila.js` ensin, `14_peli.js` viimeisenä):
   `00_tila` yhteinen tila · `01_kangas` piirto · `02_aani` ääni · `03_musiikki` · `04_tekstit` · `05_hahmot` spritet ja asennot · `05b_lainat` apufunktiot · `06_kunto` humala · `07_kaksinkamppailu` 1v1 ja yhteinen taistelumekaniikka · `08_elamat` · `09_tauko` · `10_mattinta` sivuttain vierivä mätkintä · `10b_rovaniemi` kenttä 1 Rovaniemen keskusta · `10c_heitot` heitot (horjahdus, kiinniotto, suunta, heitto; myös viholliset) · `10d_rane` välipomo Rysty-Rane (koukku, panssari) · `11_ohjaus` näppäimet, ohjain, kosketus, asetukset · `12_intro` · `12b_alkunaytos` välinäytökset (NES-tyyliset kuvat + kirjoituskoneteksti, `startCut`) · `12c_piha` pelattava mökin piha · `13_grafiikka` retro ja pääsilmukka · `14_peli` pelin kulku
 - `src/pohja.html`, `src/tyyli.css` sivupohja
-- `python3 koonti.py` → `dist/index.html` (julkinen: pelaaminen lukittu, alkunäytöksen jälkeen "pelattavissa pian") ja `dist/kehitys.html` (kehitysversio: piha ja uudet kentät). Vakio `JULKINEN` lisätään koonnissa.
+- `python3 koonti.py` → `dist/index.html` (julkinen: pelaaminen lukittu, alkunäytöksen jälkeen "pelattavissa pian") ja `dist/kehitys.html` (kehitysversio: piha ja uudet kentät) ja `dist/testi.html` (julkinen testiversio). Vakio `JULKINEN` lisätään koonnissa.
 
 ## Työtapa
 
 - Julkinen jakolinkki https://claude.ai/artifact/PfPEXVXgVBtXA21taSFgks julkaistaan tiedostosta `dist/index.html` (pelaaminen lukittu, kunnes käyttäjä toisin päättää).
 - Kehitysversio julkaistaan omaan yksityiseen artifactiin tiedostosta `dist/kehitys.html` (linkki SUUNNITELMA.md:ssä).
+- Julkinen testiversio julkaistaan tiedostosta `dist/testi.html` (pelattava Rysty-Raneen asti, loppuu "jatkoa seuraa" -ruutuun dramaattisella teemalla); linkki SUUNNITELMA.md:ssä.
 - Koonti ja Playwright-testit jokaisen muutoksen jälkeen (koko pelikulku: alkunäytös → nimiruutu → mökin piha (pelattava) → näytös (selostus, road trip) → pelattavissa pian; kenttä ja pomo suoraan käynnistämällä).
 - Commit haaraan `claude/paljun-herra-project-import-0ezkqx` ja push myös `main`-haaraan.
 - Merkintä `SUUNNITELMA.md`:hen.

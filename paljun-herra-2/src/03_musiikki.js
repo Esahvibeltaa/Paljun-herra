@@ -75,4 +75,11 @@ function vtStep(t0,st,L){const s=st%16,b8=Math.floor(st/16)%8,bar=b8%4,r=VTR[bar
  tv(t0,mf(r+36+VTC[bar][s%3]),L*.5,.018,.125);
  leadNote(VTM[bar],s,t0,L,.1,.5,1)}
 /* Musiikkitilat taulukkona: tempo (bpm) ja askelfunktio */
-const MST={n:[132,cutStep],d2:[160,darkStep],vt:[96,vtStep]};
+/* Jatkoa seuraa: D-molli 70 bpm, dramaattinen; Dm Bb Gm A. Patarummut, pitkät soinnut ja nouseva melodia, A-duuri jättää auki */
+const JSR=[26,22,19,21],JSC=[[0,3,7],[0,4,7],[0,3,7],[0,4,7]];
+const JSM=[[62,-1,-1,-1,-1,-1,65,-1,69,-1,-1,-1,-1,-1,-1,-1],[70,-1,-1,-1,-1,-1,69,-1,65,-1,-1,-1,62,-1,-1,-1],[67,-1,-1,-1,70,-1,-1,-1,74,-1,-1,-1,72,-1,70,-1],[69,-1,-1,-1,-1,-1,-1,-1,73,-1,-1,-1,76,-1,-1,-1]];
+function jsStep(t0,st,L){const s=st%16,bar=Math.floor(st/16)%4,r=JSR[bar];
+ if(s===0){tv(t0,mf(r),L*15,.34,'triangle');JSC[bar].forEach(c=>tv(t0,mf(r+24+c),L*15,.018,.5))}
+ if(s===0||s===3||(bar===3&&s>=12&&s%2===0))mt(t0,90,38,.7,.95,'sine');if(s===8)mn(t0,.6,'lowpass',500,.3);
+ tv(t0,mf(r+36+JSC[bar][s%3]),L*.5,.016,.125);leadNote(JSM[bar],s,t0,L,.07,.25,3)}
+const MST={n:[132,cutStep],d2:[160,darkStep],vt:[96,vtStep],js:[70,jsStep]};
