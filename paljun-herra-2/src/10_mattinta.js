@@ -239,7 +239,7 @@ function rfBldDraw(x0,w,h,c1,c2){const X0=0,X1=w,yb=112-h,yf=152-h;let q;
   for(let x=X0+12;x<X1-14;x+=26){const lit=hsh(x+x0)>.45;R('#1a1a22',x-1,yf+11,14,13);R(lit?'#ffd890':'#2a3040',x,yf+12,12,11);R('rgba(0,0,0,.3)',x+5.5,yf+12,1,11);if(lit){g.save();g.globalCompositeOperation='lighter';const lq=g.createRadialGradient(x+6,yf+18,1,x+6,yf+18,14);lq.addColorStop(0,'rgba(255,200,120,.18)');lq.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=lq;g.fillRect(x-8,yf+4,28,28);g.restore()}}
   R('rgba(0,0,0,.45)',X0,yb-10,2,170-yb);R('rgba(0,0,0,.45)',X1-2,yb-10,2,170-yb)}
 /* Katolta kadulle laskeutuvan rampin rakenne: palkin paksuus, pilarin leveys, ensimmäisen pilarin etäisyys ja pilariväli (px) */
-const RAMP={beam:7,pw:12,first:16,gap:44};
+const RAMP={beam:7,pw:12,first:16,gap:44,sink:22};
 function roofDraw(T){const r=M.L.roof,c=M.cam;let q;
  {const X0=r.A[1]-c,X1=r.B[0]-c;q=g.createLinearGradient(0,60,0,160);q.addColorStop(0,'#0a0a14');q.addColorStop(1,'#1a1620');g.fillStyle=q;g.fillRect(X0,112-r.B[2]-14,X1-X0,60+r.B[2]);mkBox(X0+6,134,20,14,'#2a5a3a','#1a3a26',1);R('#3a7a4a',X0+5,132,22,3);for(let i=0;i<3;i++){const u=(T*.3+i*.33)%1;ell(X0+16+Math.sin(u*5)*3,128-u*30,2+u*4,2+u*4,`rgba(120,110,130,${.25*(1-u)})`)}}
  // paint = kentän oma julkisivumaalari (piirtää julkisivun perusrakennuksen päälle välimuistiin)
@@ -247,13 +247,17 @@ function roofDraw(T){const r=M.L.roof,c=M.cam;let q;
   if(!cc){const w=x1-x0;cc=RFC[key]=document.createElement('canvas');cc.width=(w+2)*2;cc.height=(172-top)*2;const x=cc.getContext('2d');x.scale(2,2);x.translate(0,-top);const gs=g;g=x;try{rfBldDraw(x0,w,h,c1,c2);if(paint)paint(w,h)}finally{g=gs}}
   g.drawImage(cc,X0,top,cc.width/2,cc.height/2)};
  bld(r.A[0],r.A[1],r.A[2],'#5a3a2e','#3a2620',r.paintA);bld(r.B[0],r.B[1],r.B[2],'#3e4a5a','#2a323e',r.paintB);
- {const X0=r.B[1]-c,X1=r.S-c,h=r.B[2];if(X1>-10&&X0<W+10){for(let x=X0;x<X1;x+=5){const u=(x-X0)/(X1-X0),hh=h*(1-u);mkBox(x,112-hh,5.5,40,'#6a6e78','#4a4e58');R('#9aa0aa',x,112-hh,5.5,.8);R('#9aa0aa',x,152-hh,5.5,.8)}
+ {const X0=r.B[1]-c,X1=r.S-c,h=r.B[2];if(X1>-10&&X0<W+10){
+  // pilarit piirretään ensin: ne nousevat portaiden sisään, jolloin portaat ja palkki peittävät liitoskohdan
+  const RP=RAMP;
+  for(let x=X0+RP.first;x<X1-RP.pw;x+=RP.gap){const u=(x+RP.pw/2-X0)/(X1-X0),bot=152-h*(1-u)+RP.beam,top=bot-RP.sink;if(160-bot<4)continue;
+   R('#3e424c',x,top,RP.pw,160-top);R('#565a64',x,top,2,160-top);R('rgba(0,0,0,.3)',x+RP.pw-2,top,2,160-top);R('#5a5e68',x-2,top-1,RP.pw+4,2);R('#4a4e58',x-3,157,RP.pw+6,3);R('#6a6e78',x-3,157,RP.pw+6,.8)}
+for(let x=X0;x<X1;x+=5){const u=(x-X0)/(X1-X0),hh=h*(1-u);mkBox(x,112-hh,5.5,40,'#6a6e78','#4a4e58');R('#9aa0aa',x,112-hh,5.5,.8);R('#9aa0aa',x,152-hh,5.5,.8)}
   g.strokeStyle='#2a2e36';g.lineWidth=1.6;g.beginPath();g.moveTo(X0,152-h-12);g.lineTo(X1,140);g.stroke();g.lineWidth=1.2;for(let x=X0;x<X1;x+=10){const u=(x-X0)/(X1-X0);g.beginPath();g.moveTo(x,152-h*(1-u)-12+h*0*u);g.lineTo(x,152-h*(1-u));g.stroke()}
-  // kantava rakenne: portaiden alla yhtenäinen betonipalkki ja sen alla tukevat betonipilarit anturoineen (ei ohuita tikkuja)
-  const RP=RAMP;g.fillStyle='#4a4e58';g.beginPath();g.moveTo(X0,152-h);g.lineTo(X1,152);g.lineTo(X1,152+RP.beam);g.lineTo(X0,152-h+RP.beam);g.closePath();g.fill();
+  // kantava palkki portaiden alla; sen etureuna peittää pilarien yläpään (pilarit piirretty yllä)
+  g.fillStyle='#4a4e58';g.beginPath();g.moveTo(X0,152-h);g.lineTo(X1,152);g.lineTo(X1,152+RP.beam);g.lineTo(X0,152-h+RP.beam);g.closePath();g.fill();
   g.strokeStyle='#6a6e78';g.lineWidth=.8;g.beginPath();g.moveTo(X0,152-h);g.lineTo(X1,152);g.stroke();
-  for(let x=X0+RP.first;x<X1-RP.pw;x+=RP.gap){const u=(x+RP.pw/2-X0)/(X1-X0),top=152-h*(1-u)+RP.beam-1;if(160-top<6)continue;
-   R('#3e424c',x,top,RP.pw,160-top);R('#565a64',x,top,2,160-top);R('rgba(0,0,0,.3)',x+RP.pw-2,top,2,160-top);R('#5a5e68',x-2,top-1,RP.pw+4,2);R('#4a4e58',x-3,157,RP.pw+6,3);R('#6a6e78',x-3,157,RP.pw+6,.8)}}}
+}}
  if(!r.lift){const X=r.lad-c;if(X>-10&&X<W+10){const top=112-r.A[2]-10;R('#7a7e86',X-5,top,1.6,160-top);R('#7a7e86',X+4,top,1.6,160-top);for(let y=top+3;y<158;y+=5)R('#9aa0aa',X-4,y,8.5,1.2);R('rgba(0,0,0,.3)',X-4,top,1,160-top)}}}
 function mjBg(T){if(M.L&&M.L.theme==='rova'){rovaBg(T);return}if(M.L&&M.L.theme==='gas'){gasBg(T);return}if(M.L&&M.L.theme==='scrap'){scrapBg(T);return}if(M.L&&M.L.theme==='ind'){indBg(T);return}if(M.L&&M.L.theme==='garage'){garageBg(T);return}const c=M.cam;let q=g.createLinearGradient(0,10,0,110);q.addColorStop(0,'#05061a');q.addColorStop(1,'#1e1a44');g.fillStyle=q;g.fillRect(0,10,W,100);
  for(let i=0;i<40;i++){const x=((hsh(i)*W*2-c*.05)%W+W)%W,y=12+hsh(i+50)*50;g.fillStyle=`rgba(255,250,230,${.3+.7*Math.abs(Math.sin(T*(1+hsh(i+9))+i))})`;g.fillRect(x,y,.8,.8)}
