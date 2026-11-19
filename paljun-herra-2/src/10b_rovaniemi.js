@@ -22,11 +22,11 @@ function genVanhus(){LY={};const sk='#e0b494',sd='#c0906c',c='#5a3a22',cd='#3e26
 SP.vh=buildSpr(genVanhus);
 
 // ---- Kentän mitat: osioiden rajat (maailman x), kioskin ja penkin paikat ----
-const RV={silta:760,koski:1560,len:2300,kioski:1960,penkki:2090,kuusi:1770,aukioK:1572};
+const RV={silta:760,koski:1560,len:2300,kioski:1960,penkki:2090,kuusi:1770,aukioK:1630};
 // Lukitut latausasemat: maailman x ja aalto (indeksi), jonka voittaminen vapauttaa aseman
 const RV_ST=[{x:600,w:1},{x:1665,w:4},{x:1860,w:5}];
 // Yllättäen aukeavat ovet: oven paikka, Esan x joka laukaisee, vihollinen, kyltti ja repliikki
-const RV_DOOR=[{x:830,trig:790,k:'hm',sign:'RAPPU',say:'Haalarimies: Kuka koputti?'},{x:1500,trig:1466,k:'sm',sign:'KUNTOSALI',say:'Sali-Make: Kuka häiritsee mun penkkiä?'},{x:1548,trig:1515,k:'tk',sign:'PUB',say:'Takatukka: Mun tuoppi jäi kesken!'}];
+const RV_DOOR=[{x:830,trig:790,k:'hm',sign:'RAPPU',say:'Haalarimies: Kuka koputti?'},{x:1505,trig:1470,k:'sm',sign:'KUNTOSALI',say:'Sali-Make: Kuka häiritsee mun penkkiä?'},{x:1585,trig:1550,k:'tk',sign:'PUB',say:'Takatukka: Mun tuoppi jäi kesken!'}];
 // Sampokeskus: hissi (lad) vie katolle A, hyppy katolle B ja ramppi alas kadulle (S); korkeudet pikseleinä
 const RV_ROOF={lad:940,lift:1,A:[912,1110,180],B:[1134,1330,124],S:1462,paintA:(w,h)=>mallFacade(w,h,0),paintB:(w,h)=>mallFacade(w,h,1)};
 const LR={n:1,fin:1,noW:1,name:'Rovaniemen keskusta',hud:'ROVANIEMI',theme:'rova',len:RV.len,roof:RV_ROOF,camY:{off:10,max:170},
@@ -215,23 +215,33 @@ function rovaBg(T){const c=M.cam;
 /* Pieni nimikyltti tummalla taululla, jotta taustan ikkunat ja valot eivät sekoitu tekstiin */
 function labelBoard(txt,x,y,col){g.save();g.font='bold 5px monospace';const w=g.measureText(txt).width+4;R('rgba(10,10,18,.85)',x-w/2,y-5,w,6.5);g.textAlign='center';g.fillStyle=col;g.fillText(txt,x,y);g.restore()}
 // ---- Maailman esineet taustalla: latausasemat, kioski ja vanhus penkillä ----
-function chargerDraw(x,s,T){const y=108,fr=s&&s.free;R('#2a2e38',x-5,y-26,10,26);R('#3a3e4a',x-5,y-26,3,26);R(fr?'#1a6a3a':'#5a1a1a',x-3,y-23,6,6);R('#0a0c12',x+5,y-16,4,2);g.strokeStyle='#1a1a1a';g.lineWidth=1.2;g.beginPath();g.moveTo(x+7,y-15);g.quadraticCurveTo(x+12,y-6,x+8,y);g.stroke();
+/* Latausasema ja kioski mitoitetaan hahmoihin: piirretään 1,5- ja 1,45-kertaisina maan tasosta */
+const PROPSC={charger:1.5,kioski:1.45};
+function chargerDraw(x,s,T){g.save();g.translate(x,108);g.scale(PROPSC.charger,PROPSC.charger);g.translate(-x,-108);chargerDraw0(x,s,T);g.restore()}
+function kioskiDraw(x,T){g.save();g.translate(x,108);g.scale(PROPSC.kioski,PROPSC.kioski);g.translate(-x,-108);kioskiDraw0(x,T);g.restore()}
+function chargerDraw0(x,s,T){const y=108,fr=s&&s.free;R('#2a2e38',x-5,y-26,10,26);R('#3a3e4a',x-5,y-26,3,26);R(fr?'#1a6a3a':'#5a1a1a',x-3,y-23,6,6);R('#0a0c12',x+5,y-16,4,2);g.strokeStyle='#1a1a1a';g.lineWidth=1.2;g.beginPath();g.moveTo(x+7,y-15);g.quadraticCurveTo(x+12,y-6,x+8,y);g.stroke();
  glow(x,y-20,10,fr?'80,255,140':'255,60,60',.5+.2*Math.sin(T*(fr?3:8)));
  if(!fr){R('#c8a040',x-3,y-12,6,5);g.strokeStyle='#c8a040';g.lineWidth=1;g.beginPath();g.arc(x,y-12,2.2,Math.PI,0);g.stroke()}
  labelBoard(fr?'VAPAA':'LUKITTU',x,y-29,fr?'#7dff9a':'#ff8a8a');
  if(fr&&s.t<1.2)for(let k=0;k<6;k++){const a=k*1.05+s.t*4,r=s.t*22;R('#bfffd0',x+Math.cos(a)*r,y-18+Math.sin(a)*r*.6,1.5,1.5)}}
-function kioskiDraw(x,T){const y=108;R('#6a2420',x-24,y-40,48,40);R('#8a3430',x-24,y-40,48,3);R('#8a6a40',x-18,y-32,36,14);R('#a8844e',x-18,y-32,36,3);for(let wx=x-15;wx<x+15;wx+=8)R('#5a4430',wx,y-27,5,9);R('#3a1a10',x-20,y-18,40,3);R('#e8f0ff',x-26,y-43,52,3);
+function kioskiDraw0(x,T){const y=108;R('#6a2420',x-24,y-40,48,40);R('#8a3430',x-24,y-40,48,3);R('#8a6a40',x-18,y-32,36,14);R('#a8844e',x-18,y-32,36,3);for(let wx=x-15;wx<x+15;wx+=8)R('#5a4430',wx,y-27,5,9);R('#3a1a10',x-20,y-18,40,3);R('#e8f0ff',x-26,y-43,52,3);
  g.save();g.font='bold 6px monospace';g.textAlign='center';const on=Math.sin(T*4)>-.9;g.shadowBlur=on?5:0;g.shadowColor='#ffe23a';g.fillStyle=on?'#ffe23a':'#6a5a2a';g.fillText('KIOSKI',x,y-45);g.shadowBlur=0;g.font='bold 4px monospace';g.fillStyle='#3a1a10';g.fillText('POROBURGER',x,y-26);g.restore();glow(x,y-26,20,'255,200,120',.12)}
 function penkkiDraw(x,T){const y=108;R('#4a3420',x-16,y-14,32,3);R('#2a1e14',x-14,y-11,2,11);R('#2a1e14',x+12,y-11,2,11);
  const o=idle(T,4);o.s=.62;o.qL=.45;o.qR=.45;o.blink=Math.sin(T*.7)>.6;o.tilt=.06+Math.sin(T*.5)*.05;o.item='h';o.aR=-.9;o.eR=-1;drawChar(SP.vh,x,y-4,o);
  R('#5a3e26',x-16,y-8,32,3);g.font='bold 6px monospace';zzz(x+6,y-40,T)}
 /* Ovi on osa lähitaloa (samassa syvyydessä kuin pelaajat): julkisivu, varjostettu sivuseinä, lumireuna, yläkerran ikkunat ja maavarjo */
-const DOORW={w:44,h:62,wall:{RAPPU:'#4a3a40',KUNTOSALI:'#3a4048',PUB:'#4a3428'}};
-function doorDraw(x,d,T){const y=104,op=d?d.op:0,W2=DOORW.w/2,top=y-DOORW.h,wall=DOORW.wall[d?d.sign:'RAPPU']||'#4a3a40';
- ell(x,y+1,W2+6,2.5,'rgba(0,0,0,.35)');g.fillStyle='#1c1820';g.beginPath();g.moveTo(x+W2,top);g.lineTo(x+W2+6,top+4);g.lineTo(x+W2+6,y);g.lineTo(x+W2,y);g.fill();
- R(wall,x-W2,top,DOORW.w,DOORW.h);R('rgba(0,0,0,.25)',x-W2,top+2,DOORW.w,2);R('#9aa6c8',x-W2-1,top-2,DOORW.w+2,2.5);for(let wx=-W2+5;wx<W2-6;wx+=13){R('#e0bc76',x+wx,top+8,8,8);R('rgba(0,0,0,.4)',x+wx,top+8,8,1.2);R('rgba(220,226,240,.3)',x+wx-1,top+16,10,1)}
- R('rgba(0,0,0,.35)',x-W2,y-4,DOORW.w,4);R('#1a1418',x-10,y-31,20,31);
- if(op>0){R('#a8844e',x-9,y-30,18,30);R('#c49a5a',x-9,y-30,18,4);glow(x,y-12,16,'255,190,110',.18*op)}R('#6a3a22',x-9,y-30,18*(1-op*.85),30);R('#c8a040',x-9+18*(1-op*.85)-4,y-16,2,2);
- labelBoard(d?d.sign:'',x,y-34,'#ffe8a8')}
+// Ovitalot ovat pelaajien tasossa, joten ne mitoitetaan hahmoihin (hahmo ~52 px): katutaso 68 px, yläkerros 56 px, ovi 24×58
+const DOORW={w:64,gf:68,fl:56,dw:24,dh:58,wall:{RAPPU:'#4a3a40',KUNTOSALI:'#3a4048',PUB:'#4a3428'}};
+function doorDraw(x,d,T){const y=104,op=d?d.op:0,W2=DOORW.w/2,h=DOORW.gf+DOORW.fl,top=y-h,wall=DOORW.wall[d?d.sign:'RAPPU']||'#4a3a40',dw=DOORW.dw,dh=DOORW.dh;
+ ell(x,y+1,W2+6,2.5,'rgba(0,0,0,.35)');g.fillStyle='#1c1820';g.beginPath();g.moveTo(x+W2,top);g.lineTo(x+W2+7,top+5);g.lineTo(x+W2+7,y);g.lineTo(x+W2,y);g.fill();
+ R(wall,x-W2,top,DOORW.w,h);R('rgba(0,0,0,.25)',x-W2,top+2,DOORW.w,2);R('#9aa6c8',x-W2-1,top-2,DOORW.w+2,2.5);
+ // kerrosten välinen lista ja yläkerran ikkunat (ihmisen kokoiset)
+ const fy=y-DOORW.gf;R('rgba(0,0,0,.3)',x-W2,fy-2,DOORW.w,3);R('rgba(255,255,255,.08)',x-W2,fy+1,DOORW.w,1);
+ for(const wx of fitRow(x-W2+5,x+W2-5,16,6)){R('#1a1418',wx-1,top+11,18,30);R('#c8a468',wx,top+12,16,28);R('#1a1418',wx+7.5,top+12,1,28);R('rgba(0,0,0,.4)',wx,top+12,16,1.5);R('rgba(220,226,240,.3)',wx-1,top+40,18,1.2)}
+ // katutaso: ovi keskellä, sen vieressä pieni ikkuna, sokkeli
+ R('#1a1418',x+dw/2+4,fy+14,10,24);R('#a8844e',x+dw/2+5,fy+15,8,22);R('rgba(0,0,0,.35)',x-W2,y-5,DOORW.w,5);
+ R('#1a1418',x-dw/2-1,y-dh-1,dw+2,dh+1);if(op>0){R('#a8844e',x-dw/2,y-dh,dw,dh);R('#c49a5a',x-dw/2,y-dh,dw,4);glow(x,y-dh/2,18,'255,190,110',.18*op)}
+ const dwc=dw*(1-op*.85);R('#6a3a22',x-dw/2,y-dh,dwc,dh);R('#5a3018',x-dw/2+2,y-dh+4,dwc-4,dh*.4);R('#c8a040',x-dw/2+dwc-4,y-dh/2,2,2);
+ labelBoard(d?d.sign:'',x,y-dh-4,'#ffe8a8')}
 function rovaDraw(T){const c=M.cam,st=M.rv||RV_ST;for(const d of (M.rvD||RV_DOOR)){const x=d.x-c;if(x>-30&&x<W+30)doorDraw(x,M.rvD?d:null,T)}mallSignsDraw();liftBack(T);for(const s of st){const x=s.x-c;if(x>-20&&x<W+20)chargerDraw(x,M.rv?s:null,T)}
  const kx=RV.kioski-c;if(kx>-40&&kx<W+40)kioskiDraw(kx,T);const px=RV.penkki-c;if(px>-30&&px<W+30)penkkiDraw(px,T)}
