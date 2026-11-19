@@ -64,23 +64,33 @@ function escalator(x0,y0,dir){const h=MALL.floor-MALL.slab,run=h*1.6,x1=x0+dir*r
  g.fillStyle='rgba(170,210,240,.18)';g.beginPath();g.moveTo(x0-dir*6,y0-2);g.lineTo(x1+dir*6,y1-2);g.lineTo(x1+dir*6,y1-12);g.lineTo(x0-dir*6,y0-12);g.closePath();g.fill();
  g.strokeStyle='#14161c';g.lineWidth=1.6;g.lineCap='round';g.beginPath();g.moveTo(x0-dir*10,y0-11);g.lineTo(x0-dir*6,y0-12);g.lineTo(x1+dir*6,y1-12);g.lineTo(x1+dir*10,y1-11);g.stroke();
  R('#c4c8d2',Math.min(x0,x0-dir*12)-2,y0,16,2);R('#c4c8d2',Math.min(x1,x1+dir*12)-2,y1,16,2)}
-/* Myymälä yläkerrassa: lasinen myymäläjulkisivu, sisävalo, hyllyt/tuotteet ja kylttikaistale */
-function mallShop(x,yb,w,k){const h=MALL.floor-MALL.slab-6,c=MALL.shops[Math.floor(hsh(x*3+k*7)*MALL.shops.length)];R('#1a2028',x-1,yb-h-1,w+2,h+1);R(c,x,yb-h+9,w,h-9);R('rgba(255,235,200,.12)',x,yb-h+9,w,3);
- R(MALL.signs[Math.floor(hsh(x+k*5)*MALL.signs.length)],x+3,yb-h+2,w-6,5);for(let sx=x+4;sx<x+w-4;sx+=8){R('rgba(0,0,0,.25)',sx,yb-20,5,18);R('rgba(255,255,255,.08)',sx,yb-h+12,1,h-14)}R('#22303e',x+w/2-.5,yb-h+9,1,h-9)}
-function mallFacade(w,h,part){const y1=160,y0=156-h;g.fillStyle=mkLg(y0,y1,[[0,MALL.glass[0]],[1,MALL.glass[1]]]);g.fillRect(0,y0,w,y1-y0);
+/* Myymälöiden nimet (arvotaan paikan mukaan, pysyvät samoina). Kyltin teksti kutistetaan mahtumaan kylttiin. */
+const MALL_NAMES=['HUONEKALUT','KAHVILA MIMOSA','LASSEN LELU','REVONTULI-KIRJA','POROKENKÄ','TONTTU-SPORT','LAPIN KULTA','SAUNA-MAAILMA','KUPARIPANIMO','HAUKI-KALA','NAPAPIIRIN KUKKA','ELEKTRO-ESA','KIRPPU-KAMU','PIPO & LAPANEN','KAAMOS-KUVA','JÄTKÄN APTEEKKI','SAMPO-SUSHI','LUMI-OPTIIKKA','KEMI-KONE','PALJUKAUPPA'];
+/* Kyltin pohja piirretään välimuistiin, teksti talletetaan ja piirretään joka kehys terävänä (retrotekstipolku), muuten se sumenisi */
+const MALL_TXT=[[],[]];let MALL_PART=0;
+function mallSign(txt,x,y,w,col){R('#14161e',x,y,w,8);R(col,x,y+7,w,1);MALL_TXT[MALL_PART].push({txt,x:x+w/2,y:y+6,w:w-2,col})}
+function mallSignsDraw(){const r=M.L.roof;[[r.A[0],0],[r.B[0],1]].forEach(([x0,p])=>{for(const t of MALL_TXT[p]){const x=x0+t.x-M.cam;if(x<-30||x>W+30)continue;g.save();g.font='bold 5px monospace';const tw=g.measureText(t.txt).width,sc=Math.min(1,t.w/tw);g.translate(x,t.y);g.scale(sc,1);g.textAlign='center';g.fillStyle=t.col;g.fillText(t.txt,0,0);g.restore()}})}
+/* Viherkasvi käytävälle: ruukku, multa ja lehvästö (koko vaihtelee) */
+function mallPlant(x,yb,v){const h=10+v*8;R('#5a3a2a',x-3,yb-6,6,6);R('#7a5038',x-3,yb-6,6,1.2);R('#2a1a10',x-2.5,yb-6.5,5,1);
+ g.fillStyle='#1e5a32';for(let k=0;k<5;k++){const a=-1.9+k*.45+(v-.5)*.3;g.beginPath();g.ellipse(x+Math.cos(a)*h*.35,yb-6-h*.55+Math.sin(a)*h*.25,2,h*.32,a+1.57,0,7);g.fill()}g.fillStyle='#2e7a44';g.beginPath();g.ellipse(x,yb-6-h*.6,2.2,h*.38,0,0,7);g.fill()}
+/* Myymälä yläkerrassa: lasinen myymäläjulkisivu, sisävalo, hyllyt/tuotteet ja nimikyltti */
+function mallShop(x,yb,w,k){const h=MALL.floor-MALL.slab-6,c=MALL.shops[Math.floor(hsh(x*3+k*7)*MALL.shops.length)],col=MALL.signs[Math.floor(hsh(x+k*5)*MALL.signs.length)];R('#1a2028',x-1,yb-h-1,w+2,h+1);R(c,x,yb-h+9,w,h-9);R('rgba(255,235,200,.12)',x,yb-h+9,w,3);
+ mallSign(MALL_NAMES[Math.floor(hsh(x*1.7+k*13.1)*MALL_NAMES.length)],x,yb-h,w,col);for(let sx=x+4;sx<x+w-4;sx+=8){R('rgba(0,0,0,.25)',sx,yb-20,5,18);R('rgba(255,255,255,.08)',sx,yb-h+12,1,h-14)}R('#22303e',x+w/2-.5,yb-h+9,1,h-9)}
+function mallFacade(w,h,part){MALL_PART=part;MALL_TXT[part]=[];const y1=160,y0=156-h;g.fillStyle=mkLg(y0,y1,[[0,MALL.glass[0]],[1,MALL.glass[1]]]);g.fillRect(0,y0,w,y1-y0);
  for(let x=0;x<w;x+=MALL.mull)R('#22303e',x,y0,1.2,y1-y0);for(let i=0;i<5;i++){const x=hsh(i+part*9)*w;g.fillStyle='rgba(170,210,240,.07)';g.beginPath();g.moveTo(x,y0);g.lineTo(x+18,y0);g.lineTo(x-24,y1);g.lineTo(x-42,y1);g.fill()}
  // katutaso: korkeat näyteikkunat ja (pääosassa) sisäänkäyntikatos
  const gy=y1-MALL.gf;R('#c4c8d2',0,gy-MALL.slab,w,MALL.slab);R('#e0e4ec',0,gy-MALL.slab,w,1);
  // kyljet ja hissikuilu (pääosassa) pidetään vapaina; reunapilarin sisäpuolelta 3 px väli
  const lo=MALL.edge+3,hi=w-MALL.edge-3,liftZ=part===0?[[RV_ROOF.lad-RV_ROOF.A[0]-LIFT.w/2-6,RV_ROOF.lad-RV_ROOF.A[0]+LIFT.w/2+6]]:[],cx0=w*.62;
  for(const x of fitRow(lo,hi,32,8,[...liftZ,...(part===0?[[cx0-32,cx0+32]]:[])])){R('#1a2028',x-1,gy+5,34,MALL.gf-12);R('#6a5434',x,gy+6,32,MALL.gf-14);R('#806640',x,gy+6,32,3);R('#3a2e22',x+4,gy+28,8,MALL.gf-36);R('#4a3a2a',x+16,gy+22,9,MALL.gf-30);R('#22303e',x+15.5,gy+6,1,MALL.gf-14)}
- if(part===0){const cx=cx0;R('#1a1e26',cx-24,gy+10,48,MALL.gf-14);R('#8a6a44',cx-20,gy+14,40,MALL.gf-18);R('#c8ccd6',cx-30,gy+2,60,4);R('rgba(0,0,0,.4)',cx-30,gy+6,60,2)}
+ if(part===0){const cx=cx0;R('#1a1e26',cx-24,gy+10,48,MALL.gf-14);R('#8a6a44',cx-20,gy+14,40,MALL.gf-18);R('#c8ccd6',cx-30,gy+2,60,4);R('rgba(0,0,0,.4)',cx-30,gy+6,60,2);mallPlant(cx-28,y1-4,.8);mallPlant(cx+28,y1-4,.6)}
  // yläkerrat alhaalta ylös: myymälät ja liukuportaat
  // liukuportaat pidetään kokonaan hissikuilun ja pilarien välissä (14 px väli päihin, käsijohteen pää mukaan lukien)
  const escLo=Math.max(lo,...liftZ.map(z=>z[1]))+14;
  let k=0;for(let yb=gy-MALL.slab;yb-MALL.floor>=y0-2;yb-=MALL.floor,k++){const dir=k%2?-1:1,run=(MALL.floor-MALL.slab)*1.6,ex=dir>0?Math.max(w*.2,escLo):Math.max(w*.62,escLo+run),a=Math.min(ex,ex+dir*run)-14,b=Math.max(ex,ex+dir*run)+14;
   // liukuportaat vain, jos yläpuolella on vielä kerros (ylimmästä ei kulje portaita katolle)
-  const top=yb-MALL.floor,esc=top>y0+2;for(const x of fitRow(lo,hi,36,8,[...liftZ,...(esc?[[a,b]]:[])]))mallShop(x,yb,36,k+part*3);if(esc)escalator(ex,yb,dir);
+  const top=yb-MALL.floor,esc=top>y0+2;const xs=fitRow(lo,hi,36,8,[...liftZ,...(esc?[[a,b]]:[])]);xs.forEach(x=>mallShop(x,yb,36,k+part*3));
+  for(let n=0;n<xs.length-1;n++)if(xs[n+1]-xs[n]<50&&hsh(xs[n]+k*3+part)>.45)mallPlant(xs[n]+40,yb,hsh(xs[n]*2+k));if(esc)escalator(ex,yb,dir);
   if(esc){R('#c4c8d2',0,top,w,MALL.slab);R('#e0e4ec',0,top,w,1);R('rgba(0,0,0,.35)',0,top+MALL.slab,w,1.5)}}
  R('#3a4048',0,y1-4,w,4);R('#5ad8e8',0,y0+2,w,1.2);R('rgba(90,216,232,.25)',0,y0+3.2,w,1.5);
  // kulmapilarit: lasi ei saa loppua tyhjään, vaan reunassa on aina umpinainen seinä (betonipilari varjoineen)
@@ -223,5 +233,5 @@ function doorDraw(x,d,T){const y=104,op=d?d.op:0,W2=DOORW.w/2,top=y-DOORW.h,wall
  R('rgba(0,0,0,.35)',x-W2,y-4,DOORW.w,4);R('#1a1418',x-10,y-31,20,31);
  if(op>0){R('#a8844e',x-9,y-30,18,30);R('#c49a5a',x-9,y-30,18,4);glow(x,y-12,16,'255,190,110',.18*op)}R('#6a3a22',x-9,y-30,18*(1-op*.85),30);R('#c8a040',x-9+18*(1-op*.85)-4,y-16,2,2);
  labelBoard(d?d.sign:'',x,y-34,'#ffe8a8')}
-function rovaDraw(T){const c=M.cam,st=M.rv||RV_ST;for(const d of (M.rvD||RV_DOOR)){const x=d.x-c;if(x>-30&&x<W+30)doorDraw(x,M.rvD?d:null,T)}liftBack(T);for(const s of st){const x=s.x-c;if(x>-20&&x<W+20)chargerDraw(x,M.rv?s:null,T)}
+function rovaDraw(T){const c=M.cam,st=M.rv||RV_ST;for(const d of (M.rvD||RV_DOOR)){const x=d.x-c;if(x>-30&&x<W+30)doorDraw(x,M.rvD?d:null,T)}mallSignsDraw();liftBack(T);for(const s of st){const x=s.x-c;if(x>-20&&x<W+20)chargerDraw(x,M.rv?s:null,T)}
  const kx=RV.kioski-c;if(kx>-40&&kx<W+40)kioskiDraw(kx,T);const px=RV.penkki-c;if(px>-30&&px<W+30)penkkiDraw(px,T)}
