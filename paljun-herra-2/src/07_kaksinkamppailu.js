@@ -71,7 +71,7 @@ function tryHit(a,d,at){const m=at.m,sd=Math.sign(d.x-a.x)||a.face;if(!m.both&&s
  if(d.hp<=0)KO(d)}
 function special(f,o){const fx=f.atk.m.fx;
  if(fx===1){K.smoke=3;nz(1.5,'lowpass',400,.35,120);msgL=['Diesel-Pena päästi pakokaasupilven!','Köh köh!'];if(Math.abs(o.x-f.x)<60&&o.st!=='down'&&o.st!=='ko'&&o.y<10){o.hp=Math.max(0,o.hp-5);o.st='hit';o.ht=.5;if(o.hp<=0)KO(o)}}
- if(fx===2){K.proj.push({x:f.x+f.face*14,h:Math.random()<.5?'hi':'lo',vx:f.face*140,r:0});tn(700,400,.12,.06,'square');msgL=['Turbo-Tapsa heitti hylsyavaimen!','Kyykkää tai hyppää!']}}
+ if(fx===2){K.proj.push({x:f.x+f.face*14,h:Math.random()<.5?'hi':'lo',vx:f.face*140,r:0});tn(700,400,.12,.06,'square');msgL=['Turbo-Tapsa heitti hylsyavaimen!']}}
 function voice(f0,f1,dur,vw,v,dl){if(!AC)return;const n=AC.currentTime+(dl||0),o=AC.createOscillator(),g2=AC.createGain();o.type='sawtooth';o.frequency.setValueAtTime(f0,n);o.frequency.exponentialRampToValueAtTime(f1,n+dur);
  g2.gain.setValueAtTime(.0001,n);g2.gain.exponentialRampToValueAtTime(v,n+.025);g2.gain.exponentialRampToValueAtTime(.001,n+dur);
  ({o:[450,800],a:[750,1150],i:[300,2200],u:[330,650]}[vw]).forEach(fr=>{const b2=AC.createBiquadFilter();b2.type='bandpass';b2.frequency.value=fr;b2.Q.value=5;o.connect(b2);b2.connect(g2)});g2.connect(master);o.start(n);o.stop(n+dur+.05)}
@@ -131,7 +131,7 @@ function ai(f,o,dt){const fd=f.fd;f.sc-=dt;
  if(f.th>0){if(d>fd.pref+8){f.st='walk';f.vx=dir*fd.spd;f.wk+=dt}else if(d<fd.pref-10){f.st='walk';f.vx=-dir*fd.spd*.6;f.wk+=dt}else{f.st='idle';f.vx=0}return}
  f.th=fd.tk*(.6+Math.random()*.9);
  if(f.sc<=0){if(fd.sp==='pe'&&d<80){f.sc=DIFF?6.5:9;startAtk(f,'smoke');return}
-  if(fd.sp==='ta'){f.sc=(5+Math.random()*2)*(DIFF?.7:1);if(d>70&&Math.random()<.55){startAtk(f,'throw');return}if(d>45){startAtk(f,'dash');msgL=['TURBORYNTÄYS!','Hyppää yli!'];tn(200,900,.4,.1,'sawtooth');return}}}
+  if(fd.sp==='ta'){f.sc=(5+Math.random()*2)*(DIFF?.7:1);if(d>70&&Math.random()<.55){startAtk(f,'throw');return}if(d>45){startAtk(f,'dash');msgL=['TURBORYNTÄYS!'];tn(200,900,.4,.1,'sawtooth');return}}}
  if(fd.jmp&&d<80&&d>30&&Math.random()<fd.jmp){f.vy=150;f.y=.01;f.vx=dir*62;f.st='jump';f.jk=.22;return}
  const n=pick(fd.moves);if(d<=reachOf(MV[n],1.35,1.35)-2)startAtk(f,n);else{f.st='walk';f.vx=dir*fd.spd}}
 function stepFight(dt){K.t+=dt;musicTick();K.sayT-=dt;K.shake=Math.max(0,K.shake-dt);K.smoke=Math.max(0,K.smoke-dt);K.fx.forEach(x=>x.t+=dt);K.fx=K.fx.filter(x=>x.t<.45);

@@ -157,7 +157,7 @@ function aukioStep(dt){const Q=aukioQ(),e=M.e;
  if(!Q.on&&M.wi>=M.L.waves.length&&!M.lock&&e.x>=AUKIO.start){Q.on=1;duck(.08);msgL=['Lordin aukio hiljenee...','Kioski ja penkin vanhus odottavat.']}
  if(!Q.on)return;const u=keysNow().u;if(u&&!Q.pu){const k=aukioNear();if(k)aukioUse(k)}Q.pu=u;
  if(Q.talk>=0){e.vx=e.vz=0;if(e.st==='walk')e.st='idle';Q.t+=dt;const i=Math.floor(Q.t/AUKIO.lineT);if(i!==Q.talk||Q.t<dt*1.5){if(i<VANHUS_LINES.length){Q.talk=i;const [k,l]=VANHUS_LINES[i];mjSay(k==='vh'?{x:RV.penkki,z:2,sc:.9}:k,l)}else{Q.talk=-1;Q.taught=1;SKILL.dodge=true;duck(.32);
-   [523,659,784,1047,1319].forEach((f,i)=>tn(f,f,.25,.07,'square',i*.09));msgL=['UUSI TAITO: HORJUVA VÄISTÖ','Sopivassa humalassa (30–79 %) Esa horjahtaa osan iskuista ohi. GO →'];M.go=3}}}}
+   [523,659,784,1047,1319].forEach((f,i)=>tn(f,f,.25,.07,'square',i*.09));msgL=['UUSI TAITO: HORJUVA VÄISTÖ'];M.go=3}}}}
 function aukioHints(T){const Q=M.rvQ;if(!Q||!Q.on||Q.talk>=0||M.ph!=='play'||Math.sin(T*6)<-.3)return;const k=aukioNear();const tag=(k==='kioski'&&!Q.burger)?['POROBURGERI',RV.kioski]:(k==='penkki'&&!Q.taught)?['PUHU',RV.penkki]:null;if(!tag)return;
  const hx=tag[1]-M.cam,hy=40+Math.round(M.camY||0);g.save();g.font='bold 9px monospace';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#1a0820';g.strokeText('↑ '+tag[0],hx,hy);g.fillStyle='#9ff';g.fillText('↑ '+tag[0],hx,hy);g.restore()}
 function rovaStep(dt){const st=rovaSt();rovaDoors(dt);for(const s of st){if(s.free){s.t+=dt;continue}if(M.wi>s.w){s.free=1;s.t=0;const n=st.filter(x=>x.free).length;

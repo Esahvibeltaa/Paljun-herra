@@ -48,11 +48,11 @@ function hookOver(f,X,Y,T){const a=f.atk,m=a.m;if(a.t>=m.st)return;const u=a.t/m
 function raneAI(f,dx,dz,dt){
  if(!f.rage&&f.hp<f.mhp*RANE.rage){f.rage=1;f.spd*=1.3;mjSay(f,'Rysty-Rane: Nyt suututtaa! Rystyt kuumana!');tn(80,50,.6,.2,'sawtooth')}
  if(f.cd<=0&&Math.abs(dz)<RANE.hookDz&&Math.abs(dx)<RANE.hookDx){f.cd=f.rage?RANE.rageCd:RANE.hookCd;f.face=Math.sign(dx)||f.face;mStart(f,'hook');
-  msgL=['RANE VETÄÄ KOUKKUA!','PERÄÄNNY! Vastaisku, kun koukku menee ohi.'];tn(75,52,.7,.2,'sawtooth');tn(180,640,.8,.05,'square');return true}
+  tn(75,52,.7,.2,'sawtooth');tn(180,640,.8,.05,'square');return true}
  return false}
 function raneKO(d){M.boss=null;const Q=aukioQ();Q.rane=2;bell(3);crowd('cheer');M.say=[d,'Rysty-Rane: Rystyt... puutuu...'];M.sayT=2.4;
  msgL=['Rysty-Rane tyrmätty!','Lordin aukio on vapaa. Jatka eteenpäin →'];[659,880,1175,1568].forEach((f,i)=>tn(f,f,.2,.07,'triangle',.3+i*.1));M.go=3}
 /* Ranen saapuminen: kun vanhus on opettanut väistön ja Esa kävelee aukion poikki */
 function raneStep(){const Q=aukioQ(),e=M.e;if(!Q.taught||Q.rane||e.x<RANE.trig||Q.talk>=0)return;Q.rane=1;
  const f=spawnAt('rr',RANE.startX,14);f.slot=RANE.slot;f.cd=2.4;f.face=-1;M.boss=f;bell(2);tn(60,45,1,.22,'sawtooth');nz(.6,'lowpass',300,.35,120);
- M.say=[f,'Rysty-Rane: Kuka täällä horjuu? Mun koukku oikaisee!'];M.sayT=3;sTalk(1);msgL=['VÄLIPOMO: RYSTY-RANE','Kun Rane vetää kättä taakse, PERÄÄNNY!']}
+ M.say=[f,'Rysty-Rane: Kuka täällä horjuu? Mun koukku oikaisee!'];M.sayT=3;sTalk(1);msgL=['VÄLIPOMO: RYSTY-RANE']}

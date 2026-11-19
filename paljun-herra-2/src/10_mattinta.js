@@ -114,12 +114,12 @@ function mjAlly(f,dt){if(f.inLift){f.vx=f.vz=0;return}if(f.tired>0||f.atk||f.y>0
 function mjEnemy(f,dt){if(f.dead||f.atk||f.y>0||!['idle','walk'].includes(f.st))return;
  f.tc=(f.tc||0)-dt;if(!f.tgt||f.tgt.st==='ko'||f.tgt.tired>0||f.tc<=0){f.tc=2+Math.random()*2;const c=[M.e,M.e,...M.al.filter(a=>a.tired<=0)];f.tgt=pick(c)}
  const t=f.tgt,dx=t.x-f.x,dz=t.z-f.z,kt=KT[f.kind]||{};if(kt.ai&&kt.ai(f,dx,dz,dt))return;
- if(f.kind==='ms'){if(!f.sum&&f.hp<f.mhp/2){f.sum=1;M.say=[f,'Mersumies: Pojat, apuun!'];M.sayT=2.4;mjSpawn('rn');mjSpawn('tp')}if(f.cd<=0&&Math.abs(dx)>34){f.cd=f.hp<f.mhp/2?2.2:3.4;f.face=Math.sign(dx)||f.face;mStart(f,'star');msgL=['Mersumies heittää Mersun tähtiä!','Hyppää tai väistä sivuun!'];return}}
- if(f.kind==='tt'&&f.cd<=0&&Math.abs(dz)<7&&Math.abs(dx)>40&&Math.abs(dx)<230){f.cd=5.5;f.face=Math.sign(dx);mStart(f,'dash');msgL=['TRUKKIRYNNÄKKÖ!','Väistä sivuun tai hyppää!'];tn(110,320,.6,.14,'sawtooth');nz(.6,'lowpass',400,.2,150);return}
+ if(f.kind==='ms'){if(!f.sum&&f.hp<f.mhp/2){f.sum=1;M.say=[f,'Mersumies: Pojat, apuun!'];M.sayT=2.4;mjSpawn('rn');mjSpawn('tp')}if(f.cd<=0&&Math.abs(dx)>34){f.cd=f.hp<f.mhp/2?2.2:3.4;f.face=Math.sign(dx)||f.face;mStart(f,'star');msgL=['Mersumies heittää Mersun tähtiä!'];return}}
+ if(f.kind==='tt'&&f.cd<=0&&Math.abs(dz)<7&&Math.abs(dx)>40&&Math.abs(dx)<230){f.cd=5.5;f.face=Math.sign(dx);mStart(f,'dash');msgL=['TRUKKIRYNNÄKKÖ!'];tn(110,320,.6,.14,'sawtooth');nz(.6,'lowpass',400,.2,150);return}
  if(f.kind==='pe'&&f.cd<=0&&Math.abs(dx)<70&&Math.abs(dz)<12){f.cd=9;mStart(f,'smoke');return}
- if(f.kind==='ta'&&f.cd<=0&&Math.abs(dz)<5&&Math.abs(dx)>45&&Math.abs(dx)<200){f.cd=6;f.face=Math.sign(dx);mStart(f,'dash');msgL=['TURBORYNTÄYS!','Hyppää yli tai väistä!'];tn(200,900,.4,.1,'sawtooth');return}
+ if(f.kind==='ta'&&f.cd<=0&&Math.abs(dz)<5&&Math.abs(dx)>45&&Math.abs(dx)<200){f.cd=6;f.face=Math.sign(dx);mStart(f,'dash');msgL=['TURBORYNTÄYS!'];tn(200,900,.4,.1,'sawtooth');return}
  if((f.kind==='tp'||f.kind==='ta')&&Math.abs(dz)<6&&Math.abs(dx)<75&&Math.abs(dx)>28&&Math.random()<dt*1.4){f.vy=150;f.y=.01;f.vx=Math.sign(dx)*62;f.vz=0;f.st='jump';f.jk=.22;f.face=Math.sign(dx);return}
- if(f.kind==='pasi'&&f.cd<=0&&Math.abs(dz)<5&&Math.abs(dx)>50&&Math.abs(dx)<170){f.cd=4+Math.random()*2;f.face=Math.sign(dx);mStart(f,'throw');msgL=['Pakoputki-Pasi heittää putken!','Hyppää tai väistä sivuun!'];return}
+ if(f.kind==='pasi'&&f.cd<=0&&Math.abs(dz)<5&&Math.abs(dx)>50&&Math.abs(dx)<170){f.cd=4+Math.random()*2;f.face=Math.sign(dx);mStart(f,'throw');msgL=['Pakoputki-Pasi heittää putken!'];return}
  const want=f.slot||22;
  if(Math.abs(dz)>4||Math.abs(dx)>want+3){f.vx=Math.abs(dx)>want+3?Math.sign(dx)*f.spd*(DIFF?1.15:1):0;f.vz=Math.abs(dz)>3?Math.sign(dz)*f.spd*.6:0;f.st='walk';f.wk+=dt;f.face=Math.sign(dx)||f.face;return}
  f.vx=f.vz=0;f.st='idle';f.face=Math.sign(dx)||f.face;f.th-=dt;if(f.th>0)return;f.th=(.8+Math.random()*1)*(DIFF?.75:1);mStart(f,pick(kt.atk||['punch','kick','punch']))}
