@@ -142,3 +142,17 @@ Myöhemmin:
 - Suorituskyky (päävalikon hidastuminen puhelimissa): kankaan enimmäisskaala 4 (ennen 5, puhelimissa 1600×1000 → 1280×800), yksi hehkukerros kahden sijaan, vinjetti ja pikselirivien varjo CSS-kerroksena (ei piirtoa joka kehys), introruutu 30 fps. Prosessoria 6x hidastettaessa valikko 6 fps → 15–30 fps.
 - Suorituskyky (Win10: peli hidastui, jos valikossa odotti pitkään): apukankaat aina prosessorilla (willReadFrequently, keskitetty getContext-asetus), äänen parametrit yhteisen setAP-funktion kautta (vanhat ajastukset poistetaan, valikko ei enää aseta ääntä joka kehys). Shift+F näyttää kehysnopeusmittarin testausta varten.
 - Windows-exe sai kuvakkeen: Neutralinon exe ei sisältänyt resursseja, joten desktop/set_icon.py lisää .rsrc-osion (kuvakkeet 16–256 px).
+- Viimeistely jatko-osan ohjeiden mukaan (YKKOSOSA_VIIMEISTELY.md, GRAFIIKKAOHJE.md):
+  - Teollisuusalueen katot nostettu 32/38 → 80/100 px (vähintään yksi kerros). Kuja on kavennettu, jotta hyppy korkeammalle katolle onnistuu reunalta, ja ramppi on pidempi (S 1300).
+  - Pystykamera (`mjCamY`, `vpar`, `camY:{off,max}`): ruutu vierii ylös kiivetessä ja katoilla. Taivas pysyy paikallaan, savupiiput liikkuvat 0,25 ja varastot 0,55 kameran nopeudesta.
+  - Kattohallit ovat hahmojen mittakaavassa ja välimuistissa (`RFB`, `rfBldDraw`, `RFC`): katutason kerros 68 px, henkilöovi 24×58 katoksella ja vinotuilla, nosto-ovi, ikkunat 16×28 sovitettuina `fitRow`-funktiolla, kulmapilarit ja sokkeli. Kyltit ovat terävinä `labelBoard`-taululla.
+  - Ramppiin lisätty kantava palkki ja betonipilarit anturoineen (`RAMP`).
+  - Tikapuut (`LADDER`, `ladderDraw`) ovat hallin takasiiven seinällä. Kiipeämisasento (`climbPose`) lasketaan korkeudesta, ja kiipeävä Esa näkyy takaa (`esaBack`, `buildSpr`-funktion `post`-parametri). Kiipeämisnopeus on vakioissa `CLIMB`, ja ääni kuuluu puolan vaihtuessa.
+  - Pääkadun ovitalot ovat kaksikerroksisia ja hahmojen mittakaavassa (`CITYH`, `cityRow`, välimuistissa): ovi 24×58, himmeä näyteikkuna, yläkerran ikkunat `fitRow`-rivissä, sivuseinä ja kujat talojen välissä. Kyltit ovat omalla taulullaan.
+  - Roskiksissa on neljä mallia (`BINS`, `binDraw`), ja lumipenkkojen muoto on satunnainen (`SNOWB`, `snowBank`).
+  - Huoltoaseman kioskin korkeus on nyt 68 px ja ovi 24×58 (aiemmin 48 px ja ovi 34 px). Mittarit nostettu 44 px:iin jalustalle, ja kyltti on omalla taulullaan.
+  - Falconin pihan Cessna suurennettu talojen mittakaavaan (`CESS_S`).
+  - Altaan pihalla kävelijän koko muuttuu syvyyden mukaan (`WALKS`, `walkS`): Esa ja Hempukka eivät ole enää mökkien seinien korkuisia.
+  - Kehysaika on ennallaan tai parempi: pääkatu 8,6 → 7,8 ms ja katto 8,9 → 8,4 ms.
+- Windows-versio rakennettu uudelleen viimeistellystä index.html:stä (lataa/PaljunHerra-Windows.zip).
+- Pihan kävelyreitit reittipisteinä (`ROUTE`, `mkRoute`, `routeAt`): Esa kulkee paljulta mökille saunan ja paljun välistä kujaa, ei saunan läpi, ja saunaan seinän edestä ovelle. Hempukka kiertää paljun edestä lumella. Nopeus on tasainen matkan mukaan. Testi tarkistaa, ettei mikään reitin kohta osu saunaan, mökkiin tai paljuun. Windows-paketti rakennettu uudelleen.
