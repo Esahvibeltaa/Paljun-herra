@@ -36,7 +36,7 @@ const LR={n:1,fin:1,noW:1,name:'Rovaniemen keskusta',hud:'ROVANIEMI',theme:'rova
  done:['Latausasemat vapautettu!','Lordin aukio on hiljainen... liian hiljainen.','Napauta: jatka.'],
  onStep:rovaStep,onDraw:rovaDraw,onHud:rovaHud,onFg:rovaFg,onSort:liftSort,onTap:aukioTap,gate:()=>M.rvQ&&M.rvQ.taught&&M.rvQ.rane===2};
 const RV_QUIP=[['a','Aapeli: Latausasema vapaa! ID.3 kiittää.'],['k','Kermis: Virta kulkee taas. Rock!'],['p','Esa: Seuraava!']];
-function startRova(){SKILL.dodge=false;LV.length=1;LV.push(LR);startMJ()}
+function startRova(){saveSet('rova');SKILL.dodge=false;LV.length=1;LV.push(LR);startMJ()}
 
 /* Asemien tila nollataan, kun kenttä alkaa tai yritetään uudestaan (mjLevel nollaa kellon M.ck) */
 function rovaSt(){if(!M.rv||M.ck<M.rvCk){M.rv=RV_ST.map(s=>({...s,free:0,t:0}));M.rvQ=null;M.lift=null;M.rvD=RV_DOOR.map(d=>({...d,op:0}))}M.rvCk=M.ck;return M.rv}

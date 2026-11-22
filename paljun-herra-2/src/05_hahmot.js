@@ -102,7 +102,7 @@ function drawChar(sp,x,y,o){o=o||{};if(o.prof&&sp.P)sp=sp.P;const PV=sp.pv;const
  if(o.blush>0){oc.fillStyle=`rgba(230,70,90,${o.blush})`;oc.fillRect(9,15,2,1);oc.fillRect(15,15,2,1)}oc.restore();
  
  const hand=(L2)=>{const a=(L2?o.aL:o.aR)||0,e=(L2?o.eL:o.eR)||0,ax=PV?12.5:L2?5:20,sc=(L2?o.sL:o.sR)||1,ex=ax-Math.sin(a)*5.6*sc,ey=23+Math.cos(a)*5.6*sc;return[ex-Math.sin(a+e)*6*sc,ey+Math.cos(a+e)*6*sc]};
- const itm=()=>{const [hx,hy]=hand(o.itemArm==='L'),gs=g;g=oc;g.save();g.translate(hx,hy);g.rotate(o.iR||0);if(o.iS)g.scale(1,o.iS);o.item==='h'?bottle(-2.5,-9):o.item==='w'?wrench(-1,-11):o.item==='p'?pipeW(-1,-14):o.item==='k'?chainW(-1,-13):(g.scale(.72,.72),can(-3.5,-10));g.restore();g=gs};
+ const itm=()=>{const [hx,hy]=hand(o.itemArm==='L'),gs=g;g=oc;g.save();g.translate(hx,hy);g.rotate(o.iR||0);if(o.iS)g.scale(1,o.iS);o.item==='h'?bottle(-2.5,-9):o.item==='b'?handbag():o.item==='w'?wrench(-1,-11):o.item==='p'?pipeW(-1,-14):o.item==='k'?chainW(-1,-13):(g.scale(.72,.72),can(-3.5,-10));g.restore();g=gs};
  if(!PV)armD(sp.armL,sp.armL2,sp.shL,5,o.aL,o.eL,o.sL);if(o.item&&o.itemArm==='L')itm();
  armD(sp.armR,sp.armR2,sp.shR,PV?12.5:20,o.aR,o.eR,o.sR);if(o.item&&o.itemArm!=='L')itm();
  oc.restore();

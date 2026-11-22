@@ -7,7 +7,7 @@ const CP={x:16,y:12,w:288,h:110},CTX={x:26,y:140,w:268,lh:11,font:'bold 8px mono
 // minScene = kunkin kuvan (kohtauksen) vähimmäiskesto ennen seuraavaan siirtymistä (s); kohtaus voi antaa oman arvon min
 const CUTK={minScene:4,minTap:.25,minRead:.6,readCps:30,cps:38,fadeIn:.35,fadeOut:2.6,ring:1.3,snore:2.6,logoIn:1.5,subIn:1.2,titleWait:4};
 // Puhujien nimien värit
-const SPK={Esa:'#ffe23a',Pera:'#7dff9a',Aapeli:'#9adf6a',Kermis:'#c8c8e0',Hempukka:'#ff8ac0',Kaikki:'#ffffff'};
+const SPK={Esa:'#ffe23a',Pera:'#7dff9a',Aapeli:'#9adf6a',Kermis:'#c8c8e0',Hempukka:'#ff8ac0',Kaikki:'#ffffff','Oikea pukki':'#ff6a6a',Valepukki:'#c8a0a0'};
 const CUT={list:null,i:0,sc:null,li:0,ch:0,t:0,fin:0,tt:0,rt:0,sn:0,sk:0,ls:0,full:-1,amb:0,endTitle:false,done:null};
 
 /* Staattinen kerros piirretään kerran omaan kankaaseen (2x tarkkuus) ja kopioidaan joka kehys */
@@ -143,7 +143,7 @@ function cutTie(T,t,sc){cutLayer('tie',tieSky);
  ridge(t*10,86,24,'#232a5e',53,23);ridge(t*26,96,12,'#171c48',31,13);spruceRow(t*70,104,'#0a2226');
  R('#c8d4f0',CP.x,102,CP.w,5);R('#1a1c26',CP.x,107,CP.w,12);R('#2a2c36',CP.x,107,CP.w,1);R('#dfe8ff',CP.x,119,CP.w,3);
  const off=(t*320)%44;for(let x=CP.x-off;x<CP.x+CP.w;x+=44)R('#d8d8c0',x,112.5,18,1.2);
- if(sc&&sc.trip)tripSide(t);
+ if(sc&&sc.trip)tripSide(t,sc.trip);
  g.save();g.translate(148,114+Math.sin(T*22)*.35);g.scale(TESLA.sc,TESLA.sc);teslaCar(T,t);g.restore();
  for(const f of flakes){const x=CP.x+(((f.x-t*160)%CP.w)+CP.w)%CP.w;R('rgba(255,255,255,.85)',x,CP.y+f.y*CP.h/H,1.5,1)}}
 
@@ -227,9 +227,10 @@ function esaSeat(rim){const x=PSEAT.x,y=58,kc='#030409';ell(x,y,12.5,14.5,kc);g.
  R('#3a4052',x-14,y-8,28,4);ell(x+22,y-10,3.4,3.4,'#5a6278');
  g.strokeStyle=`rgba(110,200,255,${rim})`;g.lineWidth=.8;g.beginPath();g.arc(x,y,13,2.3,3.7);g.stroke();g.beginPath();g.moveTo(x-13,y-6);g.quadraticCurveTo(x-4,y-26,x+6,y-24.5);g.stroke()}
 /* Road trip -sivunäkymän lisät: kilometrikyltti (matka lyhenee repliikkien myötä) ja tienvarren poro */
-const TRIP={km:120,signSpd:90,signGap:820,poroGap:1300};
-function tripSide(t){const km=Math.max(3,Math.round(TRIP.km*(1-CUT.li/CUT.lines.length)));
- const sx=CP.x+CP.w+30-((t*TRIP.signSpd)%TRIP.signGap);if(sx>CP.x-40&&sx<CP.x+CP.w+30){R('#6a6a70',sx+14,90,1.5,14);R('#e8eeff',sx-.6,77.4,37.2,13.2);R('#1a4aa8',sx,78,36,12);g.save();g.font='bold 5px monospace';g.textAlign='center';g.fillStyle='#fff';g.fillText('ROVANIEMI',sx+18,83.5);g.fillText(String(km),sx+18,89);g.restore()}
+const TRIP={km:120,dest:'ROVANIEMI',signSpd:90,signGap:820,poroGap:1300};
+/* trip = true (Rovaniemelle) tai {dest, km}: kyltin kohde ja alkumatka */
+function tripSide(t,trip){const tr=trip===true?TRIP:Object.assign({},TRIP,trip),km=Math.max(1,Math.round(tr.km*(1-CUT.li/CUT.lines.length)));
+ const sx=CP.x+CP.w+30-((t*TRIP.signSpd)%TRIP.signGap);if(sx>CP.x-40&&sx<CP.x+CP.w+30){R('#6a6a70',sx+14,90,1.5,14);R('#e8eeff',sx-.6,77.4,37.2,13.2);R('#1a4aa8',sx,78,36,12);g.save();g.font='bold 5px monospace';g.textAlign='center';g.fillStyle='#fff';g.fillText(tr.dest,sx+18,83.5);g.fillText(String(km),sx+18,89);g.restore()}
  const px=CP.x+CP.w+60-((t*TRIP.signSpd+400)%TRIP.poroGap);if(px>CP.x-20&&px<CP.x+CP.w+20){const c='#6a4a2a';R(c,px,94,12,5);R(c,px+1,99,1.5,4);R(c,px+9,99,1.5,4);R(c,px+11,90,3,6);R('#e8e0d0',px+11,96,3,1.5);R('#4a3420',px+12,86,1,4);R('#4a3420',px+10,86,5,1);R('#4a3420',px+14,85,1,3)}}
 /* Matkajutustelu: lyhyitä sketsejä, joista jokainen matka arpoo kolme eri järjestyksessä */
 const MATKA_JUTUT=[
@@ -264,6 +265,16 @@ function matkaLines(){const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--
 const MATKA_CUT=[
  {draw:cutSisa,esa:true,music:'d2',lines:[['Pera','Tilanne on tämä: Mersumies kaappasi Sam Discon palvelimen.'],['Pera','Sen kautta hän lukitsi Lapin latausasemat. Sähköautot jäätyvät tienposkeen.'],['Esa','Entä itse kanava?'],['Pera','Nimi on nyt Diesel Disco. Kaikki on bannattu, ja joka minuutti tulee uusi Mersu-meemi.'],['Pera','Mersumiehen kätyrit vartioivat latausasemia Rovaniemen keskustassa. Sinne mennään.'],['Esa','Selvä. Mutta ensin mä tarviin Kuparin.'],['Hempukka','Sä tarviit ensin vettä.']]},
  {draw:cutTie,trip:true,music:'d2',lines:matkaLines}];
+
+/* Rysty-Ranen jälkeen: Pera hakee porukan keskustasta ja kiitää Napapiirille Santaparkiin (8 km: Peran nopeusvitsi) */
+const SANTA_NOPEIN=[
+ [['Pera','Santaparkiin on kahdeksan kilometriä.'],['Esa','Kauanko menee?'],['Pera','Euroopan nopeimmalla Tesla-kuskilla? Ehdit sanoa "kauanko menee".'],['Esa','Kauanko m...'],['Pera','Perillä.']],
+ [['Aapeli','Pera, toi oli punainen valo.'],['Pera','Se oli punainen, kun me oltiin jo ohi.']],
+ [['Kermis','Mä näin äsken Napapiirin kyltin.'],['Pera','Kumman puolen?'],['Kermis','...Molempien.']]];
+const SANTA_MATKA_CUT=[
+ {draw:cutSisa,esa:true,music:'d2',lines:[['Pera','Hyppää kyytiin! Rane jäi lumihankeen miettimään elämäänsä.'],['Esa','Mihin nyt?'],['Pera','Diesel Discon liikenne kulkee Santaparkin kautta. Joku lähettää sieltä Mersu-meemejä Pajakylän pukin nimissä.'],
+  ['Aapeli','Joulupukin nimissä? Se on jo henkilökohtaista.'],['Pera','Ja tontut ovat kadonneet pajoilta. Lahjapaketteja lentelee.'],['Hempukka','Mä jään Teslaan lämpimään. Huutakaa, jos tarvitaan käsilaukkua.'],['Esa','Toivotaan, ettei tarvita.']]},
+ {draw:cutTie,trip:{dest:'SANTAPARK',km:8},music:'d2',lines:()=>[['','Tesla kiitää kohti Napapiiriä.'],...pick(SANTA_NOPEIN),['','Napapiiri. Santaparkin luolan suu hehkuu lumen keskellä. Sisältä kuuluu kilinää... ja Mersun torven ääni.']]}];
 
 /* Loppu: pelin nimi esiin mustalla, Viimeinen tuoppi soi, alareunassa Paljusoft; napautus aloittaa pelin */
 function drawCutTitle(T){const t=CUT.tt;R('#000',0,0,W,H);

@@ -24,7 +24,10 @@ def build(julkinen: bool, nimi: str, otsikko: str = '') -> str:
     for path in sorted(glob.glob(os.path.join(SRC, '*.js'))):
         with open(path, encoding='utf-8') as f:
             parts.append(f.read().rstrip('\n'))
-    lippu = '// Koonnin lisäämä: julkinen versio lukitsee pelaamisen (alkunäytöksen jälkeen "pelattavissa pian")\nconst JULKINEN=' + ('true' if julkinen else 'false') + ';'
+    kehitys = nimi == 'kehitys.html'
+    lippu = ('// Koonnin lisäämä: julkinen versio lukitsee pelaamisen (alkunäytöksen jälkeen "pelattavissa pian"),\n'
+             '// kehitysversiossa päävalikossa on lisäksi kenttävalinta testausta varten\n'
+             'const JULKINEN=' + ('true' if julkinen else 'false') + ',KEHITYS=' + ('true' if kehitys else 'false') + ';')
     page = page.replace('/*TYYLI*/', css).replace('/*KOODI*/', lippu + '\n' + '\n'.join(parts))
     if nimi == 'testi.html':  # testiversion sivuteksti ja jakokuvaus: pelattava osa, ei "pelattavissa pian"
         page = (page.replace('Alkunäytös: Esan puhelin soi. Mersumies on palannut. Peli pelattavissa pian!',

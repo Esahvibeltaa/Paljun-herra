@@ -36,7 +36,7 @@ function gpPoll(dt){let gp=null;try{const a=navigator.getGamepads?navigator.getG
  const Lf=bt[14]||ax<-.45,Rt=bt[15]||ax>.45,Up=bt[12]||ay<-.45,Dn=bt[13]||ay>.45;
  if(CFG.open){if(CFG.listen&&CFG.listen.t==='g'){const i=bt.findIndex((b,j)=>b&&!gpPrev[j]);if(i>=0){GB[CFG.listen.a]=i;CFG.listen=null;saveB();renderCfg()}}else if(pr(1)||pr(8))closeCfg();gpPrev=bt;return}
  if(pr(8)){openCfg();gpPrev=bt;return}
- if(stage===1&&state==='title'&&!PAUSED){if(TI.on&&(pr(12)||pr(13)||(Up&&!TI.ax)||(Dn&&!TI.ax)))titleMove();TI.ax=Up||Dn;if(pr(GB.pause)||pr(GB.sel)||pr(0)){titlePress();gpPrev=bt;return}}
+ if(stage===1&&state==='title'&&!PAUSED){if(TI.on&&(pr(12)||(Up&&!TI.ax)))titleMove(-1);else if(TI.on&&(pr(13)||(Dn&&!TI.ax)))titleMove(1);TI.ax=Up||Dn;if(pr(GB.pause)||pr(GB.sel)||pr(0)){titlePress();gpPrev=bt;return}}
  if(pr(GB.pause))setPause(!PAUSED);
  if(fightMode()&&!PAUSED){GPC.on=0;GPK.l=Lf;GPK.r=Rt;GPK.d=Dn;GPK.u=Up;
   [['punch','P'],['kick','K'],['hauki','H']].forEach(([a,c])=>{if(pr(GB[a]))fPress(c)});if(pr(GB.jump))fPress('J')}

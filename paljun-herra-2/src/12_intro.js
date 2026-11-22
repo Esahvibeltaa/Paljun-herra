@@ -7,12 +7,18 @@ function titleLogo(){const c=document.createElement('canvas');c.width=300;c.heig
   x.lineWidth=3;x.strokeStyle='#ffffff';x.strokeText(t,150,y);x.fillStyle=q;x.fillText(t,150,y)};
  line('PALJUN',42,44);line('HERRA 2',90,44);
  const id=x.getImageData(0,0,c.width,c.height),d=id.data;for(let i=0;i<d.length;i+=4){if(d[i+3]<120)d[i+3]=0;else{d[i+3]=255;for(let k=0;k<3;k++)d[i+k]=Math.round(d[i+k]/36)*36}}x.putImageData(id,0,0);return c}
-function titleHit(x,y){if(x>=104&&x<=216){if(y>=134&&y<147)return 0;if(y>=150&&y<163)return 1}return-1}
-function titleMove(){TI.sel^=1;if(AC)tn(880,880,.05,.06,'square')}
+/* Päävalikko: kohdat lasketaan tilanteen mukaan. JATKA näkyy, kun peli on tallentanut tarkistuspisteen (ei lukitussa
+   julkisessa versiossa), KENTÄT vain kehitysversiossa. TI.sub = alivalikko (kenttävalinta). */
+const MENU={y:126,dy:14,x:96,w:128,h:12};
+function menuItems(){if(TI.sub==='kentat')return[...Object.keys(CHK).map(k=>({l:CHK[k].nm,fn:()=>startAt(k)})),{l:'TAKAISIN',fn:()=>{TI.sub=null;TI.sel=0}}];
+ const it=[],sv=JULKINEN?null:saveGet();if(sv)it.push({l:'JATKA: '+CHK[sv].nm,fn:()=>startAt(sv)});it.push({l:'UUSI PELI',fn:startGame});
+ if(KEHITYS)it.push({l:'KENTÄT',fn:()=>{TI.sub='kentat';TI.sel=0}});it.push({l:'ASETUKSET',fn:openCfg});return it}
+function titleHit(x,y){const n=menuItems().length,i=Math.floor((y-MENU.y)/MENU.dy);return x>=MENU.x&&x<=MENU.x+MENU.w&&i>=0&&i<n&&(y-MENU.y)-i*MENU.dy<MENU.h?i:-1}
+function titleMove(d){const n=menuItems().length;TI.sel=(TI.sel+(d||1)+n)%n;if(AC)tn(880,880,.05,.06,'square')}
 function titlePress(){audioInit();if(AC&&AC.state!=='running')try{AC.resume()}catch(x){}if(!TI.on){TI.on=true;TI.f=.35;TI.sel=0;if(AC){[523,659,784,1047].forEach((f,i)=>tn(f,f,.09,.07,'square',i*.06));musicStart('t')}return}
- if(TI.sel===1){openCfg();return}if(AC)tn(1047,1568,.18,.08,'square');startGame()}
+ const it=menuItems()[TI.sel];if(!it)return;if(AC)tn(1047,1568,.18,.08,'square');it.fn()}
 addEventListener('keydown',e=>{if(stage!==1||state!=='title'||PAUSED||CFG.open)return;if(e.key===' '||e.key==='Enter')return;
- if(TI.on&&['ArrowUp','ArrowDown','w','W','s','S'].includes(e.key)){e.preventDefault();titleMove();return}if(!TI.on&&e.key.length<=12&&!['p','P','Escape'].includes(e.key))titlePress()});
+ if(TI.on&&['ArrowUp','ArrowDown','w','W','s','S'].includes(e.key)){e.preventDefault();titleMove(['ArrowUp','w','W'].includes(e.key)?-1:1);return}if(TI.on&&TI.sub&&e.key==='Backspace'){TI.sub=null;TI.sel=0;return}if(!TI.on&&e.key.length<=12&&!['p','P','Escape'].includes(e.key))titlePress()});
 /* Revontulet välimuistikerroksena: kolme värinauhaa (AGI) aaltoilevat vaakasuunnassa. Piirretään taivaan jälkeen ja ennen
    maastoa, jotta vuoret, metsä ja rakennukset peittävät ne. x0, w = alue; y0, dy = ylimmän nauhan korkeus ja nauhojen väli;
    a1, f1 = pääaallon korkeus ja pituus; a2, f2 = väreilyn korkeus ja pituus; sp = aaltoilun nopeus; alpha = voimakkuus (0–1, oletus 1) */
@@ -42,7 +48,7 @@ function drawTitle(T){const t=TI.t;
  if(!TI.logo)TI.logo=titleLogo();{const u=Math.min(1,t/.9),yb=-90+(1-Math.pow(1-u,3))*100+(u>=1?Math.sin(Math.max(0,t-.9)*7)*Math.exp(-(t-.9)*3)*4:0),sm=g.imageSmoothingEnabled;g.imageSmoothingEnabled=false;g.drawImage(TI.logo,10,yb|0,300,96);g.imageSmoothingEnabled=sm}
  g.save();g.textAlign='center';g.font='bold 7px monospace';g.fillStyle='#bfe8ff';if(t>.9)g.fillText('– PALUU OF DRUNKEN MASTER –',W/2,118);
  if(!TI.on){if(t>1.2&&Math.floor(T*2.2)%2===0){g.font='bold 10px monospace';g.fillStyle='#000';g.fillText('PAINA START',W/2+1,145);g.fillStyle='#ffe23a';g.fillText('PAINA START',W/2,144)}g.font='6px monospace';g.fillStyle='#c8d4ff';if(t>1.2)g.fillText(INP==='touch'?'napauta ruutua':INP==='gp'?'Start / '+gpG(GB.sel):'Enter / välilyönti / mikä tahansa näppäin',W/2,154)}
- else{['ALOITA PELI','ASETUKSET'].forEach((l,i)=>{const y=134+i*16,on=TI.sel===i;g.fillStyle=on?'rgba(255,226,58,.95)':'rgba(10,14,40,.75)';g.fillRect(104,y,112,13);g.fillStyle=on?'#2a0a3a':'#e8eeff';g.font='bold 8px monospace';g.fillText((on&&Math.floor(T*4)%2?'▶ ':'  ')+l,W/2,y+9.5)})}
+ else menuItems().forEach((it,i)=>{const y=MENU.y+i*MENU.dy,on=TI.sel===i;g.fillStyle=on?'rgba(255,226,58,.95)':'rgba(10,14,40,.75)';g.fillRect(MENU.x,y,MENU.w,MENU.h);g.fillStyle=on?'#2a0a3a':'#e8eeff';g.font='bold 8px monospace';g.fillText((on&&Math.floor(T*4)%2?'▶ ':'  ')+it.l,W/2,y+8.5)});
  g.font='bold 5px monospace';g.fillStyle='#4a5694';g.fillText('© 2026 PALJUSOFT  ·  ESA & KUPARIBÄNDI',W/2,196);g.restore();
  if(TI.f>0){g.fillStyle=`rgba(255,255,255,${TI.f/.35})`;g.fillRect(0,0,W,H)}}
 /* ---- Grafiikka (aina päällä): pikselimaailma 320x200, porrastetut värit + rasterointi, valojen hehku, teksti terävänä ---- */
