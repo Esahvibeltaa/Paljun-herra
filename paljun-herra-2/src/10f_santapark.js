@@ -43,7 +43,8 @@ const ICE={x0:SPKX.pajat+40,x1:SPKX.galleria-30,grip:2.6};
 // Hempukan vierailu: tulee galleriaan, lähtee ennen salia
 const HEMP={in:1290,out:1880,hp:70};
 const PAJAT=[{n:'LELUPAJA',c:'#7a4a2a'},{n:'KARKKIPAJA',c:'#6a3a4a'},{n:'PAKETTIPAJA',c:'#5a4a2a'},{n:'POSTIPAJA',c:'#4a3a5a'}];
-const PAJA={x0:556,w:150,gap:22,h:76,gf:68,door:[24,58],win:[30,20]};
+const PAJA={x0:552,w:140,gap:44,h:76,gf:68,door:[24,58],win:[30,20],
+ back:{p:.7,s:.62,n:9,gap:104,x0:0,dy:24}};// takarivi: vierityskerroin, mittakaava (perspektiivi), määrä, väli
 const VEISTOT=['poro','karhu','tonttu','kuusi','poro'];
 const LSP={n:2,of:2,fin:1,noW:1,indoor:1,name:'Santapark',hud:'SANTAPARK',len:SPKX.len,
  waves:[{x:250,list:['to','to']},{x:560,list:['to','hm','to']},{x:820,list:['to','to','tk','to']},{x:1100,list:['hm','to','to','tk']},
@@ -51,7 +52,7 @@ const LSP={n:2,of:2,fin:1,noW:1,indoor:1,name:'Santapark',hud:'SANTAPARK',len:SP
  bins:[[200,28,'c'],[640,10,'v'],[1000,30,'w'],[1380,12,'c'],[1600,30,'v'],[1960,20,'c'],[2120,8,'v']],
  msg:['Kenttä 2: Santapark','Tontut on kaapattu!'],say:['k','Kermis: Joulu kesken kesän? Rock!'],
  done:['Pajakylän sali on hiljentynyt...','Valtaistuimelta nousee joku.','Napauta: jatka.'],
- bg:spkBg,onDraw:spkDraw,onStep:spkStep,onMove:spkMove,onHud:spkHud,onSort:spkSort,binDraw:crateDraw};
+ bg:spkBg,onFg:spkFg,onDraw:spkDraw,onStep:spkStep,onMove:spkMove,onHud:spkHud,onSort:spkSort,binDraw:crateDraw};
 function startSanta(){saveSet('santa');SKILL.dodge=true;LV.length=1;LV.push(LSP);startMJ()}
 
 /* Liukuhihnat ja jää: kutsutaan tekoälyn jälkeen ja ennen fysiikkaa (mjUpd) */
@@ -74,27 +75,91 @@ function crateDraw(o,x,y){const c=GIFTC[Math.floor(hsh(o.x)*GIFTC.length)],c2=GI
  if(o.br){R(c,x-7,y-4,6,4);R(c2,x+1,y-3,6,3);R('#ffe070',x-5,y-4,1,4);return}ell(x,y+.5,9,1.8,'rgba(0,0,0,.35)');
  R(c,x-7,y-9,14,9);R('rgba(0,0,0,.25)',x+3,y-9,4,9);R('#ffe070',x-1,y-9,2,9);R('#ffe070',x-7,y-5.5,14,1.6);R(c2,x-4,y-16,9,7);R('#ffe070',x-.5,y-16,1.5,7);ell(x-1.5,y-17,2,1.2,'#ffe070');ell(x+1.5,y-17,2,1.2,'#ffe070')}
 
-// ---- Tausta ----
-/* Luolan holvi: kiinteä liukuväri (välimuisti), kivipinta ja jääpuikot parallaksina, valosarjat kaarina */
+// ---- Tausta: parallaksikerrokset (kaukaa lähelle) ----
+/* Kerroksen laatta piirretään kerran välimuistiin (2x) ja toistetaan vaakasuunnassa: p = vierityskerroin,
+   w = laatan leveys. paint(x) piirtää laatan sisällön; reunojen yli menevät osat piirretään myös laatan toiselle puolelle,
+   jotta sauma ei näy. */
+const PLX={};
+function plxTile(id,w,paint){let t=PLX[id];if(t)return t;const cv=document.createElement('canvas');cv.width=w*2;cv.height=H*2;const x=cv.getContext('2d');x.setTransform(2,0,0,2,0,0);const gs=g;g=x;
+ try{[-w,0,w].forEach(o=>{g.save();g.translate(o,0);paint();g.restore()})}finally{g=gs}return PLX[id]={cv,w}}
+function plxDraw(id,p,w,paint){const t=plxTile(id,w,paint),o=-(((M.cam*p)%w)+w)%w;for(let x=o;x<W;x+=w)g.drawImage(t.cv,x,0,w,H)}
+/* 0. Luolan holvi: kiinteä liukuväri (välimuisti) */
 function spkCave(){g.fillStyle=mkLg(10,104,[[0,'#0a0814'],[.5,'#1a1424'],[1,'#2a2030']]);g.fillRect(0,10,W,H-10)}
-function spkRock(c){for(let i=Math.floor(c*.5/40)-1;i<Math.floor(c*.5/40)+10;i++){const x=i*40-c*.5,h=hsh(i+70);R(h>.5?'#221a2c':'#1c1626',x,20+h*30,30+h*16,18+h*20);R('rgba(255,255,255,.03)',x,20+h*30,30+h*16,1)}}
+const SPL={far:{p:.12,w:480},mid:{p:.3,w:560},near:{p:.55,w:400},fg:{p:1.35,w:360}};
+/* 1. Kaukainen luolasali: utuiset kivikartiot ja Pajakylän pienet ikkunavalot syvällä pimeässä */
+function spkFar(){const w=SPL.far.w;for(let i=0;i<9;i++){const x=hsh(i+300)*w,h=30+hsh(i+310)*40,bw=40+hsh(i+320)*50;g.fillStyle='#16122a';g.beginPath();g.moveTo(x-bw/2,104);g.lineTo(x-4,104-h);g.lineTo(x+4,104-h);g.lineTo(x+bw/2,104);g.fill()}
+ for(let i=0;i<7;i++){const x=hsh(i+330)*w,y=84+hsh(i+340)*14;R('#1c1830',x-7,y,14,104-y);g.fillStyle='#221c38';g.beginPath();g.moveTo(x-9,y);g.lineTo(x,y-6);g.lineTo(x+9,y);g.fill();
+  R('rgba(255,200,110,.55)',x-4,y+3,2,2);R('rgba(255,200,110,.55)',x+2,y+3,2,2)}
+ g.fillStyle=mkLg(60,104,[[0,'rgba(60,50,110,0)'],[1,'rgba(60,50,110,.25)']]);g.fillRect(0,60,w,44)}
+/* 2. Kivipylväät lattiasta kattoon, reunavalo vasemmalla; välissä riippuvat lyhdyt */
+function spkMid(){const w=SPL.mid.w;for(let i=0;i<4;i++){const x=40+i*140+hsh(i+400)*30,bw=18+hsh(i+410)*10;g.fillStyle='#1e1830';g.beginPath();g.moveTo(x-bw,104);g.quadraticCurveTo(x-bw*.4,60,x-bw*.7,10);g.lineTo(x+bw*.7,10);g.quadraticCurveTo(x+bw*.4,60,x+bw,104);g.fill();
+  g.strokeStyle='#3a3458';g.lineWidth=1;g.beginPath();g.moveTo(x-bw,104);g.quadraticCurveTo(x-bw*.4,60,x-bw*.7,10);g.stroke()}
+ for(let i=0;i<3;i++){const x=110+i*170,y=36+hsh(i+420)*14;R('#3a3040',x-.3,10,.6,y-12);R('#2a2020',x-3,y-2,6,8);R('#ffd27a',x-2,y,4,4);const q=g.createRadialGradient(x,y+2,0,x,y+2,14);q.addColorStop(0,'rgba(255,190,90,.25)');q.addColorStop(1,'rgba(255,190,90,0)');g.fillStyle=q;g.fillRect(x-14,y-12,28,28)}}
+/* 3. Lähempi kiviseinä: kivilohkot, jääkristallirykelmät */
+function spkNear(){const w=SPL.near.w;for(let i=0;i<12;i++){const x=hsh(i+70)*w,h=hsh(i+80);R(h>.5?'#241c2e':'#1e1828',x,22+h*34,26+h*18,16+h*22);R('rgba(255,255,255,.04)',x,22+h*34,26+h*18,1)}
+ for(let i=0;i<5;i++){const x=hsh(i+90)*w,y=70+hsh(i+95)*24;g.fillStyle='rgba(140,200,255,.35)';[[-4,9],[0,14],[4,10],[7,6]].forEach(([dx,h])=>{g.beginPath();g.moveTo(x+dx-2,y);g.lineTo(x+dx,y-h);g.lineTo(x+dx+2,y);g.fill()})}}
+/* Etuala hahmojen edessä: tummat jääpuikot ja valonauha ylhäällä (piirretään onFg:ssä, laatta välimuistissa) */
+function spkFgTile(){const w=SPL.fg.w;for(let i=0;i<10;i++){const x=hsh(i+500)*w,l=8+hsh(i+510)*14;g.fillStyle='#0c0a14';g.beginPath();g.moveTo(x-5,10);g.lineTo(x+5,10);g.lineTo(x,10+l);g.fill()}
+ g.strokeStyle='#14101c';g.lineWidth=1.2;g.beginPath();g.moveTo(0,14);for(let x=0;x<=w;x+=60)g.quadraticCurveTo(x+30,30,x+60,14);g.stroke()}
+/* Jouluvalot: lamppujen paikat lasketaan kerran, väri vaihtuu juoksevana (chase) joka kehys */
+const XMAS=['#ff4a4a','#5aff7a','#ffd25a','#5ab4ff','#ff7ad8'];
+function bulbs(pts,T,sp,ox,oy,s){s=s||1;const z=s<1?1.4:2;for(let k=0;k<pts.length;k++){const [x,y]=pts[k],ph=(Math.floor(T*sp)+k)%5;R(ph===0?'#fff6d0':XMAS[k%5],ox+x*s-z/2,oy+y*s-z/2,z,z)}}
+function spkLights(c,T){for(let i=Math.floor(c*.9/64)-1;i<Math.floor(c*.9/64)+7;i++){const x0=i*64-c*.9;g.strokeStyle='#2a2430';g.lineWidth=.7;g.beginPath();g.moveTo(x0,18);g.quadraticCurveTo(x0+32,34,x0+64,18);g.stroke();
+ for(let k=1;k<8;k++){const u=k/8,on=Math.sin(T*2+i*3+k)>-.3;R(on?XMAS[(i+k)%5]:'#3a3440',x0+64*u-1,18+8*u*(1-u)*2+2,2,2)}}}
 function spkIcicles(c){for(let i=Math.floor(c*.8/18)-1;i<Math.floor(c*.8/18)+20;i++){const x=i*18-c*.8,l=4+hsh(i+9)*12;g.fillStyle='rgba(170,210,255,.5)';g.beginPath();g.moveTo(x,10);g.lineTo(x+5,10);g.lineTo(x+2.5,10+l);g.closePath();g.fill()}}
-function spkLights(c,T){const cl=['#ff5a5a','#5aff7a','#ffd25a','#5ab4ff'];for(let i=Math.floor(c*.9/64)-1;i<Math.floor(c*.9/64)+7;i++){const x0=i*64-c*.9;g.strokeStyle='#2a2430';g.lineWidth=.7;g.beginPath();g.moveTo(x0,18);g.quadraticCurveTo(x0+32,34,x0+64,18);g.stroke();
- for(let k=1;k<8;k++){const u=k/8,x=x0+64*u,y=18+16*u*(1-u)*4*.5+2;const on=Math.sin(T*2+i*3+k)>-.3;R(on?cl[(i+k)%4]:'#3a3440',x-1,y,2,2)}}}
-/* Jäätunneli: kaaret ja sininen hohde, sisäänkäynnin kyltti tolpillaan */
-function spkTunnel(xa,xb,c,T){R('#1a2a44',xa,24,xb-xa,80);for(let x=Math.floor(c/96)*96;x<c+W+96;x+=96){const sx=x-c;if(sx<xa-40||sx>xb+40)continue;
- g.strokeStyle='#5a8ac8';g.lineWidth=5;g.beginPath();g.arc(sx,104,62,Math.PI,2*Math.PI);g.stroke();g.strokeStyle='#9ac8f0';g.lineWidth=1;g.beginPath();g.arc(sx,104,60,Math.PI*1.1,Math.PI*1.5);g.stroke()}
- g.fillStyle='rgba(120,180,255,.06)';g.fillRect(xa,24,xb-xa,80);
- const sx=120-c;if(sx>-60&&sx<W+60){R('#3a2a1a',sx-32,52,4,52);R('#3a2a1a',sx+28,52,4,52);R('#5a3a1e',sx-36,54,72,24);R('#7a5028',sx-36,54,72,2);R('#2a1a0c',sx-36,76,72,2);labelBoard('SANTAPARK',sx,62,'#ffe070');labelBoard('NAPAPIIRI 66°33′',sx,72,'#bfe8ff')}}
-/* Tonttupaja: talo välimuistiin (hirsiseinä, räystäs, ovi ja ikkunat fitRow-riviin talon sisään, nurkkapilarit) */
+
+/* Jäätunneli: syvemmällä pienemmät kaaret (p .75), edessä isot kaaret lamppuineen, sisäänkäynnin kyltti taulullaan */
+const TUN={gap:96,r:62,back:{p:.75,r:44,gap:80}};
+function spkTunnel(xa,xb,c,T){R('#141e34',xa,24,xb-xa,80);
+ const B=TUN.back;for(let x=Math.floor(c*B.p/B.gap)*B.gap;x<c*B.p+W+B.gap;x+=B.gap){const sx=x-c*B.p;g.strokeStyle='#2e4a78';g.lineWidth=3;g.beginPath();g.arc(sx,104,B.r,Math.PI,2*Math.PI);g.stroke()}
+ g.fillStyle='rgba(120,180,255,.07)';g.fillRect(xa,24,xb-xa,80);
+ for(let x=Math.floor(c/TUN.gap)*TUN.gap;x<c+W+TUN.gap;x+=TUN.gap){const sx=x-c;if(sx<xa-70||sx>xb+70)continue;
+  g.strokeStyle='#5a8ac8';g.lineWidth=5;g.beginPath();g.arc(sx,104,TUN.r,Math.PI,2*Math.PI);g.stroke();g.strokeStyle='#9ac8f0';g.lineWidth=1;g.beginPath();g.arc(sx,104,TUN.r-2,Math.PI*1.1,Math.PI*1.5);g.stroke();
+  bulbs(TUN_B,T,3,sx,104)}
+ const sx=120-c;if(sx>-60&&sx<W+60){R('#3a2a1a',sx-32,52,4,52);R('#3a2a1a',sx+28,52,4,52);R('#5a3a1e',sx-36,54,72,24);R('#7a5028',sx-36,54,72,2);R('#2a1a0c',sx-36,76,72,2);bulbs(SIGN_B,T,4,sx,54);labelBoard('SANTAPARK',sx,62,'#ffe070');labelBoard('NAPAPIIRI 66°33′',sx,72,'#bfe8ff')}}
+const TUN_B=Array.from({length:11},(_,k)=>{const a=Math.PI*(1.04+k*.092);return[Math.cos(a)*(TUN.r+3),Math.sin(a)*(TUN.r+3)]});
+const SIGN_B=Array.from({length:12},(_,k)=>[-35+k*6.4,-1]);
+
+/* Tonttupaja: julkisivu välimuistiin (hirsiseinä, katto paksuudella ja räystäsvarjolla, savupiippu, jääpuikot,
+   kuisti tukevilla tolpilla, portaat, lyhty, ikkunat fitRow-riviin talon sisään, nurkkapilarit ja sokkeli).
+   Kylki piirretään joka kehys perspektiivissä (näkyy ruudun keskustaa kohti), valot vilkkuvat räystäällä. */
 const PAJAC={};
-function pajaBld(i){let k=PAJAC[i];if(k)return k;const P0=PAJAT[i],w=PAJA.w,h=PAJA.h,cv=document.createElement('canvas');cv.width=(w+8)*2;cv.height=(h+10)*2;const x=cv.getContext('2d');x.setTransform(2,0,0,2,0,0);const gs=g;g=x;
- try{const top=10,base=top+h;for(let y=top+8;y<base;y+=6){R(P0.c,4,y,w,5);R('rgba(255,255,255,.08)',4,y,w,1);R('rgba(0,0,0,.35)',4,y+5,w,1)}
-  g.fillStyle='#5a1a1a';g.beginPath();g.moveTo(0,top+10);g.lineTo(w/2+4,top-8);g.lineTo(w+8,top+10);g.closePath();g.fill();R('#8a2a2a',0,top+8,w+8,3);
-  R('#2a1a10',4,top+8,4,h-8);R('#2a1a10',w,top+8,4,h-8);R('#3a2a1a',4,base-4,w,4);// nurkkapilarit ja sokkeli
-  const [dw,dh]=PAJA.door,[ww,wh]=PAJA.win,dx=12;R('#1a1008',dx-1,base-dh-1,dw+2,dh+1);R('#5a3418',dx,base-dh,dw,dh);R('#7a4a22',dx+2,base-dh+3,dw-4,dh-6);ell(dx+dw-4,base-dh/2,1.2,1.2,'#e8c040');
-  fitRow(dx+dw+10,w-4,ww,10).forEach(wx=>{R('#1a1008',wx-1,base-PAJA.gf+18,ww+2,wh+2);R('#c8904a',wx,base-PAJA.gf+19,ww,wh);R('#2a1a10',wx+ww/2-.5,base-PAJA.gf+19,1,wh);R('#2a1a10',wx,base-PAJA.gf+19+wh/2-.5,ww,1)})}finally{g=gs}
- return PAJAC[i]={cv,w:w+8,h:h+10}}
+const PAJA_EAVE=[...Array.from({length:12},(_,k)=>[k*(PAJA.w/2+4)/11,10-k*18/11]),...Array.from({length:12},(_,k)=>[PAJA.w/2+4+k*(PAJA.w/2+4)/11,-8+k*18/11])];
+function pajaFacade(P0,w,h,sc){const top=10,base=top+h,gf=PAJA.gf;
+ R('#3a1a14',w*.68,top-14,10,22);R('#5a2a1e',w*.68,top-16,12,3);// savupiippu
+ for(let y=top+8;y<base;y+=6){R(P0.c,4,y,w,5);R('rgba(255,255,255,.08)',4,y,w,1);R('rgba(0,0,0,.35)',4,y+5,w,1)}
+ R('rgba(0,0,0,.35)',4,top+10,w,4);// räystäsvarjo
+ g.fillStyle='#5a1a1a';g.beginPath();g.moveTo(0,top+10);g.lineTo(w/2+4,top-8);g.lineTo(w+8,top+10);g.closePath();g.fill();g.fillStyle='#7a2a24';g.beginPath();g.moveTo(0,top+10);g.lineTo(w/2+4,top-8);g.lineTo(w/2+4,top-5);g.lineTo(4,top+10);g.fill();R('#8a2a2a',0,top+8,w+8,3);
+ for(let i=0;i<9;i++){const x=4+i*w/8.5,l=2+hsh(i+P0.n.length)*4;g.fillStyle='rgba(190,225,255,.75)';g.beginPath();g.moveTo(x,top+11);g.lineTo(x+2,top+11);g.lineTo(x+1,top+11+l);g.fill()}// jääpuikot
+ R('#2a1a10',4,top+8,4,h-8);R('#2a1a10',w,top+8,4,h-8);R('#3a2a1a',2,base-4,w+4,4);R('#4a3a28',2,base-4,w+4,1);// nurkkapilarit ja sokkeli
+ const [dw,dh]=PAJA.door,[ww,wh]=PAJA.win,dx=14;
+ R('#1a1008',dx-1,base-dh-1,dw+2,dh+1);R('#5a3418',dx,base-dh,dw,dh);R('#7a4a22',dx+2,base-dh+3,dw-4,dh-6);R('#5a3418',dx+2,base-dh/2,dw-4,1);ell(dx+dw-4,base-dh/2,1.2,1.2,'#e8c040');
+ // kuisti: katos kahdella tukevalla tolpalla, portaat
+ R('#3a1a14',dx-6,base-dh-8,dw+12,4);R('#5a2a1e',dx-6,base-dh-8,dw+12,1.5);R('#3a2414',dx-5,base-dh-4,3,dh+4);R('#3a2414',dx+dw+2,base-dh-4,3,dh+4);R('#4a3a28',dx-6,base-2,dw+12,2);
+ // seppele ovessa
+ g.strokeStyle='#2a6a3a';g.lineWidth=2;g.beginPath();g.arc(dx+dw/2,base-dh+14,4,0,7);g.stroke();R('#c8282c',dx+dw/2-1,base-dh+17,2,2);
+ fitRow(dx+dw+12,w-4,ww,10).forEach(wx=>{const wy=base-gf+19;R('#1a1008',wx-1,wy-1,ww+2,wh+2);R('#b07a3a',wx,wy,ww,wh);R('#2a1a10',wx+ww/2-.5,wy,1,wh);R('#2a1a10',wx,wy+wh/2-.5,ww,1);
+  R('rgba(40,20,10,.55)',wx+3,wy+wh-7,ww-6,3);R('rgba(40,20,10,.55)',wx+5,wy+wh-11,3,4);R('rgba(40,20,10,.55)',wx+ww-9,wy+wh-12,4,5);// työpöytä ja tonttujen siluetit
+  R('#3a2414',wx-2,wy+wh+1,ww+4,2);R(GIFTC[Math.floor(hsh(wx)*5)],wx+2,wy+wh-2,5,3)})}// ikkunalauta, paketti
+function pajaBld(i,back){const key=i+(back?'b':'f');let k=PAJAC[key];if(k)return k;const P0=PAJAT[i%PAJAT.length],w=PAJA.w,h=PAJA.h,cv=document.createElement('canvas');cv.width=(w+8)*2;cv.height=(h+30)*2;const x=cv.getContext('2d');x.setTransform(2,0,0,2,0,20*2);const gs=g;g=x;
+ try{pajaFacade(P0,w,h);if(back){g.globalCompositeOperation='source-atop';R('rgba(20,16,40,.55)',-10,-20,w+30,h+40);g.globalCompositeOperation='source-over'}}finally{g=gs}
+ return PAJAC[key]={cv,w:w+8,h:h+30,oy:20}}
+/* Kylki perspektiivissä: lähin reuna → kaukainen reuna kohti katoamispistettä (ruudun keskikohta, horisontti PERS.vy) */
+const PERS={vy:56,k:.11,max:14};
+function pajaSide(bx,T){const w=PAJA.w,top=104-PAJA.h+8,base=104,cx=bx+w/2+4,right=cx<W/2,ex=right?bx+w+8:bx;// näkyvä kylki ruudun keskustaa kohti
+ const fx=x=>x+(W/2-x)*PERS.k,fy=y=>y+(PERS.vy-y)*PERS.k;let x1=fx(ex);if(Math.abs(x1-ex)>PERS.max)x1=ex+Math.sign(x1-ex)*PERS.max;const ix=right?ex-4:ex+4;
+ g.fillStyle='#2a1810';g.beginPath();g.moveTo(ix,top);g.lineTo(x1,fy(top));g.lineTo(x1,fy(base));g.lineTo(ix,base);g.fill();
+ g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=.6;for(let y=top+6;y<base;y+=6){g.beginPath();g.moveTo(ix,y);g.lineTo(x1,fy(y));g.stroke()}
+ const pk=104-PAJA.h-8;g.fillStyle='#3a1210';g.beginPath();g.moveTo(cx,pk);g.lineTo(fx(cx),fy(pk));g.lineTo(x1,fy(top-2));g.lineTo(right?bx+w+8:bx,top-2);g.fill()}// katon lape
+function spkPajat(xa,xb,c,T){const B=PAJA.back;
+ // takarivi: pienemmät pajat syvemmällä (p .7), perspektiivin mukaan pienemmät ovet ja ikkunat
+ for(let i=0;i<B.n;i++){const bx=(SPKX.tunneli-c)*B.p+B.x0+i*B.gap;if(bx>W||bx+PAJA.w*B.s<0)continue;const k=pajaBld(i,1),yt=104-B.dy-k.h*B.s;g.drawImage(k.cv,bx,yt,k.w*B.s,k.h*B.s);bulbs(PAJA_EAVE,T,2,bx,yt+k.oy*B.s,B.s)}
+ R('rgba(10,8,20,.35)',Math.max(0,xa),24,Math.min(W,xb)-Math.max(0,xa),80);// syvyysusva takarivin päällä
+ PAJAT.forEach((p,i)=>{const bx=PAJA.x0+i*(PAJA.w+PAJA.gap)-c;if(bx>W+20||bx+PAJA.w<-20)return;pajaSide(bx,T);const k=pajaBld(i);g.drawImage(k.cv,bx-4,104-PAJA.h-10-k.oy,k.w,k.h);
+  bulbs(PAJA_EAVE,T,3,bx-4,104-PAJA.h-10);labelBoard(p.n,bx+PAJA.w/2,104-PAJA.gf+6,'#ffe070');
+  const lx=bx+PAJA.door[0]+22,lg=.5+.5*Math.sin(T*3+i);g.save();g.globalCompositeOperation='lighter';ell(lx,104-PAJA.door[1]+6,6,6,`rgba(255,200,100,${.12+lg*.08})`);g.restore();R('#ffd27a',lx-1.5,104-PAJA.door[1]+4,3,4);// lyhty
+  for(let s=0;s<3;s++){const u=((T*.35+s/3+i*.2)%1),sx=bx+PAJA.w*.68+5+Math.sin(u*6+i)*3,sy=104-PAJA.h-26-u*20;g.fillStyle=`rgba(200,200,220,${.25*(1-u)})`;g.beginPath();g.arc(sx,sy,2+u*4,0,7);g.fill()}})}// savu
+
 /* Jääveistos jalustallaan (välimuistiin): yksinkertaiset muodot läpikuultavana jäänä */
 const VEC={};
 function veistos(i){let k=VEC[i];if(k)return k;const cv=document.createElement('canvas');cv.width=80;cv.height=100;const x=cv.getContext('2d');x.setTransform(2,0,0,2,0,0);const gs=g;g=x;
@@ -104,14 +169,37 @@ function veistos(i){let k=VEC[i];if(k)return k;const cv=document.createElement('
   else if(t==='tonttu'){g.moveTo(20,4);g.lineTo(26,16);g.lineTo(14,16);g.closePath();g.ellipse(20,20,5,5,0,0,7);g.rect(15,24,10,16)}
   else{g.moveTo(20,2);g.lineTo(30,20);g.lineTo(26,20);g.lineTo(33,34);g.lineTo(7,34);g.lineTo(14,20);g.lineTo(10,20);g.closePath();g.rect(18,34,4,6)}
   g.fill();g.strokeStyle='rgba(230,250,255,.9)';g.lineWidth=.6;g.stroke()}finally{g=gs}return VEC[i]={cv}}
-/* Pajakylän sali: punainen seinä, kultapilarit, takka (liekki), kuusi valoineen ja valtaistuin */
-function spkHall(xa,xb,c,T){R('#4a1418',xa,24,xb-xa,80);for(let x=Math.ceil((SPKX.galleria+40)/90)*90;x<SPKX.len+90;x+=90){const sx=x-c;if(sx<xa-10||sx>xb+10)continue;R('#8a6a2a',sx-3,24,6,80);R('#c8a04a',sx-3,24,2,80)}
+/* Galleria: läpikuultava jääseinä (takaa näkyy luola), takarivissä pienemmät veistokset, kattokruunut */
+const GAL={back:{p:.75,s:.6,gap:90,dy:4},chand:{p:.9,gap:150}};
+function spkGallery(xa,xb,c,T){R('rgba(30,50,80,.55)',Math.max(0,xa),24,Math.min(W,xb)-Math.max(0,xa),80);
+ const B=GAL.back;for(let i=0;i<8;i++){const vx=(SPKX.pajat-c)*B.p+40+i*B.gap;if(vx<-30||vx>W+30)continue;const k=veistos(i+2);g.globalAlpha=.55;g.drawImage(k.cv,vx-20*B.s,104-B.dy-50*B.s,40*B.s,50*B.s);g.globalAlpha=1}
+ R('rgba(150,200,255,.06)',Math.max(0,xa),24,Math.min(W,xb)-Math.max(0,xa),80);
+ for(let i=0;i<5;i++){const vx=SPKX.pajat+70+i*120-c;if(vx<-50||vx>W+50)continue;const k=veistos(i);g.drawImage(k.cv,vx-20,54,40,50);g.save();g.globalCompositeOperation='lighter';ell(vx,80,22,26,'rgba(120,200,255,.07)');g.restore()}
+ const C=GAL.chand;for(let i=0;i<6;i++){const x=(SPKX.pajat-c)*C.p+60+i*C.gap;if(x<-30||x>W+30)continue;R('#8aa8c8',x-.3,10,.6,14);R('rgba(180,220,255,.8)',x-10,24,20,2);
+  for(let k=0;k<5;k++){const tx=x-8+k*4,on=Math.sin(T*4+k+i)>.6;g.fillStyle=on?'#ffffff':'rgba(170,220,255,.8)';g.beginPath();g.moveTo(tx-1.5,26);g.lineTo(tx+1.5,26);g.lineTo(tx,31+(k%2)*3);g.fill()}}}
+
+/* Pajakylän sali: punainen seinä, kultapilarit valokierteineen, köynnökset lamppuineen, seppeleet, kynttiläkruunut,
+   takka (liekki), kuusi valoineen ja lahjapinoineen, valtaistuin */
+const HALL={gap:90,swag:[...Array.from({length:9},(_,k)=>{const u=(k+1)/10;return[u*90,8*4*u*(1-u)]})]};
+function spkHall(xa,xb,c,T){R('#4a1418',xa,24,xb-xa,80);R('rgba(0,0,0,.18)',xa,24,xb-xa,6);
+ for(let y=40;y<104;y+=12)R('rgba(255,255,255,.03)',xa,y,xb-xa,1);
+ const x0=Math.ceil((SPKX.galleria+40)/HALL.gap)*HALL.gap;
+ for(let x=x0;x<SPKX.len+HALL.gap;x+=HALL.gap){const sx=x-c;if(sx<xa-HALL.gap||sx>xb+10)continue;
+  // köynnös pilarista seuraavaan, lamput köynnöksessä
+  g.strokeStyle='#1e4a2a';g.lineWidth=3;g.beginPath();g.moveTo(sx,30);g.quadraticCurveTo(sx+45,46,sx+90,30);g.stroke();bulbs(HALL.swag,T,3,sx,31);
+  R('#8a6a2a',sx-3,24,6,80);R('#c8a04a',sx-3,24,2,80);for(let y=30;y<100;y+=8)R(XMAS[((y>>3)+Math.floor(T*3))%5],sx-3+((y>>3)%2)*4,y,2,2);// valokierre
+  g.strokeStyle='#1e5a2e';g.lineWidth=2.4;g.beginPath();g.arc(sx,52,5,0,7);g.stroke();R('#c8282c',sx-1.5,56,3,3);// seppele
+  if((x/HALL.gap)%2===0){const cx=sx+45;R('#c8a04a',cx-8,58,16,2);for(let k=0;k<3;k++){const fx=cx-6+k*6;R('#f0e8d0',fx-1,52,2,6);g.fillStyle='#ffcc4a';g.beginPath();g.ellipse(fx,50.5+Math.sin(T*12+k)*.4,1,2,0,0,7);g.fill()}}}// kynttilät
  R('#2a0a0c',xa,24,xb-xa,4);
- const tx=SPKX.takka-c;if(tx>-50&&tx<W+50){R('#5a4a40',tx-26,54,52,50);R('#6a5a50',tx-26,54,52,3);R('#1a0a08',tx-16,74,32,30);for(let i=0;i<5;i++){const fh=8+Math.abs(Math.sin(T*9+i*1.7))*10;g.fillStyle=i%2?'#ffb03a':'#ff6a2a';g.beginPath();g.moveTo(tx-12+i*6,104);g.lineTo(tx-9+i*6,104-fh);g.lineTo(tx-6+i*6,104);g.fill()}
+ const tx=SPKX.takka-c;if(tx>-50&&tx<W+50){R('#5a4a40',tx-26,54,52,50);R('#6a5a50',tx-26,54,52,3);R('#4a3a30',tx-30,52,60,4);R('#1a0a08',tx-16,74,32,30);
+  [-20,-6,8].forEach((o,k)=>{R('#c8282c',tx+o,56,6,9);R('#f4f0e8',tx+o,56,6,2)});// sukat
+  for(let i=0;i<5;i++){const fh=8+Math.abs(Math.sin(T*9+i*1.7))*10;g.fillStyle=i%2?'#ffb03a':'#ff6a2a';g.beginPath();g.moveTo(tx-12+i*6,104);g.lineTo(tx-9+i*6,104-fh);g.lineTo(tx-6+i*6,104);g.fill()}
   g.save();g.globalCompositeOperation='lighter';ell(tx,96,24,10,'rgba(255,140,40,.12)');g.restore()}
  const kx=SPKX.kuusi-c;if(kx>-50&&kx<W+50){R('#3a2010',kx-3,94,6,10);for(let j=0;j<4;j++){const y=36+j*15,wd=10+j*8;g.fillStyle='#1a4a2a';g.beginPath();g.moveTo(kx,y-6);g.lineTo(kx+wd,y+12);g.lineTo(kx-wd,y+12);g.closePath();g.fill()}
-  for(let k=0;k<14;k++){const y=40+(k*13)%54,xx=kx+(hsh(k)*2-1)*(6+(y-36)*.35);R(Math.sin(T*3+k)>0?GIFTC[k%5]:'#2a3a2a',xx,y,2,2)}ell(kx,30,3,3,'#ffe070')}
- const vx=SPKX.valtaistuin-c;if(vx>-50&&vx<W+50){R('#6a1a1e',vx-18,40,36,64);R('#8a2a2e',vx-14,44,28,40);R('#c8a04a',vx-18,40,36,3);R('#c8a04a',vx-20,74,6,30);R('#c8a04a',vx+14,74,6,30);if(!M.pkUp)drawChar(SP.pk[0],vx,104,Object.assign(idle(T,1),{s:.95,prof:1,flip:true,aL:-.5,aR:-.4}))}}
+  bulbs(TREE_B,T,3,kx,0);ell(kx,30,3,3,'#ffe070');[[-22,6],[-12,8],[10,7],[20,5],[0,4]].forEach(([o,s],k)=>{R(GIFTC[k%5],kx+o-s/2,104-s,s,s);R('#ffe070',kx+o-.5,104-s,1,s)})}
+ const vx=SPKX.valtaistuin-c;if(vx>-50&&vx<W+50){R('#6a1a1e',vx-18,40,36,64);R('#8a2a2e',vx-14,44,28,40);R('#c8a04a',vx-18,40,36,3);R('#c8a04a',vx-20,74,6,30);R('#c8a04a',vx+14,74,6,30);bulbs(THRONE_B,T,2,vx,40);if(!M.pkUp)drawChar(SP.pk[0],vx,104,Object.assign(idle(T,1),{s:.95,prof:1,flip:true,aL:-.5,aR:-.4}))}}
+const TREE_B=Array.from({length:22},(_,k)=>{const y=38+(k*11)%58;return[(hsh(k)*2-1)*(6+(y-36)*.35),y]});
+const THRONE_B=Array.from({length:10},(_,k)=>[-17+k*3.8,-1]);
 /* Lattia osioittain: jäinen kivi, lankkulattia, kiiltävä jää, punainen matto; sauma- ja lankkuviivat kulkevat kameran mukana */
 function spkFloor(c){const sec=[[-400,SPKX.tunneli,'#3a4a64','#4a5a78'],[SPKX.tunneli,SPKX.pajat,'#5a3e26','#6a4a2e'],[SPKX.pajat,SPKX.galleria,'#5a7a9a','#7a9aba'],[SPKX.galleria,SPKX.len+400,'#3a2a2a','#4a3434']];
  for(const [a,b,c1,c2] of sec){const x0=Math.max(0,a-c),x1=Math.min(W,b-c);if(x1<=x0)continue;g.fillStyle=mkLg(104,160,[[0,c2],[1,c1]]);g.fillRect(x0,104,x1-x0,56);R('rgba(255,255,255,.15)',x0,104,x1-x0,1)}
@@ -119,15 +207,18 @@ function spkFloor(c){const sec=[[-400,SPKX.tunneli,'#3a4a64','#4a5a78'],[SPKX.tu
  {const x0=Math.max(0,SPKX.pajat-c),x1=Math.min(W,SPKX.galleria-c);if(x1>x0){g.save();g.beginPath();g.rect(x0,104,x1-x0,56);g.clip();for(let i=0;i<6;i++){const sx=((i*67-c)%W+W)%W;R('rgba(255,255,255,.12)',sx,110+i*7,40,1)}g.restore()}}
  {const x0=Math.max(0,SPKX.galleria+20-c),x1=Math.min(W,SPKX.len-c);if(x1>x0){R('#8a1a22',x0,116,x1-x0,26);R('#c8a04a',x0,116,x1-x0,1.5);R('#c8a04a',x0,140,x1-x0,1.5)}}
  const nx=SPKX.napapiiri-c;if(nx>-10&&nx<W+10){R('#e8eef8',nx-1,104,2,56);R('rgba(255,255,255,.3)',nx-4,104,8,56)}}
-function spkBg(T){const c=M.cam;cutLayer('spkCave',spkCave);spkRock(c);
+function spkBg(T){const c=M.cam;cutLayer('spkCave',spkCave);
+ plxDraw('spkFar',SPL.far.p,SPL.far.w,spkFar);plxDraw('spkMid',SPL.mid.p,SPL.mid.w,spkMid);plxDraw('spkNear',SPL.near.p,SPL.near.w,spkNear);
  rovaStrip(c,-400,SPKX.tunneli,(xa,xb)=>spkTunnel(Math.max(0,xa),Math.min(W,xb),c,T));
- rovaStrip(c,SPKX.tunneli,SPKX.pajat,(xa,xb)=>{R('#2a2026',Math.max(0,xa),24,Math.min(W,xb)-Math.max(0,xa),80);
-  PAJAT.forEach((p,i)=>{const bx=PAJA.x0+i*(PAJA.w+PAJA.gap)-c;if(bx>W||bx+PAJA.w<0)return;const k=pajaBld(i);g.drawImage(k.cv,bx-4,104-PAJA.h-10,k.w,k.h);labelBoard(p.n,bx+PAJA.w/2,104-PAJA.gf+6,'#ffe070')})});
- rovaStrip(c,SPKX.pajat,SPKX.galleria,(xa,xb)=>{R('#24344e',Math.max(0,xa),24,Math.min(W,xb)-Math.max(0,xa),80);for(let i=0;i<5;i++){const vx=SPKX.pajat+70+i*120-c;if(vx<-50||vx>W+50)continue;const k=veistos(i);g.drawImage(k.cv,vx-20,54,40,50);g.save();g.globalCompositeOperation='lighter';ell(vx,80,22,26,'rgba(120,200,255,.07)');g.restore()}});
+ rovaStrip(c,SPKX.tunneli,SPKX.pajat,(xa,xb)=>spkPajat(xa,xb,c,T));
+ rovaStrip(c,SPKX.pajat,SPKX.galleria,(xa,xb)=>spkGallery(xa,xb,c,T));
  rovaStrip(c,SPKX.galleria,SPKX.len+400,(xa,xb)=>spkHall(Math.max(0,xa),Math.min(W,xb),c,T));
  // osioiden rajat: tukevat kivipilarit (pinnat eivät pääty tyhjään)
  [SPKX.tunneli,SPKX.pajat,SPKX.galleria].forEach(x=>{const sx=x-c;if(sx<-12||sx>W+12)return;R('#3a3040',sx-6,20,12,84);R('#4a4050',sx-6,20,3,84);R('#2a2030',sx-8,100,16,4)});
  spkIcicles(c);spkLights(c,T);spkFloor(c)}
+/* Etuala hahmojen edessä (nopein vieritys): tummat jääpuikot ja valonauha, lamput vilkkuvat */
+function spkFg(T){plxDraw('spkFg',SPL.fg.p,SPL.fg.w,spkFgTile);const o=-(((M.cam*SPL.fg.p)%SPL.fg.w)+SPL.fg.w)%SPL.fg.w;for(let x=o;x<W;x+=SPL.fg.w)bulbs(FG_B,T,2.5,x,0)}
+const FG_B=Array.from({length:30},(_,k)=>{const x=k*12+6,u=(x%60)/60;return[x,14+16*u*(1-u)*2+1]});
 /* Lattiakerros ennen hahmoja: liukuhihnat (rullat liikkuvat, lahjat kulkevat päällä) */
 function spkDraw(T){const c=M.cam;for(const b of BELTS){const x0=b.x0-c,x1=b.x1-c;if(x1<0||x0>W)continue;const y0=112+b.z0-3,y1=112+b.z1+2;
  R('#2a2a30',x0,y0,x1-x0,y1-y0);R('#4a4a52',x0,y0,x1-x0,1.2);R('#18181c',x0,y1-1.5,x1-x0,1.5);const ph=((T*b.v)%8+8)%8;
