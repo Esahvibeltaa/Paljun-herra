@@ -145,12 +145,8 @@ function pajaBld(i,back){const key=i+(back?'b':'f');let k=PAJAC[key];if(k)return
  try{pajaFacade(P0,w,h);if(back){g.globalCompositeOperation='source-atop';R('rgba(20,16,40,.55)',-10,-20,w+30,h+40);g.globalCompositeOperation='source-over'}}finally{g=gs}
  return PAJAC[key]={cv,w:w+8,h:h+30,oy:20}}
 /* Kylki perspektiivissä: lähin reuna → kaukainen reuna kohti katoamispistettä (ruudun keskikohta, horisontti PERS.vy) */
-const PERS={vy:56,k:.11,max:14};
-function pajaSide(bx,T){const w=PAJA.w,top=104-PAJA.h+8,base=104,cx=bx+w/2+4,right=cx<W/2,ex=right?bx+w+8:bx;// näkyvä kylki ruudun keskustaa kohti
- const fx=x=>x+(W/2-x)*PERS.k,fy=y=>y+(PERS.vy-y)*PERS.k;let x1=fx(ex);if(Math.abs(x1-ex)>PERS.max)x1=ex+Math.sign(x1-ex)*PERS.max;const ix=right?ex-4:ex+4;
- g.fillStyle='#2a1810';g.beginPath();g.moveTo(ix,top);g.lineTo(x1,fy(top));g.lineTo(x1,fy(base));g.lineTo(ix,base);g.fill();
- g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=.6;for(let y=top+6;y<base;y+=6){g.beginPath();g.moveTo(ix,y);g.lineTo(x1,fy(y));g.stroke()}
- const pk=104-PAJA.h-8;g.fillStyle='#3a1210';g.beginPath();g.moveTo(cx,pk);g.lineTo(fx(cx),fy(pk));g.lineTo(x1,fy(top-2));g.lineTo(right?bx+w+8:bx,top-2);g.fill()}// katon lape
+function pajaSide(bx,T){const w=PAJA.w,top=104-PAJA.h+8,cx=bx+w/2+4,S=perspSide(bx+4,bx+w+4,top,104,'#2a1810',6);// hirsikylki
+ const pk=104-PAJA.h-8;g.fillStyle='#3a1210';g.beginPath();g.moveTo(cx,pk);g.lineTo(S.fx(cx),S.fy(pk));g.lineTo(S.x1,S.fy(top-2));g.lineTo(S.right?bx+w+8:bx,top-2);g.fill()}// katon lape
 function spkPajat(xa,xb,c,T){const B=PAJA.back;
  // takarivi: pienemmät pajat syvemmällä (p .7), perspektiivin mukaan pienemmät ovet ja ikkunat
  for(let i=0;i<B.n;i++){const bx=(SPKX.tunneli-c)*B.p+B.x0+i*B.gap;if(bx>W||bx+PAJA.w*B.s<0)continue;const k=pajaBld(i,1),yt=104-B.dy-k.h*B.s;g.drawImage(k.cv,bx,yt,k.w*B.s,k.h*B.s);bulbs(PAJA_EAVE,T,2,bx,yt+k.oy*B.s,B.s)}

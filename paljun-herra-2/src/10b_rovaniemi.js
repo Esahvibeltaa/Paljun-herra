@@ -224,16 +224,48 @@ function rovaBg(T){const c=M.cam;
  rovaStrip(c,RV.silta,RV.koski,(xa,xb)=>{for(let i=Math.floor(c*.6/96)-1;i<Math.floor(c*.6/96)+5;i++){const bx=i*96-c*.6;if(bx<xa+14||bx+96>xb)continue;const on=Math.sin(T*(3+i)+i)>-.92,k=koskiBld(i,on);vpar(.7,()=>g.drawImage(k.cv,bx-2,k.top-6,k.cv.width/2,k.cv.height/2))}},false);
  // Lordin aukio: kaukaiset talot utuisina (syvyys), kyltti portilla omilla tolpillaan, kuusi vapaana kivialtaassaan
  rovaStrip(c,RV.koski,RV.len+400,(xa)=>{for(let i=Math.floor(c*.4/80)-1;i<Math.floor(c*.4/80)+6;i++){const bx=i*80-c*.4,h=36+hsh(i+11)*18;if(bx<xa+20)continue;const k=aukioBld(i);vpar(.55,()=>g.drawImage(k.cv,bx-2,k.top-4,k.cv.width/2,k.cv.height/2))}
-  const sx=RV.aukioK-c;if(sx>-80&&sx<W+20){R('#2a2a34',sx+3,66,3,38);R('#2a2a34',sx+64,66,3,38);R('#3a3a46',sx,58,70,16);R('#14141c',sx+1,59,68,13);R('#4a4a56',sx,73,70,1.5);
-   g.save();g.font='bold 8px monospace';g.textAlign='center';g.shadowBlur=6;g.shadowColor='#ff3a3a';g.fillStyle='#ff6a5a';g.fillText('LORDIN AUKIO',sx+35,69);g.restore()}
   kuusiDraw(RV.kuusi-c,T)},false);
- // sillan pää: kivinen maatuki ja lyhty peittävät sillan ja kadun rajan
- {const x=RV.silta-c;if(x>-20&&x<W+20){R('#3e424e',x-9,80,18,24);R('#565a66',x-10,78,20,3);for(let y=84;y<104;y+=5)R('#2e323c',x-9,y,18,.8);R('#2a2e38',x-1,58,2,20);R('#3a3e48',x-3,56,6,3);ell(x,60,2.2,1.4,'#fff2c0');glow(x,60,10,'255,220,150',.25)}}
+ // osioiden saumat: usvakaista pehmentää taustan vaihdon, edessä luontevat rakenteet (maatuki, luiska, kulmatalo, muuri)
+ rovaSeams(c,T);
  cutLayer('rovaGround',rovaGround);
  // lumipenkat jalkakäytävän reunassa: himmeät ja varjostetut, jotta ne istuvat yöhön
  for(let i=Math.floor(c/24)-1;i<Math.floor(c/24)+15;i++){if(i*24<RV.silta-10)continue;snowBank(i,i*24-c+(hsh(i+77)-.5)*10)}
  for(let i=Math.floor(c/40)-1;i<Math.floor(c/40)+10;i++)R('rgba(230,230,200,.5)',i*40-c,135,18,1.6)}
 
+/* Rakennuksen kylki perspektiivissä: näkyy ruudun keskustaa kohti, kaukainen reuna siirtyy katoamispistettä (ruudun
+   keskikohta, horisontti PERS.vy) kohti, enintään PERS.max px. xl, xr = julkisivun reunat, gap = vaakasaumojen väli (0 = ei).
+   Palauttaa apufunktiot katon tai muiden osien jatkamiseen. Yhteinen Rovaniemen ovitaloille ja Santaparkin pajoille. */
+const PERS={vy:56,k:.11,max:14};
+function perspSide(xl,xr,top,base,col,gap){const right=(xl+xr)/2<W/2,ex=right?xr:xl,fx=x=>x+(W/2-x)*PERS.k,fy=y=>y+(PERS.vy-y)*PERS.k;let x1=fx(ex);if(Math.abs(x1-ex)>PERS.max)x1=ex+Math.sign(x1-ex)*PERS.max;
+ g.fillStyle=col;g.beginPath();g.moveTo(ex,top);g.lineTo(x1,fy(top));g.lineTo(x1,fy(base));g.lineTo(ex,base);g.fill();
+ if(gap){g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=.6;for(let y=top+gap;y<base;y+=gap){g.beginPath();g.moveTo(ex,y);g.lineTo(x1,fy(y));g.stroke()}}
+ R('rgba(0,0,0,.25)',Math.min(ex,x1),fy(base)-1,Math.abs(x1-ex),1);return{right,ex,x1,fx,fy}}
+/* Saumat: x = maailman raja, w = usvakaistan leveys. Usvan liukuväri luodaan kerran (origo 0) ja piirretään siirrettynä. */
+const RSEAM={haze:'20,26,56',w:110,a:.75,gate:57};// gate = PUB-ovitalon oikea reuna sauman jälkeen
+let RSEAMG=null;
+function seamHaze(sx){if(!RSEAMG){const q=g.createLinearGradient(0,0,RSEAM.w,0),c=RSEAM.haze;q.addColorStop(0,`rgba(${c},0)`);q.addColorStop(.5,`rgba(${c},${RSEAM.a})`);q.addColorStop(1,`rgba(${c},0)`);RSEAMG=q}
+ g.save();g.translate(sx-RSEAM.w/2,0);g.fillStyle=RSEAMG;g.fillRect(0,20,RSEAM.w,84);g.restore()}
+/* Lumikuusi (pieni, taustan sauma-alueille); s = koko */
+function spruceS(x,yb,s){for(let j=0;j<3;j++){const y=yb-s*.45-j*s*.42,wd=s*(.5-j*.12);g.fillStyle='#14302c';g.beginPath();g.moveTo(x,y-s*.38);g.lineTo(x+wd,y+s*.12);g.lineTo(x-wd,y+s*.12);g.fill();R('rgba(220,232,255,.55)',x-wd*.5,y+s*.08,wd,.8)}R('#2a1e14',x-1,yb-s*.3,2,s*.3)}
+/* Katulyhty: tukeva pylväs ja jalusta, hehku */
+function streetLamp(x,T){R('#2a2e38',x-1.5,56,3,48);R('#3a3e48',x-3,102,6,2);R('#3a3e48',x-1,56,8,2);R('#3a3e48',x+5,56,3,4);ell(x+6.5,61,2.2,1.4,'#fff2c0');glow(x+6.5,61,12,'255,220,150',.28)}
+function rovaSeams(c,T){
+ // silta → Koskikatu: jokiluiska kuusineen nousee sillan tasolta kadulle, kaiteen päätypylväs, leveä maatuki ja lyhty
+ {const b=RV.silta,x=b-c;if(x>-RSEAM.w&&x<W+RSEAM.w){seamHaze(x);
+  g.fillStyle='#2a3458';g.beginPath();g.moveTo(x-70,104);g.quadraticCurveTo(x-36,98,x-14,82);g.lineTo(x+40,82);g.lineTo(x+40,104);g.fill();
+  g.fillStyle='#b8c4e0';g.beginPath();g.moveTo(x-70,104);g.quadraticCurveTo(x-36,98,x-14,82);g.lineTo(x-10,82);g.quadraticCurveTo(x-34,99,x-64,104);g.fill();// lumireuna
+  spruceS(x-44,102,14);spruceS(x-26,94,18);spruceS(x+30,84,15);
+  R('#3e424e',x-16,76,30,28);R('#565a66',x-17,74,32,3);R('#dfe8ff',x-17,73,32,1.5);for(let y=80;y<104;y+=5)R('#2e323c',x-16,y,30,.8);for(let k=0;k<3;k++)R('#2e323c',x-16+k*10,76,.8,28);// maatuki
+  R('#5a5e6a',x-20,88,4,16);R('#7a7e8a',x-20,88,1.5,16);streetLamp(x+6,T)}}
+ // Koskikatu → Lordin aukio: kulmatalon kylki perspektiivissä, luminen kivimuuri, lyhty ja kuuset portin pielessä
+ {const b=RV.koski,x=b-c;if(x>-RSEAM.w-120&&x<W+RSEAM.w){seamHaze(x+RSEAM.gate+30);
+  spruceS(x+RSEAM.gate+86,92,18);spruceS(x+RSEAM.gate+104,96,13);
+  const w0=x+RSEAM.gate,w1=w0+76;R('#4a4e5a',w0,90,w1-w0,14);R('#5e6270',w0,90,w1-w0,1.5);R('#dfe8ff',w0-1,88.5,w1-w0+2,2);for(let k2=0;k2<8;k2++)R('#3a3e48',w0+k2*10,90,.8,14);// kivimuuri ovitalosta kyltin tolppiin
+  streetLamp(w1+2,T)}}
+ aukioSign(c)}// kyltti usvan päälle, jotta se pysyy kirkkaana
+/* Lordin aukion porttikyltti omilla tolpillaan */
+function aukioSign(c){const sx=RV.aukioK-c;if(sx>-80&&sx<W+20){R('#2a2a34',sx+3,66,3,38);R('#2a2a34',sx+64,66,3,38);R('#3a3a46',sx,58,70,16);R('#14141c',sx+1,59,68,13);R('#4a4a56',sx,73,70,1.5);
+  g.save();g.font='bold 8px monospace';g.textAlign='center';g.shadowBlur=6;g.shadowColor='#ff3a3a';g.fillStyle='#ff6a5a';g.fillText('LORDIN AUKIO',sx+35,69);g.restore()}}
 /* Pieni nimikyltti tummalla taululla, jotta taustan ikkunat ja valot eivät sekoitu tekstiin */
 function labelBoard(txt,x,y,col){g.save();g.font='bold 5px monospace';const w=g.measureText(txt).width+4;R('rgba(10,10,18,.85)',x-w/2,y-5,w,6.5);g.textAlign='center';g.fillStyle=col;g.fillText(txt,x,y);g.restore()}
 // ---- Maailman esineet taustalla: latausasemat, kioski ja vanhus penkillä ----
@@ -265,5 +297,5 @@ function doorDraw(x,d,T){const y=104,op=d?d.op:0,W2=DOORW.w/2,h=DOORW.gf+DOORW.f
  R('#1a1418',x-dw/2-1,y-dh-1,dw+2,dh+1);if(op>0){R('#a8844e',x-dw/2,y-dh,dw,dh);R('#c49a5a',x-dw/2,y-dh,dw,4);glow(x,y-dh/2,18,'255,190,110',.18*op)}
  const dwc=dw*(1-op*.85);R('#6a3a22',x-dw/2,y-dh,dwc,dh);R('#5a3018',x-dw/2+2,y-dh+4,dwc-4,dh*.4);R('#c8a040',x-dw/2+dwc-4,y-dh/2,2,2);
  labelBoard(d?d.sign:'',x,y-dh-4,'#ffe8a8')}
-function rovaDraw(T){const c=M.cam,st=M.rv||RV_ST;for(const d of (M.rvD||RV_DOOR)){const x=d.x-c;if(x>-30&&x<W+30)doorDraw(x,M.rvD?d:null,T)}mallSignsDraw();liftBack(T);for(const s of st){const x=s.x-c;if(x>-20&&x<W+20)chargerDraw(x,M.rv?s:null,T)}
+function rovaDraw(T){const c=M.cam,st=M.rv||RV_ST;for(const d of (M.rvD||RV_DOOR)){const x=d.x-c;if(x>-50&&x<W+50){const W2=DOORW.w/2;perspSide(x-W2,x+W2,104-DOORW.gf-DOORW.fl,104,shd(DOORW.wall[d.sign]||'#4a3a40',.6),14);doorDraw(x,M.rvD?d:null,T)}}mallSignsDraw();liftBack(T);for(const s of st){const x=s.x-c;if(x>-20&&x<W+20)chargerDraw(x,M.rv?s:null,T)}
  const kx=RV.kioski-c;if(kx>-40&&kx<W+40)kioskiDraw(kx,T);const px=RV.penkki-c;if(px>-30&&px<W+30)penkkiDraw(px,T)}
