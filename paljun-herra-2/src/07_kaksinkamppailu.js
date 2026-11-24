@@ -10,7 +10,7 @@ const BODY=6,reachOf=(m,sa,sd)=>m.tip!==undefined?m.tip*sa+BODY*sd:m.r;
 for(const k in MV)MV[k].n=k;
 const FOES=[{name:'DIESEL-PENA',vs:'Diesel-Pena',spec:(f,o,d)=>{if(d<80){f.sc=DIFF?6.5:9;startAtk(f,'smoke');return true}},sp:'pe',hp:120,spd:24,mult:1.3,tk:.8,moves:['punch','kick','upper','punch','kick'],blk:.22,pref:26,def:.8,jmp:0},
  {name:'TURBO-TAPSA',vs:'Turbo-Tapsa',spec:(f,o,d)=>{f.sc=(5+Math.random()*2)*(DIFF?.7:1);if(d>70&&Math.random()<.55){startAtk(f,'throw');return true}if(d>45){startAtk(f,'dash');msgL=['TURBORYNTÄYS!'];tn(200,900,.4,.1,'sawtooth');return true}},sp:'ta',hp:90,spd:50,mult:.9,tk:.5,moves:['punch','kick','hikick','sweep'],blk:.32,pref:32,def:1,jmp:.28}];
-const pow=h=>h<20?.5:h<55?1:h<80?1.4:1.6,dly=h=>h<20?0:h<55?.1:h<80?.25:.4;const dlyM=h=>Math.min(.15,dly(h)*.4);
+const pow=h=>h<20?.7:h<55?1:h<80?1.4:1.6,dly=h=>h<20?0:h<55?.1:h<80?.25:.4;const dlyM=h=>Math.min(.15,dly(h)*.4);
 const CHE={a:['Aapeli: Potkase, niinku ID.3 kiihtyy!','Aapeli: Sähkövoimaa, Esa!'],k:['Kermis: Hevi-voimaa, Esa!','Kermis: Vasen, oikea, ROCK!'],w:['Hempukka: Esa! Esa!','Hempukka: Näytä niille!'],
  pe:['Diesel-Pena: Diesel jyrää!','Diesel-Pena: Tule tänne, tonttu!'],ta:['Turbo-Tapsa: Turbo päälle!','Turbo-Tapsa: Liian hidas, sähköjätkä!']};
 function mkF(sp,x,face,hp,fd){return{sp,x,y:0,vx:0,vy:0,face,hp,mhp:hp,st:'idle',atk:null,wk:0,ht:0,dt:0,bt:0,th:1.2,sc:4,jk:0,fd:fd||null,sw:0,rw:0,rwv:0}}
