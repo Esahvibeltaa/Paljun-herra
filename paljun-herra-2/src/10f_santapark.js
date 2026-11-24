@@ -201,20 +201,47 @@ function spkHall(xa,xb,c,T){R('#4a1418',xa,24,xb-xa,80);R('rgba(0,0,0,.18)',xa,2
 const TREE_B=Array.from({length:22},(_,k)=>{const y=38+(k*11)%58;return[(hsh(k)*2-1)*(6+(y-36)*.35),y]});
 const THRONE_B=Array.from({length:10},(_,k)=>[-17+k*3.8,-1]);
 /* Lattia osioittain: jäinen kivi, lankkulattia, kiiltävä jää, punainen matto; sauma- ja lankkuviivat kulkevat kameran mukana */
-function spkFloor(c){const sec=[[-400,SPKX.tunneli,'#3a4a64','#4a5a78'],[SPKX.tunneli,SPKX.pajat,'#5a3e26','#6a4a2e'],[SPKX.pajat,SPKX.galleria,'#5a7a9a','#7a9aba'],[SPKX.galleria,SPKX.len+400,'#3a2a2a','#4a3434']];
- for(const [a,b,c1,c2] of sec){const x0=Math.max(0,a-c),x1=Math.min(W,b-c);if(x1<=x0)continue;g.fillStyle=mkLg(104,160,[[0,c2],[1,c1]]);g.fillRect(x0,104,x1-x0,56);R('rgba(255,255,255,.15)',x0,104,x1-x0,1)}
- for(let x=-(c%16);x<W;x+=16){const wx=x+c;if(wx>SPKX.tunneli&&wx<SPKX.pajat)R('rgba(0,0,0,.25)',x,105,.7,55)}
+/* Lattia osioittain (jäinen kivi, lankkulattia, kiiltävä jää, salin kivi); saumoissa materiaali vaihtuu liukuvärinä
+   (SEAM.floor px), pajojen lankkuihin hiipii huurre ennen jäätä, salin matto alkaa oviaukon jälkeen kultareunalla. */
+const SFLOOR=[{a:-400,b:SPKX.tunneli,c1:'#3a4a64',c2:'#4a5a78'},{a:SPKX.tunneli,b:SPKX.pajat,c1:'#5a3e26',c2:'#6a4a2e'},{a:SPKX.pajat,b:SPKX.galleria,c1:'#5a7a9a',c2:'#7a9aba'},{a:SPKX.galleria,b:SPKX.len+400,c1:'#3a2a2a',c2:'#4a3434'}];
+const SEAM={floor:80,frost:90,carpet:46,glow:70};
+const SEAMC={};// saumojen liukuvärit luodaan kerran (origo 0, piirretään siirrettynä)
+function seamGrad(k,A,B){if(SEAMC[k])return SEAMC[k];const w=SEAM.floor,q=g.createLinearGradient(0,0,w,0);q.addColorStop(0,A.c2);q.addColorStop(1,B.c2);
+ const v=g.createLinearGradient(0,104,0,160);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.28)');return SEAMC[k]={q,v}}
+const FROST=Array.from({length:70},(_,k)=>{const u=Math.pow(hsh(k+600),.5);return[SPKX.pajat-u*SEAM.frost,106+hsh(k+610)*52,.6+hsh(k+620)*1.4]});
+function spkFloor(c){for(const f of SFLOOR){const x0=Math.max(0,f.a-c),x1=Math.min(W,f.b-c);if(x1<=x0)continue;g.fillStyle=mkLg(104,160,[[0,f.c2],[1,f.c1]]);g.fillRect(x0,104,x1-x0,56);R('rgba(255,255,255,.15)',x0,104,x1-x0,1)}
+ // lankut ohenevat sauman lähellä
+ for(let x=-(c%16);x<W;x+=16){const wx=x+c;if(wx>SPKX.tunneli&&wx<SPKX.pajat){const e=Math.min(1,(wx-SPKX.tunneli)/SEAM.floor,(SPKX.pajat-wx)/SEAM.floor);if(e>0)R(`rgba(0,0,0,${.25*e})`,x,105,.7,55)}}
  {const x0=Math.max(0,SPKX.pajat-c),x1=Math.min(W,SPKX.galleria-c);if(x1>x0){g.save();g.beginPath();g.rect(x0,104,x1-x0,56);g.clip();for(let i=0;i<6;i++){const sx=((i*67-c)%W+W)%W;R('rgba(255,255,255,.12)',sx,110+i*7,40,1)}g.restore()}}
- {const x0=Math.max(0,SPKX.galleria+20-c),x1=Math.min(W,SPKX.len-c);if(x1>x0){R('#8a1a22',x0,116,x1-x0,26);R('#c8a04a',x0,116,x1-x0,1.5);R('#c8a04a',x0,140,x1-x0,1.5)}}
+ // saumat: materiaali liukuu toiseen
+ for(let k=0;k<SFLOOR.length-1;k++){const b=SFLOOR[k].b,sx=b-c-SEAM.floor/2;if(sx>W||sx+SEAM.floor<0)continue;const G=seamGrad(k,SFLOOR[k],SFLOOR[k+1]);g.save();g.translate(sx,0);g.fillStyle=G.q;g.fillRect(0,104,SEAM.floor,56);g.fillStyle=G.v;g.fillRect(0,104,SEAM.floor,56);g.restore()}
+ for(const [x,y,r] of FROST){const sx=x-c;if(sx<-2||sx>W+2)continue;R('rgba(220,240,255,.5)',sx,y,r,r*.6)}
+ {const cs=SPKX.galleria+SEAM.carpet,x0=Math.max(0,cs-c),x1=Math.min(W,SPKX.len-c);if(x1>x0){R('#8a1a22',x0,116,x1-x0,26);R('#c8a04a',x0,116,x1-x0,1.5);R('#c8a04a',x0,140,x1-x0,1.5);const ex=cs-c;if(ex>-4&&ex<W){R('#c8a04a',ex,116,2,26);for(let y=117;y<142;y+=3)R('#e8c870',ex-1.5,y,1.5,1.5)}}}// maton kultareuna ja hapsut
  const nx=SPKX.napapiiri-c;if(nx>-10&&nx<W+10){R('#e8eef8',nx-1,104,2,56);R('rgba(255,255,255,.3)',nx-4,104,8,56)}}
+/* Oviaukot osioiden saumoissa: paksut pielet ja kaari peittävät seinän vaihtumiskohdan; seuraavan osion valo
+   hohtaa aukosta. tyyli: puu (pajoihin), jää (galleriaan), kulta (saliin) */
+const PORTAL=[{x:SPKX.tunneli,st:'puu',name:'TONTTUPAJAT',glow:'255,190,110'},{x:SPKX.pajat,st:'jaa',name:'JÄÄGALLERIA',glow:'140,200,255'},{x:SPKX.galleria,st:'kulta',name:'PAJAKYLÄN SALI',glow:'255,150,80'}];
+const PSTY={puu:{p:'#4a2e18',h:'#6a4426',d:'#2a1a0c'},jaa:{p:'#6a9ac8',h:'#b0d8f8',d:'#3a5a88'},kulta:{p:'#8a6a2a',h:'#d8b058',d:'#5a4418'}};
+const PRT={half:30,pil:13,top:32,lint:12};// kamana yläpalkin nimien alapuolella
+const PGLOW={};
+function portalGlow(rgb){if(PGLOW[rgb])return PGLOW[rgb];const q=g.createRadialGradient(0,70,2,0,70,SEAM.glow);q.addColorStop(0,`rgba(${rgb},.22)`);q.addColorStop(1,`rgba(${rgb},0)`);return PGLOW[rgb]=q}
+function spkPortals(c,T){for(const P of PORTAL){const sx=P.x-c;if(sx<-SEAM.glow||sx>W+SEAM.glow)continue;const S=PSTY[P.st],L=sx-PRT.half,Rx=sx+PRT.half-PRT.pil;
+ g.save();g.globalCompositeOperation='lighter';g.translate(sx,0);g.fillStyle=portalGlow(P.glow);g.fillRect(-SEAM.glow,0,SEAM.glow*2,104);g.restore();
+ [L,Rx].forEach(x=>{R(S.d,x-2,PRT.top,PRT.pil+4,104-PRT.top);R(S.p,x,PRT.top,PRT.pil,104-PRT.top);R(S.h,x,PRT.top,3,104-PRT.top);R(S.d,x-3,100,PRT.pil+6,4)});// pielet ja jalustat
+ R(S.d,L-4,PRT.top-2,PRT.half*2+8,PRT.lint+2);R(S.p,L-3,PRT.top-1,PRT.half*2+6,PRT.lint);R(S.h,L-3,PRT.top-1,PRT.half*2+6,2);// kamana
+ if(P.st==='puu'){for(let y=PRT.top+16;y<100;y+=8){R(S.d,L,y,PRT.pil,1);R(S.d,Rx,y,PRT.pil,1)}bulbs(PORTAL_B,T,3,sx,PRT.top)}
+ if(P.st==='jaa')for(let k=0;k<9;k++){const x=L+k*7.5,l=3+hsh(k+700)*7;g.fillStyle='rgba(200,235,255,.85)';g.beginPath();g.moveTo(x,PRT.top+PRT.lint-1);g.lineTo(x+3,PRT.top+PRT.lint-1);g.lineTo(x+1.5,PRT.top+PRT.lint-1+l);g.fill()}
+ if(P.st==='kulta'){[[L+PRT.pil,1],[Rx,-1]].forEach(([x,d])=>{g.fillStyle='#8a1a22';g.beginPath();g.moveTo(x,PRT.top+PRT.lint);g.lineTo(x+d*16,PRT.top+PRT.lint);g.quadraticCurveTo(x+d*4,60,x+d*6,104);g.lineTo(x,104);g.fill();R('#c8a04a',x+d*(d>0?3:5)-(d>0?0:2),62,3,3)});bulbs(PORTAL_B,T,2,sx,PRT.top)}// verhot nyörillä
+ labelBoard(P.name,sx,PRT.top+PRT.lint/2+3,P.st==='jaa'?'#e0f4ff':'#ffe070')}}
+const PORTAL_B=Array.from({length:13},(_,k)=>[-PRT.half-2+k*(PRT.half*2+4)/12,-2]);
 function spkBg(T){const c=M.cam;cutLayer('spkCave',spkCave);
  plxDraw('spkFar',SPL.far.p,SPL.far.w,spkFar);plxDraw('spkMid',SPL.mid.p,SPL.mid.w,spkMid);plxDraw('spkNear',SPL.near.p,SPL.near.w,spkNear);
  rovaStrip(c,-400,SPKX.tunneli,(xa,xb)=>spkTunnel(Math.max(0,xa),Math.min(W,xb),c,T));
  rovaStrip(c,SPKX.tunneli,SPKX.pajat,(xa,xb)=>spkPajat(xa,xb,c,T));
  rovaStrip(c,SPKX.pajat,SPKX.galleria,(xa,xb)=>spkGallery(xa,xb,c,T));
  rovaStrip(c,SPKX.galleria,SPKX.len+400,(xa,xb)=>spkHall(Math.max(0,xa),Math.min(W,xb),c,T));
- // osioiden rajat: tukevat kivipilarit (pinnat eivät pääty tyhjään)
- [SPKX.tunneli,SPKX.pajat,SPKX.galleria].forEach(x=>{const sx=x-c;if(sx<-12||sx>W+12)return;R('#3a3040',sx-6,20,12,84);R('#4a4050',sx-6,20,3,84);R('#2a2030',sx-8,100,16,4)});
+ // osioiden saumat: oviaukot pielineen ja kamanoineen peittävät vaihtumiskohdan, valo hohtaa aukosta
+ spkPortals(c,T);
  spkIcicles(c);spkLights(c,T);spkFloor(c)}
 /* Etuala hahmojen edessä (nopein vieritys): tummat jääpuikot ja valonauha, lamput vilkkuvat */
 function spkFg(T){plxDraw('spkFg',SPL.fg.p,SPL.fg.w,spkFgTile);const o=-(((M.cam*SPL.fg.p)%SPL.fg.w)+SPL.fg.w)%SPL.fg.w;for(let x=o;x<W;x+=SPL.fg.w)bulbs(FG_B,T,2.5,x,0)}
