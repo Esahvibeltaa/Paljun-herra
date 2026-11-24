@@ -26,8 +26,8 @@ const SOON_TXT={soon:'PELATTAVISSA PIAN',tbc:'JATKOA SEURAA'};
 function showTbc(){showSoon();state='tbc';musicStart('js')}
 function drawSoon(){R('#000',0,0,W,H);const tbc=state==='tbc',fade=tbc?3:1.2;g.save();g.globalAlpha=Math.min(1,Math.max(0,ot-(tbc?1.5:0))/fade);g.textAlign='center';g.font=tbc?'bold 14px monospace':'bold 10px monospace';g.fillStyle=tbc?'#ffe8c0':'#e8eeff';g.fillText(SOON_TXT[tbc?'tbc':'soon']+'...'.slice(0,1+Math.floor(ot*1.5)%3),W/2,H/2+3);g.restore()}
 // Rovaniemen (ja Rysty-Ranen) jälkeen: jatkoa seuraa (Santapark tulee myöhemmin)
-// Rovaniemen jälkeen Peran kyyti Santaparkkiin (testiversio päättyy Raneen), Santaparkin jälkeen pukki
-function onLevelsDone(){if(M.L===LR){if(KEHITYS)startCut(SANTA_MATKA_CUT,startSanta);else showTbc()}else if(M.L===LSP)startPukki();else startFight()}
+// Rovaniemen jälkeen Peran kyyti Santaparkkiin, Santaparkin jälkeen pukki (lukittu julkinen versio ei pääse kenttiin)
+function onLevelsDone(){if(M.L===LR){if(!JULKINEN)startCut(SANTA_MATKA_CUT,startSanta);else showTbc()}else if(M.L===LSP)startPukki();else startFight()}
 function onBossWon(){stage=8;state='end';ot=0;TI.on=false;PTS.lives=LIVES*100;showPad(false);musicStop();musicStart('t');msgL=['Prototyyppi läpäisty!']}
 function restartAll(){showMenu()}
 

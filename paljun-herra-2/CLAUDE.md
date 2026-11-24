@@ -36,7 +36,7 @@ Kokonaisohje (myös ykkösosalle): `../GRAFIIKKAOHJE.md` – noudatetaan aina, t
 
 - Julkinen jakolinkki https://claude.ai/artifact/PfPEXVXgVBtXA21taSFgks julkaistaan tiedostosta `dist/index.html` (pelaaminen lukittu, kunnes käyttäjä toisin päättää).
 - Kehitysversio julkaistaan omaan yksityiseen artifactiin tiedostosta `dist/kehitys.html` (linkki SUUNNITELMA.md:ssä).
-- Julkinen testiversio julkaistaan tiedostosta `dist/testi.html` (pelattava Rysty-Raneen asti, loppuu "jatkoa seuraa" -ruutuun dramaattisella teemalla); linkki SUUNNITELMA.md:ssä. Kehitysversio jatkuu Ranen jälkeen Santaparkiin ja pukkiin.
+- Julkinen testiversio julkaistaan tiedostosta `dist/testi.html` (pelattava Pajakylän pukkiin asti, loppuu "jatkoa seuraa" -ruutuun dramaattisella teemalla); linkki SUUNNITELMA.md:ssä. Ero kehitysversioon: ei KENTÄT-valintaa päävalikossa.
 - Kaksinkamppailu on asetuksilla ohjattu (`startFight(cfg)`: vastustajat, tausta, musiikki, kannustajat, `step`/`draw`/`onWin`); uudet pomot omaksi asetuksekseen, ei kopioita moottorista.
 - Koonti ja Playwright-testit jokaisen muutoksen jälkeen (koko pelikulku: alkunäytös → nimiruutu → mökin piha (pelattava) → näytös (selostus, road trip) → pelattavissa pian; kenttä ja pomo suoraan käynnistämällä).
 - Commit haaraan `claude/paljun-herra-project-import-0ezkqx` ja push myös `main`-haaraan.

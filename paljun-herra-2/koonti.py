@@ -5,7 +5,7 @@ Moduulit src/*.js liitetään nimen mukaisessa järjestyksessä (00_, 01_, ...),
 yhteiset globaalit ja ylätason vakiot on määriteltävä ennen käyttöä.
 Käyttö: python3 koonti.py  ->  dist/index.html (julkinen: alkunäytöksen jälkeen "pelattavissa pian")
                               dist/kehitys.html (kehitysversio: piha ja uudet kentät pelattavissa)
-                              dist/testi.html (julkinen testiversio: pelattava, loppuu "jatkoa seuraa")
+                              dist/testi.html (julkinen testiversio: pelattava pukkiin asti, loppuu "jatkoa seuraa")
 Versio valitaan vakiolla JULKINEN, joka lisätään koodin alkuun.
 """
 import glob
@@ -31,8 +31,8 @@ def build(julkinen: bool, nimi: str, otsikko: str = '') -> str:
     page = page.replace('/*TYYLI*/', css).replace('/*KOODI*/', lippu + '\n' + '\n'.join(parts))
     if nimi == 'testi.html':  # testiversion sivuteksti ja jakokuvaus: pelattava osa, ei "pelattavissa pian"
         page = (page.replace('Alkunäytös: Esan puhelin soi. Mersumies on palannut. Peli pelattavissa pian!',
-                             'Testiversio: mökin piha, road trip ja Rovaniemen keskusta. Välipomona Rysty-Rane!')
-                    .replace('– alkunäytös. Peli pelattavissa pian!', '– testiversio. Rovaniemi ja Rysty-Rane.'))
+                             'Testiversio: mökin piha, road trip, Rovaniemi ja Rysty-Rane, Santapark ja Pajakylän paha joulupukki!')
+                    .replace('– alkunäytös. Peli pelattavissa pian!', '– testiversio. Rovaniemi, Santapark ja Pajakylän pukki.'))
     if otsikko:  # kehitysversiolle oma otsikko, jotta sen erottaa julkisesta
         page = page.replace('<title>', '<title>' + otsikko, 1)
     out_dir = os.path.join(HERE, 'dist')
